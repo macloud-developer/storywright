@@ -313,6 +313,82 @@ Then run:
 
 ---
 
+## Updating Baselines on Main Merge
+
+When a pull request is merged into `main`, baselines should be updated so that subsequent PRs compare against the latest approved state.
+
+By default, `storywright update` only re-captures screenshots for stories affected by the diff (i.e., diff-only). Use `--all` to force a full re-capture of every story.
+
+### GitHub Actions
+
+```yaml
+# .github/workflows/vrt-update.yml
+name: Update VRT Baselines
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: vrt-update-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  update-baselines:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Build Storybook
+        run: npx storybook build --stats-json
+
+      - name: Download current baselines
+        run: npx storywright download --branch main
+
+      - name: Update baselines (diff-only)
+        run: npx storywright update --upload
+```
+
+> **Note:** `storywright update` (without `--all`) only re-captures stories that changed since the last baseline. To force a full re-capture, use `npx storywright update --all --upload`.
+
+### CircleCI
+
+```yaml
+  update-baselines:
+    executor: playwright
+    steps:
+      - checkout
+      - run: git fetch --prune --unshallow || true
+      - node/install-packages:
+          pkg-manager: pnpm
+      - run: npx storybook build --stats-json
+      - run: npx storywright download --branch main
+      - run: npx storywright update --upload
+
+workflows:
+  update:
+    jobs:
+      - update-baselines:
+          filters:
+            branches:
+              only: main
+```
+
+---
+
 ## Exit Codes
 
 | Code | Meaning | CI Interpretation |
@@ -350,3 +426,13 @@ export default defineConfig({
   - Ensure `download` runs before `storywright test`.
 - Report merge found no files:
   - Confirm shard summary path and `--from` glob.
+- Using `master` instead of `main`:
+  - Storywright defaults to `baseBranch: 'main'`. If your repository uses `master`, set it explicitly in `storywright.config.ts`:
+    ```ts
+    export default defineConfig({
+      diffDetection: {
+        baseBranch: 'master',
+      },
+    });
+    ```
+    Also update CI workflow branch filters accordingly.

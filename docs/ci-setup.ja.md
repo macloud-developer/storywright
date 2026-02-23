@@ -313,6 +313,82 @@ workflows:
 
 ---
 
+## main マージ時のベースライン更新
+
+PR が `main` にマージされたタイミングでベースラインを更新すると、以降の PR は最新の承認済みスクリーンショットと比較されます。
+
+`storywright update` はデフォルトで差分のみ（変更影響のあるストーリーだけ）を再キャプチャします。全件再取得するには `--all` を付けてください。
+
+### GitHub Actions
+
+```yaml
+# .github/workflows/vrt-update.yml
+name: Update VRT Baselines
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: vrt-update-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  update-baselines:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+
+      - name: Playwright ブラウザインストール
+        run: npx playwright install --with-deps chromium
+
+      - name: Storybook ビルド
+        run: npx storybook build --stats-json
+
+      - name: 現在のベースライン取得
+        run: npx storywright download --branch main
+
+      - name: ベースライン更新（差分のみ）
+        run: npx storywright update --upload
+```
+
+> **補足:** `storywright update`（`--all` なし）は変更のあったストーリーのみ再キャプチャします。全件再取得するには `npx storywright update --all --upload` を使用してください。
+
+### CircleCI
+
+```yaml
+  update-baselines:
+    executor: playwright
+    steps:
+      - checkout
+      - run: git fetch --prune --unshallow || true
+      - node/install-packages:
+          pkg-manager: pnpm
+      - run: npx storybook build --stats-json
+      - run: npx storywright download --branch main
+      - run: npx storywright update --upload
+
+workflows:
+  update:
+    jobs:
+      - update-baselines:
+          filters:
+            branches:
+              only: main
+```
+
+---
+
 ## 終了コード
 
 | コード | 意味 | CI 判定 |
@@ -350,3 +426,13 @@ export default defineConfig({
   - `storywright test` 前に `download` を実行しているか確認。
 - レポート統合でファイルが見つからない:
   - シャード summary の保存先と `--from` glob を確認。
+- `master` ブランチを使用している場合:
+  - Storywright のデフォルトは `baseBranch: 'main'` です。`master` を使用するリポジトリでは `storywright.config.ts` で明示的に設定してください:
+    ```ts
+    export default defineConfig({
+      diffDetection: {
+        baseBranch: 'master',
+      },
+    });
+    ```
+    CI ワークフローのブランチフィルターも合わせて変更してください。
