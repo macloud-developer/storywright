@@ -1,0 +1,352 @@
+# CI セットアップガイド
+
+[English version](./ci-setup.md)
+
+このガイドでは、Storywright を CI/CD パイプラインで実行するための構成を説明します。
+
+## 前提条件
+
+- Node.js >= 18
+- プロジェクトに `@playwright/test` がインストール済み
+- Storybook ビルドで `index.json` を生成できること（通常 `storybook-static/`）
+- `--diff-only` を使う場合は git 履歴が必要（`fetch-depth: 0`）
+
+## 推奨フロー
+
+```text
+Storybook ビルド -> ベースライン取得（任意） -> Storywright 実行 -> レポート保存
+```
+
+保存すべき Artifact:
+
+- `.storywright/report/index.html`
+- `.storywright/report/summary.json`
+- `.storywright/report/assets/**`
+
+---
+
+## GitHub Actions
+
+### 基本ワークフロー
+
+```yaml
+# .github/workflows/vrt.yml
+name: Visual Regression Test
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: vrt-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  vrt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+
+      - name: Playwright ブラウザインストール
+        run: npx playwright install --with-deps chromium
+
+      - name: Storybook ビルド
+        run: npx storybook build --stats-json
+
+      - name: Storywright 実行
+        run: npx storywright test
+
+      - name: レポートをアップロード
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storywright-report
+          path: .storywright/report/
+          retention-days: 14
+```
+
+### `--diff-only` で PR を高速化
+
+```yaml
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Storywright (diff-only)
+        run: npx storywright test --diff-only
+```
+
+### シャーディング + レポート統合
+
+```yaml
+name: Visual Regression Test
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  vrt:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: npx playwright install --with-deps chromium
+      - run: npx storybook build --stats-json
+
+      - name: シャード実行
+        run: npx storywright test --shard ${{ matrix.shard }}/4
+
+      - name: シャードレポートをアップロード
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storywright-shard-${{ matrix.shard }}
+          path: .storywright/report/
+          retention-days: 1
+
+  merge-report:
+    needs: vrt
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+
+      - name: シャード成果物をダウンロード
+        uses: actions/download-artifact@v4
+        with:
+          pattern: storywright-shard-*
+          path: .storywright/shards
+
+      - name: summary を統合して HTML を再生成
+        run: npx storywright report --merge --from ".storywright/shards/*/summary.json"
+
+      - name: 統合レポートをアップロード
+        uses: actions/upload-artifact@v4
+        with:
+          name: storywright-report
+          path: .storywright/report/
+          retention-days: 14
+```
+
+### AWS ベースライン連携（OIDC 推奨）
+
+長期キーではなく、GitHub OIDC + IAM Role を推奨します。
+
+```yaml
+permissions:
+  id-token: write
+  contents: read
+
+steps:
+  - uses: actions/checkout@v4
+
+  - name: AWS 認証を設定（OIDC）
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      role-to-assume: arn:aws:iam::<ACCOUNT_ID>:role/<ROLE_NAME>
+      aws-region: ap-northeast-1
+
+  - name: ベースライン取得
+    run: npx storywright download --branch main
+
+  - name: Storywright 実行
+    run: npx storywright test
+
+  - name: ベースライン更新（main のみ）
+    if: github.ref == 'refs/heads/main'
+    run: npx storywright update --upload
+```
+
+補足:
+
+- IAM Role の trust policy で `token.actions.githubusercontent.com` を許可。
+- リポジトリ/ブランチ条件は最小権限で絞り込む。
+
+---
+
+## CircleCI
+
+### 基本ワークフロー
+
+```yaml
+# .circleci/config.yml
+version: 2.1
+
+orbs:
+  node: circleci/node@6.1
+
+executors:
+  playwright:
+    docker:
+      - image: mcr.microsoft.com/playwright:v1.50.0-noble
+
+jobs:
+  vrt:
+    executor: playwright
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: pnpm
+      - run: npx storybook build --stats-json
+      - run: npx storywright test
+      - store_artifacts:
+          path: .storywright/report
+          destination: storywright-report
+
+workflows:
+  test:
+    jobs:
+      - vrt
+```
+
+### CircleCI で `--diff-only`
+
+```yaml
+      - checkout
+      - run: git fetch --prune --unshallow || true
+      - run: npx storywright test --diff-only
+```
+
+### シャーディング + レポート統合
+
+```yaml
+version: 2.1
+
+orbs:
+  node: circleci/node@6.1
+
+executors:
+  playwright:
+    docker:
+      - image: mcr.microsoft.com/playwright:v1.50.0-noble
+
+jobs:
+  vrt:
+    executor: playwright
+    parallelism: 4
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: pnpm
+      - run: npx storybook build --stats-json
+      - run:
+          name: シャード実行
+          command: |
+            SHARD_INDEX=$((CIRCLE_NODE_INDEX + 1))
+            SHARD_TOTAL=$CIRCLE_NODE_TOTAL
+            npx storywright test --shard ${SHARD_INDEX}/${SHARD_TOTAL}
+      - run:
+          name: シャード summary を保存
+          command: |
+            mkdir -p .storywright/shards/${CIRCLE_NODE_INDEX}
+            cp .storywright/report/summary.json .storywright/shards/${CIRCLE_NODE_INDEX}/summary.json
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .storywright/shards
+
+  merge-report:
+    executor: playwright
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: pnpm
+      - attach_workspace:
+          at: .
+      - run:
+          name: summary を統合して HTML を再生成
+          command: npx storywright report --merge --from ".storywright/shards/*/summary.json"
+      - store_artifacts:
+          path: .storywright/report
+          destination: storywright-report
+
+workflows:
+  test:
+    jobs:
+      - vrt
+      - merge-report:
+          requires:
+            - vrt
+```
+
+### CircleCI での AWS ベースライン連携
+
+次のいずれかを利用します。
+
+1. Context / Project 環境変数で `AWS_ACCESS_KEY_ID` などを注入
+2. CircleCI OIDC + AWS STS AssumeRoleWithWebIdentity（OIDC 推奨）
+
+その上で以下を実行:
+
+```yaml
+      - run: npx storywright download --branch main
+      - run: npx storywright test
+```
+
+---
+
+## 終了コード
+
+| コード | 意味 | CI 判定 |
+|------|------|---------|
+| `0` | 成功（差分なし） | Pass |
+| `1` | 成功（差分あり） | Fail（レポート確認） |
+| `2` | 実行エラー | Fail（ログ確認） |
+| `130` | 中断（SIGINT/SIGTERM） | Fail / canceled |
+
+## CI 向け設定例
+
+```ts
+import { defineConfig } from 'storywright';
+
+export default defineConfig({
+  browsers: ['chromium'],
+  screenshot: {
+    threshold: 0.02,
+    maxDiffPixelRatio: 0.02,
+    animations: 'disabled',
+    freezeTime: '2024-01-01T00:00:00',
+    timezone: 'UTC',
+    locale: 'en-US',
+    seed: 1,
+  },
+  workers: 'auto',
+});
+```
+
+## トラブルシューティング
+
+- `--diff-only` なのに全件実行される:
+  - git 履歴取得と `storywright.config.ts` の `baseBranch` を確認。
+- ベースラインが見つからない:
+  - `storywright test` 前に `download` を実行しているか確認。
+- レポート統合でファイルが見つからない:
+  - シャード summary の保存先と `--from` glob を確認。

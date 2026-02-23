@@ -1,0 +1,124 @@
+<script lang="ts">
+	import type { FailureEntry } from '../lib/types.js';
+	import { photo } from '../lib/icons.js';
+
+	let { failure }: { failure: FailureEntry } = $props();
+
+	type Tab = 'expected' | 'actual' | 'diff';
+	const defaultTab: Tab = $derived(failure.type === 'new' ? 'actual' : 'diff');
+	let activeTab: Tab = $state('diff');
+	$effect(() => {
+		activeTab = defaultTab;
+	});
+
+	const tabs: { key: Tab; label: string }[] = [
+		{ key: 'expected', label: 'Expected' },
+		{ key: 'actual', label: 'Actual' },
+		{ key: 'diff', label: 'Diff' },
+	];
+
+	function isDisabled(tab: Tab): boolean {
+		if (failure.type === 'new') {
+			return tab === 'expected' || tab === 'diff';
+		}
+		return false;
+	}
+
+	const currentSrc = $derived(failure[activeTab] || '');
+</script>
+
+<div class="image-tabs">
+	<div class="tabs" role="tablist">
+		{#each tabs as tab}
+			<button
+				class="tab"
+				class:active={activeTab === tab.key}
+				disabled={isDisabled(tab.key)}
+				onclick={() => (activeTab = tab.key)}
+				role="tab"
+				aria-selected={activeTab === tab.key}
+			>
+				{tab.label}
+			</button>
+		{/each}
+	</div>
+	<div class="image-container">
+		{#if failure.type === 'new' && activeTab !== 'actual'}
+			<div class="no-image">
+				{@html photo}
+				<p>New story — no baseline exists yet.</p>
+				<p class="hint">Run with <code>--update-snapshots</code> to create baseline</p>
+			</div>
+		{:else if currentSrc}
+			<img src={currentSrc} alt={activeTab} />
+		{:else}
+			<div class="no-image">
+				{@html photo}
+				<p>No image available</p>
+			</div>
+		{/if}
+	</div>
+</div>
+
+<style>
+	.tabs {
+		display: flex;
+		border-bottom: 1px solid var(--color-border-default);
+	}
+	.tab {
+		padding: 8px 16px;
+		background: none;
+		border: none;
+		border-bottom: 2px solid transparent;
+		margin-bottom: -1px;
+		cursor: pointer;
+		font-size: 0.85rem;
+		color: var(--color-fg-muted);
+		font-family: inherit;
+		transition: color 0.15s, border-color 0.15s;
+	}
+	.tab:hover:not(:disabled) {
+		color: var(--color-fg-default);
+	}
+	.tab.active {
+		color: var(--color-accent);
+		border-bottom-color: var(--color-accent);
+		font-weight: 600;
+	}
+	.tab:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+	.image-container {
+		overflow: auto;
+		max-height: 600px;
+		background: var(--color-bg-tertiary);
+	}
+	.image-container img {
+		display: block;
+		max-width: 100%;
+	}
+	.no-image {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 3rem;
+		color: var(--color-fg-muted);
+		gap: 8px;
+	}
+	.no-image p {
+		margin: 0;
+		font-size: 0.9rem;
+	}
+	.hint {
+		font-size: 0.8rem !important;
+		opacity: 0.7;
+	}
+	.hint code {
+		background: var(--color-bg-secondary);
+		padding: 2px 6px;
+		border-radius: 4px;
+		font-size: 0.8rem;
+	}
+</style>

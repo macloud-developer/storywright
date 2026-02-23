@@ -1,0 +1,56 @@
+{
+	"name": "storywright",
+	"version": "0.1.0",
+	"description": "Zero-config visual regression testing powered by Storybook + Playwright",
+	"type": "module",
+	"license": "MIT",
+	"bin": {
+		"storywright": "./bin/storywright.mjs"
+	},
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		},
+		"./playwright/reporter": {
+			"import": "./dist/playwright/reporter.js",
+			"types": "./dist/playwright/reporter.d.ts"
+		}
+	},
+	"files": ["dist", "bin"],
+	"scripts": {
+		"build": "tsup",
+		"typecheck": "tsc --noEmit",
+		"dev": "tsup --watch"
+	},
+	"dependencies": {
+		"@storywright/report": "workspace:*",
+		"citty": "^0.1.6",
+		"consola": "^3.2.3",
+		"sirv": "^3.0.0",
+		"simple-git": "^3.27.0",
+		"unconfig": "^0.6.0",
+		"picomatch": "^4.0.2"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.50.0",
+		"@types/node": "^22.0.0",
+		"@types/picomatch": "^3.0.1",
+		"tsup": "^8.3.0",
+		"typescript": "^5.6.0"
+	},
+	"peerDependencies": {
+		"@playwright/test": ">=1.40.0"
+	},
+	"engines": {
+		"node": ">=18.0.0"
+	},
+	"keywords": [
+		"storybook",
+		"playwright",
+		"visual-regression-testing",
+		"screenshot",
+		"vrt",
+		"testing"
+	]
+}

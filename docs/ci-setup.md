@@ -1,0 +1,352 @@
+# CI Setup Guide
+
+[日本語版はこちら](./ci-setup.ja.md)
+
+This guide explains how to run Storywright in CI/CD pipelines.
+
+## Prerequisites
+
+- Node.js >= 18
+- `@playwright/test` installed in your project
+- Storybook build must produce `index.json` (typically in `storybook-static/`)
+- For `--diff-only`, CI checkout must include git history (`fetch-depth: 0`)
+
+## Recommended Flow
+
+```text
+Build Storybook -> Download baselines (optional) -> Run Storywright -> Upload report artifacts
+```
+
+Keep these artifacts:
+
+- `.storywright/report/index.html`
+- `.storywright/report/summary.json`
+- `.storywright/report/assets/**`
+
+---
+
+## GitHub Actions
+
+### Basic workflow
+
+```yaml
+# .github/workflows/vrt.yml
+name: Visual Regression Test
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: vrt-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  vrt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Build Storybook
+        run: npx storybook build --stats-json
+
+      - name: Run Storywright
+        run: npx storywright test
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storywright-report
+          path: .storywright/report/
+          retention-days: 14
+```
+
+### Faster PR checks with `--diff-only`
+
+```yaml
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Storywright (diff-only)
+        run: npx storywright test --diff-only
+```
+
+### Sharding + merge report
+
+```yaml
+name: Visual Regression Test
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  vrt:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: npx playwright install --with-deps chromium
+      - run: npx storybook build --stats-json
+
+      - name: Run shard
+        run: npx storywright test --shard ${{ matrix.shard }}/4
+
+      - name: Upload shard report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storywright-shard-${{ matrix.shard }}
+          path: .storywright/report/
+          retention-days: 1
+
+  merge-report:
+    needs: vrt
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+
+      - name: Download shard reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: storywright-shard-*
+          path: .storywright/shards
+
+      - name: Merge summaries and regenerate HTML
+        run: npx storywright report --merge --from ".storywright/shards/*/summary.json"
+
+      - name: Upload merged report
+        uses: actions/upload-artifact@v4
+        with:
+          name: storywright-report
+          path: .storywright/report/
+          retention-days: 14
+```
+
+### AWS baseline sync with OIDC (recommended)
+
+Use GitHub OIDC instead of long-lived AWS keys.
+
+```yaml
+permissions:
+  id-token: write
+  contents: read
+
+steps:
+  - uses: actions/checkout@v4
+
+  - name: Configure AWS credentials (OIDC)
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      role-to-assume: arn:aws:iam::<ACCOUNT_ID>:role/<ROLE_NAME>
+      aws-region: ap-northeast-1
+
+  - name: Download baselines
+    run: npx storywright download --branch main
+
+  - name: Run Storywright
+    run: npx storywright test
+
+  - name: Update and upload baselines (main only)
+    if: github.ref == 'refs/heads/main'
+    run: npx storywright update --upload
+```
+
+Notes:
+
+- The IAM role trust policy must trust `token.actions.githubusercontent.com`.
+- Scope trust conditions to your org/repo/branch as tightly as possible.
+
+---
+
+## CircleCI
+
+### Basic workflow
+
+```yaml
+# .circleci/config.yml
+version: 2.1
+
+orbs:
+  node: circleci/node@6.1
+
+executors:
+  playwright:
+    docker:
+      - image: mcr.microsoft.com/playwright:v1.50.0-noble
+
+jobs:
+  vrt:
+    executor: playwright
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: pnpm
+      - run: npx storybook build --stats-json
+      - run: npx storywright test
+      - store_artifacts:
+          path: .storywright/report
+          destination: storywright-report
+
+workflows:
+  test:
+    jobs:
+      - vrt
+```
+
+### `--diff-only` on CircleCI
+
+```yaml
+      - checkout
+      - run: git fetch --prune --unshallow || true
+      - run: npx storywright test --diff-only
+```
+
+### Sharding + merge report
+
+```yaml
+version: 2.1
+
+orbs:
+  node: circleci/node@6.1
+
+executors:
+  playwright:
+    docker:
+      - image: mcr.microsoft.com/playwright:v1.50.0-noble
+
+jobs:
+  vrt:
+    executor: playwright
+    parallelism: 4
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: pnpm
+      - run: npx storybook build --stats-json
+      - run:
+          name: Run shard
+          command: |
+            SHARD_INDEX=$((CIRCLE_NODE_INDEX + 1))
+            SHARD_TOTAL=$CIRCLE_NODE_TOTAL
+            npx storywright test --shard ${SHARD_INDEX}/${SHARD_TOTAL}
+      - run:
+          name: Save shard summary for merge job
+          command: |
+            mkdir -p .storywright/shards/${CIRCLE_NODE_INDEX}
+            cp .storywright/report/summary.json .storywright/shards/${CIRCLE_NODE_INDEX}/summary.json
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .storywright/shards
+
+  merge-report:
+    executor: playwright
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: pnpm
+      - attach_workspace:
+          at: .
+      - run:
+          name: Merge summaries and regenerate HTML
+          command: npx storywright report --merge --from ".storywright/shards/*/summary.json"
+      - store_artifacts:
+          path: .storywright/report
+          destination: storywright-report
+
+workflows:
+  test:
+    jobs:
+      - vrt
+      - merge-report:
+          requires:
+            - vrt
+```
+
+### AWS baseline sync on CircleCI
+
+Two options:
+
+1. Use CircleCI context/project environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`).
+2. Use CircleCI OIDC + AWS STS AssumeRoleWithWebIdentity (recommended if your org uses OIDC).
+
+Then run:
+
+```yaml
+      - run: npx storywright download --branch main
+      - run: npx storywright test
+```
+
+---
+
+## Exit Codes
+
+| Code | Meaning | CI Interpretation |
+|------|---------|-------------------|
+| `0`  | Success (no diffs) | Pass |
+| `1`  | Success with visual diffs | Fail (review report) |
+| `2`  | Execution/runtime error | Fail (check logs) |
+| `130` | Interrupted (SIGINT/SIGTERM) | Fail/canceled |
+
+## CI-oriented Config Example
+
+```ts
+import { defineConfig } from 'storywright';
+
+export default defineConfig({
+  browsers: ['chromium'],
+  screenshot: {
+    threshold: 0.02,
+    maxDiffPixelRatio: 0.02,
+    animations: 'disabled',
+    freezeTime: '2024-01-01T00:00:00',
+    timezone: 'UTC',
+    locale: 'en-US',
+    seed: 1,
+  },
+  workers: 'auto',
+});
+```
+
+## Troubleshooting
+
+- `--diff-only` runs all stories unexpectedly:
+  - Verify git history is available and `baseBranch` is correct in `storywright.config.ts`.
+- No baselines found:
+  - Ensure `download` runs before `storywright test`.
+- Report merge found no files:
+  - Confirm shard summary path and `--from` glob.
