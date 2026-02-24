@@ -1,5 +1,16 @@
 # @storywright/cli
 
+## 0.3.0
+
+### Minor Changes
+
+- [`ff0e066`](https://github.com/macloud-developer/storywright/commit/ff0e066010d7687190ffa8b45ca41219880c6469) Thanks [@kubotak-is](https://github.com/kubotak-is)! - BREAKING: Drop Storybook 7 support and raise minimum Node.js to 20
+
+  - Remove `compatibility: 'v7'` option (only `'auto' | 'v8'` supported)
+  - Remove Storybook 7 `stories` key normalization from index.json parser
+  - Raise minimum Node.js version from 18 to 20 across all packages
+  - Storywright now requires Storybook 8 or later
+
 ## 0.2.0
 
 ### Minor Changes
