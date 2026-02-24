@@ -10,7 +10,7 @@
 		"lint:fix": "biome check --write .",
 		"typecheck": "pnpm -r run typecheck",
 		"changeset": "changeset",
-		"version-packages": "changeset version",
+		"version-packages": "changeset version && biome format --write .",
 		"ci:publish": "pnpm publish -r"
 	},
 	"devDependencies": {

@@ -17,10 +17,7 @@
 			"types": "./dist/playwright/reporter.d.ts"
 		}
 	},
-	"files": [
-		"dist",
-		"bin"
-	],
+	"files": ["dist", "bin"],
 	"publishConfig": {
 		"access": "public"
 	},
