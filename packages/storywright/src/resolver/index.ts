@@ -25,13 +25,16 @@ export class StorybookStatsDependencyResolver implements DependencyResolver {
 		private statsJson: StatsIndex,
 		private storiesJson: StoryIndex,
 	) {
-		this.moduleMap = statsJson.modules.reduce(
-			(map, mod) => {
-				map[mod.name] = mod;
-				return map;
-			},
-			{} as Record<string, StatsModule>,
-		);
+		this.moduleMap = {};
+		for (const mod of statsJson.modules) {
+			// Key by normalized name (primary) and normalized id (fallback)
+			const normalizedName = normalizePath(mod.name);
+			this.moduleMap[normalizedName] = mod;
+			const normalizedId = normalizePath(mod.id);
+			if (normalizedId !== normalizedName) {
+				this.moduleMap[normalizedId] ??= mod;
+			}
+		}
 	}
 
 	getDependencies(filePath: string): string[] {
@@ -42,25 +45,29 @@ export class StorybookStatsDependencyResolver implements DependencyResolver {
 			dependencies.add(normalizedPath);
 		}
 
-		return Array.from(dependencies);
+		return [...dependencies];
 	}
 
 	getStoriesForFiles(pathList: string[]): StoryIndex {
 		const result: StoryIndex = { v: this.storiesJson.v, entries: {} };
 
 		for (const filePath of pathList) {
-			const stats = this.statsJson.modules.find((m) => m.id === filePath);
+			// Finding #2 + #3: lookup via normalized moduleMap (name primary, id fallback)
+			const normalizedPath = normalizePath(filePath);
+			const stats = this.moduleMap[normalizedPath];
 			if (!stats) continue;
 
-			// Check both .stories.* and .mdx files
-			const storyReason = stats.reasons.find((r) => isStoryFile(r.moduleName));
-			if (!storyReason) continue;
-
-			const storyObj = Object.values(this.storiesJson.entries).find(
-				(s) => s.importPath === storyReason.moduleName,
-			);
-			if (storyObj && storyObj.type === 'story') {
-				result.entries[storyObj.id] = storyObj;
+			// Finding #1: collect ALL story reasons, not just first
+			const storyReasons = stats.reasons.filter((r) => isStoryFile(r.moduleName));
+			for (const reason of storyReasons) {
+				const normalizedImportPath = normalizePath(reason.moduleName);
+				// Collect ALL matching story entries per reason
+				for (const storyObj of Object.values(this.storiesJson.entries)) {
+					if (storyObj.type !== 'story') continue;
+					if (normalizePath(storyObj.importPath) === normalizedImportPath) {
+						result.entries[storyObj.id] = storyObj;
+					}
+				}
 			}
 		}
 
@@ -68,7 +75,7 @@ export class StorybookStatsDependencyResolver implements DependencyResolver {
 	}
 
 	private collectDependencies(name: string, result = new Set<string>()): Set<string> {
-		const mod = this.moduleMap[name];
+		const mod = this.moduleMap[normalizePath(name)];
 		if (mod) {
 			for (const reason of mod.reasons) {
 				if (!result.has(reason.moduleName)) {
