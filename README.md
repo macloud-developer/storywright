@@ -24,7 +24,7 @@ Storywright captures screenshots from Storybook stories, compares them with base
 ## Quick Start
 
 ```bash
-npm install -D storywright @playwright/test
+npm install -D @storywright/cli @playwright/test
 npx playwright install --with-deps chromium
 npx storywright test
 ```
@@ -46,7 +46,7 @@ npx storywright init
 Example:
 
 ```ts
-import { defineConfig } from 'storywright';
+import { defineConfig } from '@storywright/cli';
 
 export default defineConfig({
   storybook: {
@@ -181,7 +181,7 @@ npm install -D @storywright/storage-s3
 Config example:
 
 ```ts
-import { defineConfig } from 'storywright';
+import { defineConfig } from '@storywright/cli';
 
 export default defineConfig({
   storage: {
@@ -199,7 +199,7 @@ export default defineConfig({
 ## Programmatic API
 
 ```ts
-import { createStorywright } from 'storywright';
+import { createStorywright } from '@storywright/cli';
 
 const sw = await createStorywright({
   browsers: ['chromium'],

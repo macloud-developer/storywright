@@ -6,7 +6,7 @@ import {
 	PutObjectCommand,
 	S3Client,
 } from '@aws-sdk/client-s3';
-import type { DownloadOptions, StorageAdapter, UploadOptions } from 'storywright';
+import type { DownloadOptions, StorageAdapter, UploadOptions } from '@storywright/cli';
 
 export interface S3StorageAdapterConfig {
 	bucket: string;

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { defineCommand } from 'citty';
 import { logger } from '../../utils/logger.js';
 
-const CONFIG_TEMPLATE = `import { defineConfig } from 'storywright';
+const CONFIG_TEMPLATE = `import { defineConfig } from '@storywright/cli';
 
 export default defineConfig({
 \t// Storybook settings

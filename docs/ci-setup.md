@@ -401,7 +401,7 @@ workflows:
 ## CI-oriented Config Example
 
 ```ts
-import { defineConfig } from 'storywright';
+import { defineConfig } from '@storywright/cli';
 
 export default defineConfig({
   browsers: ['chromium'],

@@ -8,10 +8,14 @@
 		".": "./dist/index.js"
 	},
 	"files": ["dist"],
+	"publishConfig": {
+		"access": "public"
+	},
 	"scripts": {
 		"build": "vite build",
 		"dev": "vite dev",
-		"typecheck": "svelte-check --tsconfig ./tsconfig.json"
+		"typecheck": "svelte-check --tsconfig ./tsconfig.json",
+		"prepublishOnly": "pnpm run build"
 	},
 	"dependencies": {
 		"svelte": "^5.0.0"

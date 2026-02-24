@@ -1,5 +1,5 @@
 {
-	"name": "storywright",
+	"name": "@storywright/cli",
 	"version": "0.1.0",
 	"description": "Zero-config visual regression testing powered by Storybook + Playwright",
 	"type": "module",
@@ -18,10 +18,14 @@
 		}
 	},
 	"files": ["dist", "bin"],
+	"publishConfig": {
+		"access": "public"
+	},
 	"scripts": {
 		"build": "tsup",
 		"typecheck": "tsc --noEmit",
-		"dev": "tsup --watch"
+		"dev": "tsup --watch",
+		"prepublishOnly": "pnpm run build"
 	},
 	"dependencies": {
 		"@storywright/report": "workspace:*",

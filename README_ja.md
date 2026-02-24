@@ -24,7 +24,7 @@ Storywright は Storybook のストーリーを自動で撮影し、ベースラ
 ## クイックスタート
 
 ```bash
-npm install -D storywright @playwright/test
+npm install -D @storywright/cli @playwright/test
 npx playwright install --with-deps chromium
 npx storywright test
 ```
@@ -46,7 +46,7 @@ npx storywright init
 設定例:
 
 ```ts
-import { defineConfig } from 'storywright';
+import { defineConfig } from '@storywright/cli';
 
 export default defineConfig({
   storybook: {
@@ -175,7 +175,7 @@ npm install -D @storywright/storage-s3
 ```
 
 ```ts
-import { defineConfig } from 'storywright';
+import { defineConfig } from '@storywright/cli';
 
 export default defineConfig({
   storage: {
@@ -193,7 +193,7 @@ export default defineConfig({
 ## プログラマブル API
 
 ```ts
-import { createStorywright } from 'storywright';
+import { createStorywright } from '@storywright/cli';
 
 const sw = await createStorywright({
   browsers: ['chromium'],

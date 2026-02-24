@@ -401,7 +401,7 @@ workflows:
 ## CI 向け設定例
 
 ```ts
-import { defineConfig } from 'storywright';
+import { defineConfig } from '@storywright/cli';
 
 export default defineConfig({
   browsers: ['chromium'],
