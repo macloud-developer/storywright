@@ -8,7 +8,6 @@ const isCI = !!(
 );
 
 export const logger = createConsola({
-	fancy: !isCI,
 	level: process.env.STORYWRIGHT_DEBUG ? 5 : 3,
 });
 
