@@ -48,9 +48,9 @@ export async function discoverStories(config: StorywrightConfig, cwd: string): P
 	const indexJson = normalizeStoryIndex(raw, config.storybook.compatibility);
 
 	// Version check
-	if (indexJson.v < 3) {
+	if (indexJson.v < 4) {
 		throw new Error(
-			'Storybook version 6.x or earlier is not supported.\n\nError code: SW_E_STORYBOOK_UNSUPPORTED',
+			'Storybook 7.x or earlier is not supported. Storywright requires Storybook 8 or later.\n\nError code: SW_E_STORYBOOK_UNSUPPORTED',
 		);
 	}
 
@@ -58,31 +58,14 @@ export async function discoverStories(config: StorywrightConfig, cwd: string): P
 }
 
 /**
- * Normalize story index across Storybook 7 / 8 formats.
- * Storybook 7 uses `stories` key, Storybook 8 uses `entries`.
- * Both expose an `index.json` but the shape may differ slightly.
+ * Parse Storybook index.json (v8+).
  */
 function normalizeStoryIndex(
 	raw: Record<string, unknown>,
-	compatibility: 'auto' | 'v7' | 'v8',
+	_compatibility: 'auto' | 'v8',
 ): StoryIndex {
-	const version = typeof raw.v === 'number' ? raw.v : 4;
-
-	// Storybook 7 may use "stories" instead of "entries"
-	let entries: Record<string, Story>;
-	if (compatibility === 'v7' || (compatibility === 'auto' && raw.stories && !raw.entries)) {
-		entries = (raw.stories ?? raw.entries ?? {}) as Record<string, Story>;
-	} else {
-		entries = (raw.entries ?? raw.stories ?? {}) as Record<string, Story>;
-	}
-
-	// Normalize Storybook 7 entries that may lack `type` field
-	for (const [id, entry] of Object.entries(entries)) {
-		if (!entry.type) {
-			// In Storybook 7, docs entries often have name "Docs"
-			entries[id] = { ...entry, type: entry.name === 'Docs' ? 'docs' : 'story' };
-		}
-	}
+	const version = typeof raw.v === 'number' ? raw.v : 0;
+	const entries = (raw.entries ?? {}) as Record<string, Story>;
 
 	return { v: version, entries };
 }

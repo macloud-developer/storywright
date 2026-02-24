@@ -29,7 +29,7 @@ export interface StorybookConfig {
 	staticDir: string;
 	buildCommand: string;
 	url?: string;
-	compatibility: 'auto' | 'v7' | 'v8';
+	compatibility: 'auto' | 'v8';
 }
 
 export interface ScreenshotConfig {

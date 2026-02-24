@@ -9,7 +9,7 @@ export default defineConfig({
 	format: ['esm'],
 	dts: true,
 	clean: true,
-	target: 'node18',
+	target: 'node20',
 	splitting: true,
 	sourcemap: true,
 	external: ['@playwright/test'],

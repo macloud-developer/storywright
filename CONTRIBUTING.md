@@ -14,7 +14,7 @@ pnpm install
 
 ### 要件
 
-- Node.js >= 18
+- Node.js >= 20
 - pnpm 9.x (`packageManager` フィールドで固定)
 
 ## プロジェクト構成

@@ -17,8 +17,8 @@ Storywright captures screenshots from Storybook stories, compares them with base
 
 ## Requirements
 
-- Node.js `>=18`
-- Storybook build output (`index.json` required)
+- Node.js `>=20`
+- Storybook `>=8`
 - Playwright browsers installed
 
 ## Quick Start
@@ -52,7 +52,7 @@ export default defineConfig({
   storybook: {
     staticDir: 'storybook-static',
     buildCommand: 'npx storybook build --stats-json',
-    compatibility: 'auto', // auto | v7 | v8
+    compatibility: 'auto', // auto | v8
   },
 
   browsers: ['chromium', 'webkit'],

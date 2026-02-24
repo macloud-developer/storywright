@@ -6,7 +6,8 @@
 
 ## 前提条件
 
-- Node.js >= 18
+- Node.js >= 20
+- Storybook >= 8
 - プロジェクトに `@playwright/test` がインストール済み
 - Storybook ビルドで `index.json` を生成できること（通常 `storybook-static/`）
 - `--diff-only` を使う場合は git 履歴が必要（`fetch-depth: 0`）

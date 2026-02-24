@@ -6,7 +6,8 @@ This guide explains how to run Storywright in CI/CD pipelines.
 
 ## Prerequisites
 
-- Node.js >= 18
+- Node.js >= 20
+- Storybook >= 8
 - `@playwright/test` installed in your project
 - Storybook build must produce `index.json` (typically in `storybook-static/`)
 - For `--diff-only`, CI checkout must include git history (`fetch-depth: 0`)

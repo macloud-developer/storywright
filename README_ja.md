@@ -17,8 +17,8 @@ Storywright は Storybook のストーリーを自動で撮影し、ベースラ
 
 ## 動作要件
 
-- Node.js `>=18`
-- Storybook のビルド成果物（`index.json` 必須）
+- Node.js `>=20`
+- Storybook `>=8`
 - Playwright ブラウザのインストール
 
 ## クイックスタート
@@ -52,7 +52,7 @@ export default defineConfig({
   storybook: {
     staticDir: 'storybook-static',
     buildCommand: 'npx storybook build --stats-json',
-    compatibility: 'auto', // auto | v7 | v8
+    compatibility: 'auto', // auto | v8
   },
 
   browsers: ['chromium', 'webkit'],
