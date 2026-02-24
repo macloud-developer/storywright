@@ -18,6 +18,46 @@ importers:
         specifier: ^3.0.0
         version: 3.2.4(@types/node@22.19.11)(jiti@2.6.1)(tsx@4.21.0)
 
+  packages/@storywright/cli:
+    dependencies:
+      '@storywright/report':
+        specifier: workspace:*
+        version: link:../report
+      citty:
+        specifier: ^0.1.6
+        version: 0.1.6
+      consola:
+        specifier: ^3.2.3
+        version: 3.4.2
+      picomatch:
+        specifier: ^4.0.2
+        version: 4.0.3
+      simple-git:
+        specifier: ^3.27.0
+        version: 3.32.2
+      sirv:
+        specifier: ^3.0.0
+        version: 3.0.2
+      unconfig:
+        specifier: ^0.6.0
+        version: 0.6.1
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.50.0
+        version: 1.58.2
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.11
+      '@types/picomatch':
+        specifier: ^3.0.1
+        version: 3.0.2
+      tsup:
+        specifier: ^8.3.0
+        version: 8.5.1(jiti@2.6.1)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+
   packages/@storywright/report:
     dependencies:
       svelte:
@@ -47,51 +87,11 @@ importers:
         version: 3.995.0
       '@storywright/cli':
         specifier: workspace:*
-        version: link:../../storywright
+        version: link:../cli
     devDependencies:
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.11
-      tsup:
-        specifier: ^8.3.0
-        version: 8.5.1(jiti@2.6.1)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)
-      typescript:
-        specifier: ^5.6.0
-        version: 5.9.3
-
-  packages/storywright:
-    dependencies:
-      '@storywright/report':
-        specifier: workspace:*
-        version: link:../@storywright/report
-      citty:
-        specifier: ^0.1.6
-        version: 0.1.6
-      consola:
-        specifier: ^3.2.3
-        version: 3.4.2
-      picomatch:
-        specifier: ^4.0.2
-        version: 4.0.3
-      simple-git:
-        specifier: ^3.27.0
-        version: 3.32.2
-      sirv:
-        specifier: ^3.0.0
-        version: 3.0.2
-      unconfig:
-        specifier: ^0.6.0
-        version: 0.6.1
-    devDependencies:
-      '@playwright/test':
-        specifier: ^1.50.0
-        version: 1.58.2
-      '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.11
-      '@types/picomatch':
-        specifier: ^3.0.1
-        version: 3.0.2
       tsup:
         specifier: ^8.3.0
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)
