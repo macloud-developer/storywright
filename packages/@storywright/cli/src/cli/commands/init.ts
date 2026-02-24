@@ -48,13 +48,19 @@ export const initCommand = defineCommand({
 		await fs.writeFile(configPath, CONFIG_TEMPLATE);
 		logger.success('Created storywright.config.ts');
 
-		// Add .storywright to .gitignore if exists
+		// Add .storywright temp/report dirs to .gitignore if exists
+		// Note: .storywright/baselines/ should be tracked by git
 		const gitignorePath = path.resolve('.gitignore');
 		try {
 			const content = await fs.readFile(gitignorePath, 'utf-8');
 			if (!content.includes('.storywright')) {
-				await fs.appendFile(gitignorePath, '\n.storywright/\n');
-				logger.info('Added .storywright/ to .gitignore');
+				await fs.appendFile(
+					gitignorePath,
+					'\n# Storywright\n.storywright/tmp/\n.storywright/report/\n',
+				);
+				logger.info(
+					'Added .storywright/tmp/ and .storywright/report/ to .gitignore',
+				);
 			}
 		} catch {
 			// no .gitignore

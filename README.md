@@ -170,7 +170,24 @@ export const Experimental = {
 - `2`: execution error
 - `130`: interrupted
 
-## S3 Adapter
+## Baseline Storage
+
+### Local storage (default)
+
+By default, baselines are stored in `.storywright/baselines/` and should be committed to git. No external storage is needed.
+
+```bash
+# Update baselines after UI changes
+npx storywright update
+
+# Commit baselines with your code
+git add .storywright/baselines/
+git commit -m "update VRT baselines"
+```
+
+> Ensure `.storywright/baselines/` is **not** in `.gitignore`. Only `.storywright/tmp/` and `.storywright/report/` should be ignored.
+
+### S3 Adapter
 
 Install adapter package:
 

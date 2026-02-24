@@ -25,6 +25,7 @@ export interface TestRunResult {
 	exitCode: number;
 	summary?: TestSummary;
 	reportDir?: string;
+	snapshotDir?: string;
 }
 
 function resolveReporterPath(): string {
@@ -162,7 +163,7 @@ export async function runTests(
 		// 9. Map exit codes per SPEC §14.2
 		const exitCode = mapExitCode(result.exitCode, summary);
 
-		return { exitCode, summary, reportDir };
+		return { exitCode, summary, reportDir, snapshotDir };
 	} finally {
 		serverProc?.kill();
 	}
@@ -179,6 +180,15 @@ export async function updateBaselines(
 		logger.warn('Some tests failed during baseline update');
 	}
 
+	// Save updated snapshots back to baselineDir (local disk operation)
+	if (result.snapshotDir) {
+		const baselineDir = path.resolve(cwd, config.storage.local.baselineDir);
+		await fs.mkdir(baselineDir, { recursive: true });
+		await fs.cp(result.snapshotDir, baselineDir, { recursive: true });
+		logger.success(`Baselines saved to ${config.storage.local.baselineDir}`);
+	}
+
+	// --upload: upload to remote storage (S3 etc.) only when explicitly requested
 	if (options.upload) {
 		const storage = createStorageAdapter(config.storage);
 		const baselineDir = path.resolve(cwd, config.storage.local.baselineDir);
@@ -186,10 +196,8 @@ export async function updateBaselines(
 			branch: 'current',
 			sourceDir: baselineDir,
 		});
-		logger.success('Baselines uploaded');
+		logger.success('Baselines uploaded to remote storage');
 	}
-
-	logger.success('Baselines updated');
 }
 
 function applyFilter(storyIndex: StoryIndex, filter: string): StoryIndex {

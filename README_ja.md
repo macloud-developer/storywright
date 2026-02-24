@@ -168,7 +168,24 @@ export const Experimental = {
 - `2`: 実行エラー
 - `130`: 中断
 
-## S3 アダプター
+## ベースラインストレージ
+
+### ローカルストレージ（デフォルト）
+
+デフォルトでは、ベースラインは `.storywright/baselines/` に保存され、git にコミットして管理します。外部ストレージは不要です。
+
+```bash
+# UI 変更後にベースラインを更新
+npx storywright update
+
+# コードと一緒にベースラインをコミット
+git add .storywright/baselines/
+git commit -m "update VRT baselines"
+```
+
+> `.storywright/baselines/` が `.gitignore` に含まれて**いない**ことを確認してください。`.storywright/tmp/` と `.storywright/report/` のみを ignore します。
+
+### S3 アダプター
 
 ```bash
 npm install -D @storywright/storage-s3

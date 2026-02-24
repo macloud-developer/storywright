@@ -8,3 +8,4 @@ storybook-static/
 .env
 .env.*
 .secret
+.claude

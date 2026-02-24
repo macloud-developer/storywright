@@ -11,11 +11,35 @@ This guide explains how to run Storywright in CI/CD pipelines.
 - Storybook build must produce `index.json` (typically in `storybook-static/`)
 - For `--diff-only`, CI checkout must include git history (`fetch-depth: 0`)
 
+## Storage Strategies
+
+### Local storage (default, no S3 required)
+
+With the default local storage strategy, baselines are committed to git. No external storage (S3) is needed.
+
+**Workflow:**
+
+1. Developer changes UI locally
+2. Run `npx storywright update` to regenerate baseline screenshots
+3. Commit the updated baselines along with code changes
+4. CI runs `npx storywright test` — baselines come from git
+5. Reviewers see screenshot diffs directly in the PR on GitHub
+
+> **Tip:** If a developer forgets to update baselines after a UI change, CI will detect the mismatch and fail. This acts as a safety net.
+
+> **`.gitignore` setup:** Only `.storywright/tmp/` and `.storywright/report/` should be ignored. `.storywright/baselines/` must be tracked by git. Running `npx storywright init` on a new project sets this up automatically. For existing projects that already have `.storywright/` in `.gitignore`, replace it with `.storywright/tmp/` and `.storywright/report/` manually.
+
+### S3 storage
+
+For large projects or when committing baselines to git is impractical, use the S3 adapter. See the [AWS baseline sync](#aws-baseline-sync-with-oidc-recommended) section.
+
 ## Recommended Flow
 
 ```text
-Build Storybook -> Download baselines (optional) -> Run Storywright -> Upload report artifacts
+Build Storybook -> Run Storywright -> Upload report artifacts
 ```
+
+> For S3 storage, add a "Download baselines" step before running Storywright.
 
 Keep these artifacts:
 
@@ -27,7 +51,7 @@ Keep these artifacts:
 
 ## GitHub Actions
 
-### Basic workflow
+### Basic workflow (local storage)
 
 ```yaml
 # .github/workflows/vrt.yml

@@ -3,6 +3,7 @@ import { loadConfig } from '../config/index.js';
 import type { DeepPartial, StorywrightConfig } from '../config/types.js';
 import { formatSummary } from '../reporter/cli-reporter.js';
 import { createStorageAdapter } from '../storage/index.js';
+import { LocalStorageAdapter } from '../storage/local.js';
 import { type TestRunResult, runTests, updateBaselines } from './engine.js';
 
 export interface Storywright {
@@ -60,10 +61,14 @@ export async function createStorywright(
 
 		async download(options = {}) {
 			const storage = createStorageAdapter(config.storage);
-			await storage.download({
-				branch: options.branch ?? 'main',
-				destDir: path.resolve(cwd, config.storage.local.baselineDir),
-			});
+			const destDir = path.resolve(cwd, config.storage.local.baselineDir);
+			const branch = options.branch ?? 'main';
+
+			if (storage instanceof LocalStorageAdapter) {
+				await storage.downloadFromGit(branch, destDir, cwd);
+			} else {
+				await storage.download({ branch, destDir });
+			}
 		},
 
 		generateReport(result: TestRunResult): string | undefined {
