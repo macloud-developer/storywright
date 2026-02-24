@@ -92,8 +92,8 @@ importers:
         specifier: ^3.700.0
         version: 3.995.0
       '@storywright/cli':
-        specifier: workspace:*
-        version: link:../cli
+        specifier: '*'
+        version: 0.2.0(@playwright/test@1.58.2)
     devDependencies:
       '@types/node':
         specifier: ^22.0.0
@@ -1103,6 +1103,17 @@ packages:
 
   '@smithy/uuid@1.1.0':
     resolution: {integrity: sha512-4aUIteuyxtBUhVdiQqcDhKFitwfd9hqoSDYY2KRXiWtgoWJ9Bmise+KfEPDiVHWeJepvF8xJO9/9+WDIciMFFw==}
+    engines: {node: '>=18.0.0'}
+
+  '@storywright/cli@0.2.0':
+    resolution: {integrity: sha512-A/6OTn6O5+mYiUjlkPW05o/SCQv691W4I50+xxrozI+QOzTTrRVzm5awuvJsWoKKFZySe6/3YSnZfl2gsRlktA==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
+    peerDependencies:
+      '@playwright/test': '>=1.40.0'
+
+  '@storywright/report@0.1.0':
+    resolution: {integrity: sha512-SxZj25pql0kJqOPR94Pmj09XjkNdlWCmM92DafFNEA6pvH4bQGvNLG66w7TakfbG2f1kCr+kBGcK02AaY6w7iA==}
     engines: {node: '>=18.0.0'}
 
   '@sveltejs/acorn-typescript@1.0.9':
@@ -3302,6 +3313,23 @@ snapshots:
   '@smithy/uuid@1.1.0':
     dependencies:
       tslib: 2.8.1
+
+  '@storywright/cli@0.2.0(@playwright/test@1.58.2)':
+    dependencies:
+      '@playwright/test': 1.58.2
+      '@storywright/report': 0.1.0
+      citty: 0.1.6
+      consola: 3.4.2
+      picomatch: 4.0.3
+      simple-git: 3.32.2
+      sirv: 3.0.2
+      unconfig: 0.6.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@storywright/report@0.1.0':
+    dependencies:
+      svelte: 5.53.3
 
   '@sveltejs/acorn-typescript@1.0.9(acorn@8.16.0)':
     dependencies:

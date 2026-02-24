@@ -28,7 +28,7 @@
 		"typescript": "^5.6.0"
 	},
 	"peerDependencies": {
-		"@storywright/cli": "workspace:*"
+		"@storywright/cli": "*"
 	},
 	"engines": {
 		"node": ">=20.0.0"
