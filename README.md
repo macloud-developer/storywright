@@ -8,7 +8,7 @@ Storywright captures screenshots from Storybook stories, compares them with base
 
 ## Features
 
-- Zero-config start with `npx storywright test`
+- Zero-config start with `npx @storywright/cli test`
 - Diff-only test selection from git changes
 - Multi-browser execution (Chromium, Firefox, WebKit)
 - HTML report generation (`summary.json` + `index.html`)

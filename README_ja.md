@@ -8,7 +8,7 @@ Storywright は Storybook のストーリーを自動で撮影し、ベースラ
 
 ## 特徴
 
-- `npx storywright test` ですぐ開始
+- `npx @storywright/cli test` ですぐ開始
 - `git diff` ベースの差分実行 (`--diff-only`)
 - マルチブラウザ実行（Chromium / Firefox / WebKit）
 - HTML レポート生成（`summary.json` + `index.html`）
