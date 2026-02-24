@@ -58,9 +58,7 @@ export const initCommand = defineCommand({
 					gitignorePath,
 					'\n# Storywright\n.storywright/tmp/\n.storywright/report/\n',
 				);
-				logger.info(
-					'Added .storywright/tmp/ and .storywright/report/ to .gitignore',
-				);
+				logger.info('Added .storywright/tmp/ and .storywright/report/ to .gitignore');
 			}
 		} catch {
 			// no .gitignore

@@ -42,11 +42,7 @@ export class LocalStorageAdapter implements StorageAdapter {
 	 * Extract baselines from a git branch using `git ls-tree` + `git show`.
 	 * Binary-safe (PNG files) via `encoding: 'buffer'`.
 	 */
-	async downloadFromGit(
-		branch: string,
-		destDir: string,
-		cwd: string,
-	): Promise<void> {
+	async downloadFromGit(branch: string, destDir: string, cwd: string): Promise<void> {
 		const gitPath = this.baselineDir.split(path.sep).join('/');
 
 		let lsOutput: string;
@@ -70,23 +66,16 @@ export class LocalStorageAdapter implements StorageAdapter {
 
 		await fs.mkdir(destDir, { recursive: true });
 
-		const posixBaselineDir = this.baselineDir
-			.split(path.sep)
-			.join('/')
-			.replace(/\/+$/, '');
+		const posixBaselineDir = this.baselineDir.split(path.sep).join('/').replace(/\/+$/, '');
 
 		for (const file of files) {
 			let content: Buffer;
 			try {
-				const result = await execFileAsync(
-					'git',
-					['show', `${branch}:${file}`],
-					{
-						cwd,
-						encoding: 'buffer' as unknown as BufferEncoding,
-						maxBuffer: 50 * 1024 * 1024,
-					},
-				);
+				const result = await execFileAsync('git', ['show', `${branch}:${file}`], {
+					cwd,
+					encoding: 'buffer' as unknown as BufferEncoding,
+					maxBuffer: 50 * 1024 * 1024,
+				});
 				content = result.stdout as unknown as Buffer;
 			} catch (error) {
 				throw new Error(
