@@ -1,5 +1,14 @@
 # @storywright/cli
 
+## 0.3.3
+
+### Patch Changes
+
+- [`23171a5`](https://github.com/macloud-developer/storywright/commit/23171a50b9d4646d89ef2258f15ece9e118983f6) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Show Playwright test progress in real-time during test and update commands
+
+  Switched test execution from buffered to inherited stdio so Playwright's
+  list reporter output (test names, pass/fail, timing) is visible as tests run.
+
 ## 0.3.2
 
 ### Patch Changes
