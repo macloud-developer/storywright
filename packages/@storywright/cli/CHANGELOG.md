@@ -1,5 +1,15 @@
 # @storywright/cli
 
+## 0.3.5
+
+### Patch Changes
+
+- [`e6ad199`](https://github.com/macloud-developer/storywright/commit/e6ad19961390a86fd66b24faeeb5c49cd2a2ee83) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Fix waitForSelector timeout for portal, hidden dialog, and overlay components
+
+  Use `state: 'attached'` instead of default `visible` for `#storybook-root`
+  check. This fixes timeout errors for stories using portals, unopened dialogs,
+  conditional rendering, and fixed-position overlays.
+
 ## 0.3.4
 
 ### Patch Changes
