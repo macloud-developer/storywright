@@ -35,7 +35,7 @@ test.describe.parallel('visual regression testing', () => {
 \t\t\t}, ${config.seed});
 
 \t\t\tawait page.goto(\`/iframe.html?id=\${story.id}\`, {
-\t\t\t\twaitUntil: 'networkidle',
+\t\t\t\twaitUntil: 'domcontentloaded',
 \t\t\t});
 
 \t\t\t// Wait for Storybook to initialize (state: 'attached' for portals, hidden dialogs, fixed overlays)

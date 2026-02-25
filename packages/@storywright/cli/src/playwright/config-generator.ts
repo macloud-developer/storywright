@@ -23,7 +23,7 @@ export function generatePlaywrightConfig(
 \t\t}`;
 	});
 
-	const workers = config.workers === 'auto' ? "'50%'" : String(config.workers);
+	const workers = config.workers === 'auto' ? "'100%'" : String(config.workers);
 
 	const shard = options.shard
 		? `\tshard: { current: ${options.shard.split('/')[0]}, total: ${options.shard.split('/')[1]} },`
