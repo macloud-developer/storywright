@@ -1,5 +1,14 @@
 # @storywright/cli
 
+## 0.3.6
+
+### Patch Changes
+
+- [`480bd73`](https://github.com/macloud-developer/storywright/commit/480bd73c7b26a3e6eac9e30dd0cf5b9605f69657) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Wait for all images to load before taking screenshots
+
+  Add `img.complete` check for all `<img>` elements to prevent capturing
+  placeholder or broken image states from lazy-loaded or dynamically sourced images.
+
 ## 0.3.5
 
 ### Patch Changes
