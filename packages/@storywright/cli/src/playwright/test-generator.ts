@@ -38,11 +38,14 @@ test.describe.parallel('visual regression testing', () => {
 \t\t\t\twaitUntil: 'networkidle',
 \t\t\t});
 
-\t\t\t// Wait for story to render into the Storybook root
-\t\t\tawait page.waitForSelector('#storybook-root > *', { timeout: 10000 });
+\t\t\t// Wait for Storybook to initialize (covers portal/modal components rendered outside root)
+\t\t\tawait page.waitForSelector('#storybook-root', { timeout: 10000 });
 
 \t\t\t// Wait for web fonts to finish loading
 \t\t\tawait page.waitForFunction(() => document.fonts.ready);
+
+\t\t\t// Allow async renders (portals, modals, lazy components) to settle
+\t\t\tawait page.waitForFunction(() => new Promise(resolve => requestAnimationFrame(() => resolve(true))));
 
 \t\t\tawait expect(page).toHaveScreenshot(
 \t\t\t\t[story.title, \`\${story.id}.png\`],
