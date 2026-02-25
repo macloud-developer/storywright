@@ -1,5 +1,15 @@
 # @storywright/cli
 
+## 0.3.1
+
+### Patch Changes
+
+- [`8bbe738`](https://github.com/macloud-developer/storywright/commit/8bbe7384d906a1f1c81f9120c917ede271ed88cc) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Remove locale and timezone from snapshot filenames to simplify paths
+
+  Snapshot filenames now use `{arg}-{projectName}{ext}` instead of including
+  locale and timezone, which caused issues with timezone slashes (e.g. Asia/Tokyo)
+  creating unexpected directories.
+
 ## 0.3.0
 
 ### Minor Changes
