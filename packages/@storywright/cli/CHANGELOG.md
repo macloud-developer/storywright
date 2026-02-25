@@ -1,5 +1,15 @@
 # @storywright/cli
 
+## 0.3.7
+
+### Patch Changes
+
+- [`e59c5f2`](https://github.com/macloud-developer/storywright/commit/e59c5f2f7619b9cab9d2a517f64e50ed4a32955d) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Improve test execution speed with faster page load strategy and higher parallelism
+
+  - Switch `waitUntil` from `networkidle` (500ms idle wait) to `domcontentloaded`
+    since fonts, images, and render stability are already checked explicitly
+  - Increase default workers from 50% to 100% of CPU cores since VRT is I/O bound
+
 ## 0.3.6
 
 ### Patch Changes
