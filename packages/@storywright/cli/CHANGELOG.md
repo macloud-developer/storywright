@@ -1,5 +1,15 @@
 # @storywright/cli
 
+## 0.3.4
+
+### Patch Changes
+
+- [`7c41c70`](https://github.com/macloud-developer/storywright/commit/7c41c70151d86346ecaeaa3ebe093c8dcec3acbb) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Fix screenshot timing for portal/modal components
+
+  Relax `#storybook-root > *` to `#storybook-root` so components rendered
+  outside the root via portals are not missed. Add requestAnimationFrame
+  wait for async render stabilization.
+
 ## 0.3.3
 
 ### Patch Changes
