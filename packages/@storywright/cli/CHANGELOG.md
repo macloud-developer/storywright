@@ -1,5 +1,14 @@
 # @storywright/cli
 
+## 0.3.2
+
+### Patch Changes
+
+- [`9e679bd`](https://github.com/macloud-developer/storywright/commit/9e679bdc38eb32e0ea1b6c837905574b5fcc44ff) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Wait for story render and font loading before taking screenshots
+
+  Add `#storybook-root > *` selector wait and `document.fonts.ready` check
+  after `networkidle` to prevent capturing loading states.
+
 ## 0.3.1
 
 ### Patch Changes
