@@ -44,6 +44,12 @@ test.describe.parallel('visual regression testing', () => {
 \t\t\t// Wait for web fonts to finish loading
 \t\t\tawait page.waitForFunction(() => document.fonts.ready);
 
+\t\t\t// Wait for all images to finish loading (lazy-loaded, dynamic src, etc.)
+\t\t\tawait page.waitForFunction(() => {
+\t\t\t\tconst images = document.querySelectorAll('img');
+\t\t\t\treturn Array.from(images).every(img => img.complete);
+\t\t\t});
+
 \t\t\t// Allow async renders (portals, modals, lazy components) to settle
 \t\t\tawait page.waitForFunction(() => new Promise(resolve => requestAnimationFrame(() => resolve(true))));
 
