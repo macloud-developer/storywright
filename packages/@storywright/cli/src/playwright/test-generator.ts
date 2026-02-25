@@ -38,8 +38,8 @@ test.describe.parallel('visual regression testing', () => {
 \t\t\t\twaitUntil: 'networkidle',
 \t\t\t});
 
-\t\t\t// Wait for Storybook to initialize (covers portal/modal components rendered outside root)
-\t\t\tawait page.waitForSelector('#storybook-root', { timeout: 10000 });
+\t\t\t// Wait for Storybook to initialize (state: 'attached' for portals, hidden dialogs, fixed overlays)
+\t\t\tawait page.waitForSelector('#storybook-root', { state: 'attached', timeout: 10000 });
 
 \t\t\t// Wait for web fonts to finish loading
 \t\t\tawait page.waitForFunction(() => document.fonts.ready);
