@@ -9,26 +9,28 @@ export interface ExecResult {
 export function exec(
 	command: string,
 	args: string[],
-	options?: { cwd?: string; env?: Record<string, string> },
+	options?: { cwd?: string; env?: Record<string, string>; inherit?: boolean },
 ): Promise<ExecResult> {
 	return new Promise((resolve, reject) => {
 		const proc = spawn(command, args, {
 			cwd: options?.cwd,
 			env: { ...process.env, ...options?.env },
-			stdio: ['ignore', 'pipe', 'pipe'],
+			stdio: options?.inherit ? ['ignore', 'inherit', 'inherit'] : ['ignore', 'pipe', 'pipe'],
 			shell: false,
 		});
 
 		let stdout = '';
 		let stderr = '';
 
-		proc.stdout.on('data', (data: Buffer) => {
-			stdout += data.toString();
-		});
+		if (!options?.inherit) {
+			proc.stdout?.on('data', (data: Buffer) => {
+				stdout += data.toString();
+			});
 
-		proc.stderr.on('data', (data: Buffer) => {
-			stderr += data.toString();
-		});
+			proc.stderr?.on('data', (data: Buffer) => {
+				stderr += data.toString();
+			});
+		}
 
 		proc.on('error', reject);
 

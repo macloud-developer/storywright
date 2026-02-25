@@ -148,7 +148,7 @@ export async function runTests(
 	}
 
 	try {
-		const result = await exec('npx', args, { cwd });
+		const result = await exec('npx', args, { cwd, inherit: true });
 
 		// 8. Read results
 		let summary: TestSummary | undefined;
