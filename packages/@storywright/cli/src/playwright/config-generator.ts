@@ -49,7 +49,7 @@ export default defineConfig({
 \ttestDir: '${escapeBackslash(options.tmpDir)}',
 \ttestMatch: '${escapeBackslash(options.testFile)}',
 \tsnapshotDir: '${escapeBackslash(options.snapshotDir)}',
-\tsnapshotPathTemplate: '{snapshotDir}/{arg}-{projectName}-${config.screenshot.locale}-${config.screenshot.timezone}{ext}',
+\tsnapshotPathTemplate: '{snapshotDir}/{arg}-{projectName}{ext}',
 \ttimeout: ${config.timeout.test},
 \texpect: {
 \t\ttoHaveScreenshot: {
