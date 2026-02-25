@@ -38,6 +38,12 @@ test.describe.parallel('visual regression testing', () => {
 \t\t\t\twaitUntil: 'networkidle',
 \t\t\t});
 
+\t\t\t// Wait for story to render into the Storybook root
+\t\t\tawait page.waitForSelector('#storybook-root > *', { timeout: 10000 });
+
+\t\t\t// Wait for web fonts to finish loading
+\t\t\tawait page.waitForFunction(() => document.fonts.ready);
+
 \t\t\tawait expect(page).toHaveScreenshot(
 \t\t\t\t[story.title, \`\${story.id}.png\`],
 \t\t\t\t{
