@@ -38,8 +38,18 @@ test.describe.parallel('visual regression testing', () => {
 \t\t\t\twaitUntil: 'domcontentloaded',
 \t\t\t});
 
-\t\t\t// Wait for Storybook to initialize (state: 'attached' for portals, hidden dialogs, fixed overlays)
-\t\t\tawait page.waitForSelector('#storybook-root', { state: 'attached', timeout: 10000 });
+\t\t\t// Wait for story to render: content inside #storybook-root OR portal content on body
+\t\t\tawait page.waitForFunction(() => {
+\t\t\t\tconst root = document.getElementById('storybook-root');
+\t\t\t\tif (!root) return false;
+\t\t\t\tif (root.childElementCount > 0) return true;
+\t\t\t\t// Portal: check for elements on body that aren't part of Storybook's skeleton
+\t\t\t\tfor (const el of document.body.children) {
+\t\t\t\t\tif (el.tagName === 'SCRIPT' || el.id === 'storybook-root' || el.id === 'storybook-docs') continue;
+\t\t\t\t\treturn true;
+\t\t\t\t}
+\t\t\t\treturn false;
+\t\t\t}, { timeout: 10000 });
 
 \t\t\t// Wait for web fonts to finish loading
 \t\t\tawait page.waitForFunction(() => document.fonts.ready);
