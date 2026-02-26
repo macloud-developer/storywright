@@ -47,9 +47,11 @@ describe('filterStories', () => {
 		expect(result.entries['button--docs']).toBeUndefined();
 	});
 
-	it('should exclude stories with !vrt tag', () => {
-		const result = filterStories(stubIndex, DEFAULT_CONFIG);
+	it('should exclude stories via exclude pattern', () => {
+		const config = { ...DEFAULT_CONFIG, exclude: ['**/Animated/**'] };
+		const result = filterStories(stubIndex, config);
 		expect(result.entries['animated--spin']).toBeUndefined();
+		expect(result.entries['button--primary']).toBeDefined();
 	});
 
 	it('should include regular stories with default config', () => {

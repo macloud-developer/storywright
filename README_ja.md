@@ -86,6 +86,9 @@ export default defineConfig({
 
   workers: 'auto', // number | 'auto'
   retries: 0, // フレーキーテスト対策のリトライ回数
+
+  include: ['**'],
+  exclude: ['**/Experimental/**'],
 });
 ```
 
@@ -152,18 +155,15 @@ npx storywright report --merge --from ".storywright/shards/*/summary.json"
 npx storywright init
 ```
 
-## ストーリー単位の除外
+## ストーリーのフィルタリング
 
-Storybook tags を利用できます。
+`storywright.config.ts` の `include` / `exclude` glob パターンで、テスト対象のストーリーを制御できます。パターンはフルストーリー名（`Component/StoryName`）に対してマッチします。
 
 ```ts
-export const Primary = {
-  tags: ['vrt'],
-};
-
-export const Experimental = {
-  tags: ['!vrt'],
-};
+export default defineConfig({
+  include: ['**'],                    // 全ストーリーを対象（デフォルト）
+  exclude: ['**/Experimental/**'],     // パターンに一致するストーリーを除外
+});
 ```
 
 ## 終了コード

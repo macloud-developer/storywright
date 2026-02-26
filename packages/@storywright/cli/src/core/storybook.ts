@@ -80,9 +80,6 @@ export function filterStories(storyIndex: StoryIndex, config: StorywrightConfig)
 		if (story.type === 'docs') continue;
 		if (story.name === 'Docs') continue;
 
-		// Skip stories with !vrt tag
-		if (story.tags?.includes('!vrt')) continue;
-
 		const fullName = `${story.title}/${story.name}`;
 
 		// Check include patterns

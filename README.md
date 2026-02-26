@@ -86,6 +86,9 @@ export default defineConfig({
 
   workers: 'auto', // number | 'auto'
   retries: 0, // retry count for flaky tests
+
+  include: ['**'],
+  exclude: ['**/Experimental/**'],
 });
 ```
 
@@ -154,18 +157,15 @@ npx storywright report --merge --from ".storywright/shards/*/summary.json"
 npx storywright init
 ```
 
-## Story-level Filtering
+## Filtering Stories
 
-Use Storybook tags:
+Use `include` / `exclude` glob patterns in `storywright.config.ts` to control which stories are tested. Patterns are matched against the full story name (`Component/StoryName`).
 
 ```ts
-export const Primary = {
-  tags: ['vrt'],
-};
-
-export const Experimental = {
-  tags: ['!vrt'],
-};
+export default defineConfig({
+  include: ['**'],                    // test all stories (default)
+  exclude: ['**/Experimental/**'],      // skip stories matching this pattern
+});
 ```
 
 ## Exit Codes
