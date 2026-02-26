@@ -1,5 +1,14 @@
 # @storywright/cli
 
+## 0.4.0
+
+### Minor Changes
+
+- [`fabb6cf`](https://github.com/macloud-developer/storywright/commit/fabb6cffb249c17f55bc8b174de0e5bd75a4c23c) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Add `retries` configuration option for flaky test retry
+
+  - New `retries` field in `storywright.config.ts` (default: `0`)
+  - New `--retries` CLI option to override config
+
 ## 0.3.9
 
 ### Patch Changes
