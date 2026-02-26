@@ -1,5 +1,15 @@
 # @storywright/cli
 
+## 0.3.8
+
+### Patch Changes
+
+- [`0cad3fd`](https://github.com/macloud-developer/storywright/commit/0cad3fd02b46a5ba62edab03ad7e591a8b06fea1) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Optimize test execution with file splitting, parallel baseline download, and CI diff-only
+
+  - Split stories into chunks of 50 per test file for better Playwright worker/shard distribution
+  - Download baselines in parallel with Storybook build to reduce total pipeline time
+  - Enable `--diff-only` by default in CI environments (`process.env.CI`)
+
 ## 0.3.7
 
 ### Patch Changes
