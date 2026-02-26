@@ -81,7 +81,7 @@
 </script>
 
 <div class="card-list" bind:this={containerEl}>
-	{#each failures as failure (failureKey(failure))}
+	{#each failures as failure, i (`${failureKey(failure)}::${i}`)}
 		{@const key = failureKey(failure)}
 		<div id={cardId(failure)} data-failure-key={key}>
 			<DiffCard

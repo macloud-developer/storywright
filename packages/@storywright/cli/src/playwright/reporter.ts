@@ -17,13 +17,16 @@ interface StorywrightReporterOptions {
 
 class StorywrightReporter implements Reporter {
 	private outputDir: string;
-	private results: {
-		title: string;
-		project: string;
-		status: 'passed' | 'failed' | 'skipped';
-		duration: number;
-		attachments: { name: string; path?: string; contentType: string }[];
-	}[] = [];
+	private results = new Map<
+		string,
+		{
+			title: string;
+			project: string;
+			status: 'passed' | 'failed' | 'skipped';
+			duration: number;
+			attachments: { name: string; path?: string; contentType: string }[];
+		}
+	>();
 	private startTime = 0;
 
 	constructor(options: StorywrightReporterOptions = {}) {
@@ -35,12 +38,15 @@ class StorywrightReporter implements Reporter {
 	}
 
 	onTestEnd(test: TestCase, result: PwTestResult): void {
+		const project = test.parent?.project()?.name ?? 'unknown';
+		const key = `${test.title}::${project}`;
 		const status =
 			result.status === 'passed' ? 'passed' : result.status === 'skipped' ? 'skipped' : 'failed';
 
-		this.results.push({
+		// Overwrite previous attempts so only the final retry result is kept
+		this.results.set(key, {
 			title: test.title,
-			project: test.parent?.project()?.name ?? 'unknown',
+			project,
 			status,
 			duration: result.duration,
 			attachments: result.attachments.map((a) => ({
@@ -53,11 +59,12 @@ class StorywrightReporter implements Reporter {
 
 	async onEnd(_result: FullResult): Promise<void> {
 		const duration = Date.now() - this.startTime;
-		const passed = this.results.filter((r) => r.status === 'passed').length;
-		const failed = this.results.filter((r) => r.status === 'failed').length;
-		const skipped = this.results.filter((r) => r.status === 'skipped').length;
+		const allResults = [...this.results.values()];
+		const passed = allResults.filter((r) => r.status === 'passed').length;
+		const failed = allResults.filter((r) => r.status === 'failed').length;
+		const skipped = allResults.filter((r) => r.status === 'skipped').length;
 
-		const browsers = [...new Set(this.results.map((r) => r.project))];
+		const browsers = [...new Set(allResults.map((r) => r.project))];
 		const failures: FailureEntry[] = [];
 
 		// Collect failure images
@@ -66,7 +73,7 @@ class StorywrightReporter implements Reporter {
 			fs.mkdirSync(path.join(assetsDir, dir), { recursive: true });
 		}
 
-		for (const testResult of this.results) {
+		for (const testResult of allResults) {
 			if (testResult.status !== 'failed') continue;
 
 			const titleParts = testResult.title.split(': ');
@@ -114,7 +121,7 @@ class StorywrightReporter implements Reporter {
 		}
 
 		const summary: TestSummary = {
-			total: this.results.length,
+			total: allResults.length,
 			passed,
 			failed,
 			skipped,
