@@ -7,7 +7,7 @@ export function generatePlaywrightConfig(
 		storybookUrl: string;
 		snapshotDir: string;
 		reporterPath: string;
-		testFile: string;
+		testMatch: string;
 		shard?: string;
 		reporters?: string[];
 	},
@@ -47,7 +47,7 @@ export function generatePlaywrightConfig(
 
 export default defineConfig({
 \ttestDir: '${escapeBackslash(options.tmpDir)}',
-\ttestMatch: '${escapeBackslash(options.testFile)}',
+\ttestMatch: '${escapeBackslash(options.testMatch)}',
 \tsnapshotDir: '${escapeBackslash(options.snapshotDir)}',
 \tsnapshotPathTemplate: '{snapshotDir}/{arg}-{projectName}{ext}',
 \ttimeout: ${config.timeout.test},

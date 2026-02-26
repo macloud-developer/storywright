@@ -10,7 +10,7 @@ import { logger } from '../utils/logger.js';
 import { resolveOutputDir } from '../utils/path.js';
 import { exec } from '../utils/process.js';
 import { buildStorybook, discoverStories, filterStories } from './storybook.js';
-import type { StoryIndex, TestSummary } from './types.js';
+import type { Story, StoryIndex, TestSummary } from './types.js';
 
 export interface TestOptions {
 	diffOnly?: boolean;
@@ -28,10 +28,26 @@ export interface TestRunResult {
 	snapshotDir?: string;
 }
 
+const STORIES_PER_FILE = 50;
+
 function resolveReporterPath(): string {
 	// Resolve relative to this file's dist location
 	const thisDir = new URL('.', import.meta.url).pathname;
 	return path.resolve(thisDir, 'playwright', 'reporter.js');
+}
+
+function chunkStories(entries: Record<string, Story>): Record<string, Story>[] {
+	const keys = Object.keys(entries);
+	if (keys.length === 0) return [{}];
+	const chunks: Record<string, Story>[] = [];
+	for (let i = 0; i < keys.length; i += STORIES_PER_FILE) {
+		const chunk: Record<string, Story> = {};
+		for (const key of keys.slice(i, i + STORIES_PER_FILE)) {
+			chunk[key] = entries[key];
+		}
+		chunks.push(chunk);
+	}
+	return chunks;
 }
 
 export async function runTests(
@@ -47,6 +63,18 @@ export async function runTests(
 		? path.join(outputRoot, 'report')
 		: path.resolve(cwd, config.report.outputDir);
 	const storybookDir = path.resolve(cwd, config.storybook.staticDir);
+	const snapshotDir = path.join(tmpDir, 'snapshots');
+
+	// Prepare directories early for parallel operations
+	await fs.mkdir(snapshotDir, { recursive: true });
+
+	// Start baseline download in parallel with Storybook build
+	const storage = createStorageAdapter(config.storage);
+	const baselinePromise = storage
+		.download({ branch: 'current', destDir: snapshotDir })
+		.catch(() => {
+			logger.info('No existing baselines found');
+		});
 
 	// 1. Build Storybook if needed
 	await buildStorybook(config, cwd);
@@ -63,8 +91,9 @@ export async function runTests(
 
 	logger.info(`${Object.keys(targetStories.entries).length} stories found`);
 
-	// 3. Diff-only: resolve affected stories
-	if (options.diffOnly && config.diffDetection.enabled) {
+	// 3. Diff-only: resolve affected stories (default in CI)
+	const effectiveDiffOnly = options.diffOnly ?? !!process.env.CI;
+	if (effectiveDiffOnly && config.diffDetection.enabled) {
 		logger.start('Resolving dependencies...');
 		const diffResult = await resolveAffectedStories(
 			targetStories,
@@ -78,24 +107,27 @@ export async function runTests(
 		logger.info(`${Object.keys(targetStories.entries).length} stories affected by changes`);
 	}
 
-	// 4. Prepare temp directory
-	await fs.mkdir(tmpDir, { recursive: true });
+	// 4. Wait for baseline download to complete
+	await baselinePromise;
 
-	const targetStoriesPath = path.join(tmpDir, 'target-stories.json');
-	await fs.writeFile(targetStoriesPath, JSON.stringify(targetStories));
+	// 5. Generate split test files for better worker distribution
+	const chunks = chunkStories(targetStories.entries);
+	const testFilePattern = chunks.length === 1 ? 'storywright-0.spec.ts' : 'storywright-*.spec.ts';
 
-	// 5. Copy baselines to snapshot dir
-	const snapshotDir = path.join(tmpDir, 'snapshots');
-	await fs.mkdir(snapshotDir, { recursive: true });
+	for (let i = 0; i < chunks.length; i++) {
+		const chunkIndex: StoryIndex = { ...targetStories, entries: chunks[i] };
+		const chunkPath = path.join(tmpDir, `target-stories-${i}.json`);
+		await fs.writeFile(chunkPath, JSON.stringify(chunkIndex));
 
-	const storage = createStorageAdapter(config.storage);
-	try {
-		await storage.download({ branch: 'current', destDir: snapshotDir });
-	} catch {
-		logger.info('No existing baselines found');
+		const testContent = generateTestFile(config.screenshot, {
+			targetStoriesPath: chunkPath.replace(/\\/g, '/'),
+		});
+		await fs.writeFile(path.join(tmpDir, `storywright-${i}.spec.ts`), testContent);
 	}
 
-	// 6. Generate Playwright config & test file
+	logger.info(`${chunks.length} test file(s) generated`);
+
+	// 6. Generate Playwright config
 	const reporterWrapperPath = path.join(tmpDir, 'reporter.mjs');
 	const resolvedReporterPath = resolveReporterPath().replace(/\\/g, '/');
 	const reporterOutputDir = reportDir.replace(/\\/g, '/');
@@ -104,13 +136,6 @@ export async function runTests(
 		reporterWrapperPath,
 		`import StorywrightReporter from '${resolvedReporterPath}';\nexport default class extends StorywrightReporter {\n  constructor() { super({ outputDir: '${reporterOutputDir}' }); }\n}\n`,
 	);
-
-	const testFileName = 'storywright-test.spec.ts';
-	const testFilePath = path.join(tmpDir, testFileName);
-	const testContent = generateTestFile(config.screenshot, {
-		targetStoriesPath: targetStoriesPath.replace(/\\/g, '/'),
-	});
-	await fs.writeFile(testFilePath, testContent);
 
 	// Determine Storybook URL
 	let actualStorybookUrl = config.storybook.url;
@@ -125,7 +150,7 @@ export async function runTests(
 		storybookUrl: actualStorybookUrl ?? 'http://localhost:6007',
 		snapshotDir: snapshotDir.replace(/\\/g, '/'),
 		reporterPath: reporterWrapperPath.replace(/\\/g, '/'),
-		testFile: testFileName,
+		testMatch: testFilePattern,
 		shard: options.shard,
 		reporters: options.reporters,
 	});
