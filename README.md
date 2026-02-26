@@ -83,6 +83,9 @@ export default defineConfig({
   report: {
     outputDir: '.storywright/report',
   },
+
+  workers: 'auto', // number | 'auto'
+  retries: 0, // retry count for flaky tests
 });
 ```
 
@@ -103,6 +106,7 @@ npx storywright test --filter "Components/**"
 npx storywright test --reporters default,html
 npx storywright test --output-dir .artifacts/storywright
 npx storywright test --storybook-url http://localhost:6006
+npx storywright test --retries 2
 ```
 
 Main options:
@@ -117,6 +121,7 @@ Main options:
 - `--reporters`: comma-separated Playwright reporters (`default`, `html`, `dot`, `json`, ...)
 - `--storybook-url`: use already running Storybook
 - `--storybook-dir`: static Storybook directory
+- `--retries`: retry count for failed tests
 - `--update-snapshots`: update baselines
 
 ### `storywright update`

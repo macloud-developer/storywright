@@ -83,6 +83,9 @@ export default defineConfig({
   report: {
     outputDir: '.storywright/report',
   },
+
+  workers: 'auto', // number | 'auto'
+  retries: 0, // フレーキーテスト対策のリトライ回数
 });
 ```
 
@@ -101,6 +104,7 @@ npx storywright test --filter "Components/**"
 npx storywright test --reporters default,html
 npx storywright test --output-dir .artifacts/storywright
 npx storywright test --storybook-url http://localhost:6006
+npx storywright test --retries 2
 ```
 
 主なオプション:
@@ -115,6 +119,7 @@ npx storywright test --storybook-url http://localhost:6006
 - `--reporters`: Playwright レポーター指定（`default`, `html`, `dot`, `json` など）
 - `--storybook-url`: 起動済み Storybook URL
 - `--storybook-dir`: Storybook 静的ファイルディレクトリ
+- `--retries`: 失敗テストのリトライ回数
 - `--update-snapshots`: ベースライン更新
 
 ### `storywright update`

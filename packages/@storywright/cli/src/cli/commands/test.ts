@@ -52,6 +52,10 @@ export const testCommand = defineCommand({
 			type: 'string',
 			description: 'Number of parallel workers',
 		},
+		retries: {
+			type: 'string',
+			description: 'Number of retries for failed tests',
+		},
 		filter: {
 			type: 'string',
 			description: 'Filter stories by glob pattern',
@@ -91,6 +95,9 @@ export const testCommand = defineCommand({
 		}
 		if (args.workers) {
 			overrides.workers = args.workers === 'auto' ? 'auto' : Number(args.workers);
+		}
+		if (args.retries) {
+			overrides.retries = Number(args.retries);
 		}
 
 		const config = await loadConfig(process.cwd(), overrides);

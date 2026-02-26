@@ -60,6 +60,7 @@ export default defineConfig({
 \t},
 \tfullyParallel: true,
 \tforbidOnly: !!process.env.CI,
+\tretries: ${config.retries},
 \tworkers: ${workers},
 ${shard}
 \treporter: [

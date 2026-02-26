@@ -9,6 +9,7 @@ export interface StorywrightConfig {
 	storage: StorageConfig;
 	report: ReportConfig;
 	workers: number | 'auto';
+	retries: number;
 	timeout: TimeoutConfig;
 	include: string[];
 	exclude: string[];

@@ -47,6 +47,7 @@ export const DEFAULT_CONFIG: StorywrightConfig = {
 	},
 
 	workers: 'auto',
+	retries: 0,
 
 	timeout: {
 		test: 30000,
