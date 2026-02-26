@@ -1,5 +1,14 @@
 # @storywright/cli
 
+## 0.3.9
+
+### Patch Changes
+
+- [`063546a`](https://github.com/macloud-developer/storywright/commit/063546a62a522303586582df04929dfc71cf507b) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Fix Storybook loading screen being captured in screenshots
+
+  - Wait for actual story content to render inside `#storybook-root` (not just DOM presence)
+  - Also detect portal-rendered content (modals, overlays) placed directly on `document.body`
+
 ## 0.3.8
 
 ### Patch Changes
