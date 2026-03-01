@@ -1,5 +1,15 @@
 # @storywright/cli
 
+## 0.5.1
+
+### Patch Changes
+
+- [`d97f89d`](https://github.com/macloud-developer/storywright/commit/d97f89d4d6136527a766e6b664fcfa839955cd21) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Add parallel options to `update` command and update README documentation
+
+  - `storywright update` に `--workers`, `--shard`, `--browsers`, `--filter`, `--retries` オプションを追加
+  - README に `test` コマンドの `--workers` オプションを追記
+  - README の `update` コマンドセクションにオプション説明を追加
+
 ## 0.5.0
 
 ### Minor Changes
