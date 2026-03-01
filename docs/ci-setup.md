@@ -445,6 +445,12 @@ export default defineConfig({
 
 ## Troubleshooting
 
+- `aws-cli/install` orb fails with "unzip: not found" on Playwright Docker image:
+  - The Playwright Docker image (`mcr.microsoft.com/playwright:*-noble`) does not include `unzip`. Install it before the orb step:
+    ```yaml
+    - run: apt-get update && apt-get install -y unzip
+    ```
+  - Alternatively, use the `aws-cli` orb's built-in install or pre-install AWS CLI in a custom Docker image.
 - `--diff-only` runs all stories unexpectedly:
   - Verify git history is available and `baseBranch` is correct in `storywright.config.ts`.
 - No baselines found:

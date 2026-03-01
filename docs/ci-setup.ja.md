@@ -445,6 +445,12 @@ export default defineConfig({
 
 ## トラブルシューティング
 
+- `aws-cli/install` orb で "unzip: not found" エラーが発生する:
+  - Playwright Docker イメージ（`mcr.microsoft.com/playwright:*-noble`）には `unzip` が含まれていません。orb ステップの前にインストールしてください:
+    ```yaml
+    - run: apt-get update && apt-get install -y unzip
+    ```
+  - または、カスタム Docker イメージで AWS CLI をプリインストールする方法もあります。
 - `--diff-only` なのに全件実行される:
   - git 履歴取得と `storywright.config.ts` の `baseBranch` を確認。
 - ベースラインが見つからない:
