@@ -9,7 +9,7 @@ import { uploadCommand } from './commands/upload.js';
 const main = defineCommand({
 	meta: {
 		name: 'storywright',
-		version: '0.1.0',
+		version: __PKG_VERSION__,
 		description: 'Zero-config visual regression testing powered by Storybook + Playwright',
 	},
 	subCommands: {

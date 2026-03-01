@@ -1,4 +1,8 @@
+/// <reference types="node" />
+import { readFileSync } from 'fs';
 import { defineConfig } from 'tsup';
+
+const { version } = JSON.parse(readFileSync('./package.json', 'utf-8'));
 
 export default defineConfig({
 	entry: {
@@ -13,4 +17,7 @@ export default defineConfig({
 	splitting: true,
 	sourcemap: true,
 	external: ['@playwright/test'],
+	define: {
+		__PKG_VERSION__: JSON.stringify(version),
+	},
 });
