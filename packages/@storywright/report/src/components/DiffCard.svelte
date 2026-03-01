@@ -15,6 +15,25 @@
 
 	let collapsed = $derived(viewed);
 
+	// Lazy mount: ビューポート付近に入るまで ImageTabs をマウントしない
+	let nearViewport = $state(false);
+	let cardEl: HTMLDivElement | undefined = $state();
+
+	$effect(() => {
+		if (!cardEl || nearViewport) return;
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting) {
+					nearViewport = true;
+					observer.disconnect();
+				}
+			},
+			{ rootMargin: '200px' },
+		);
+		observer.observe(cardEl);
+		return () => observer.disconnect();
+	});
+
 	function handleViewedToggle(e: Event) {
 		e.stopPropagation();
 		onViewedChange?.(!viewed);
@@ -41,7 +60,7 @@
 	);
 </script>
 
-<div class="diff-card" class:collapsed class:is-new={failure.type === 'new'}>
+<div class="diff-card" class:collapsed class:is-new={failure.type === 'new'} bind:this={cardEl}>
 	<div class="card-header" role="button" tabindex="0" onclick={collapsed ? handleCollapseToggle : undefined} onkeydown={handleHeaderKeydown}>
 		<div class="header-left">
 			<span class="type-icon">
@@ -79,7 +98,7 @@
 			</button>
 		</div>
 	</div>
-	{#if !collapsed}
+	{#if !collapsed && nearViewport}
 		<div class="card-body">
 			<ImageTabs {failure} />
 		</div>

@@ -24,7 +24,6 @@
 		return false;
 	}
 
-	const currentSrc = $derived(failure[activeTab] || '');
 </script>
 
 <div class="image-tabs">
@@ -43,20 +42,27 @@
 		{/each}
 	</div>
 	<div class="image-container">
-		{#if failure.type === 'new' && activeTab !== 'actual'}
-			<div class="no-image">
-				{@html photo}
-				<p>New story — no baseline exists yet.</p>
-				<p class="hint">Run with <code>--update-snapshots</code> to create baseline</p>
+		{#each tabs as tab (tab.key)}
+			{@const src = failure[tab.key] || ''}
+			{@const isActive = activeTab === tab.key}
+			{@const isNewPlaceholder = failure.type === 'new' && tab.key !== 'actual'}
+			<div class="image-panel" class:hidden={!isActive}>
+				{#if isNewPlaceholder}
+					<div class="no-image">
+						{@html photo}
+						<p>New story — no baseline exists yet.</p>
+						<p class="hint">Run with <code>--update-snapshots</code> to create baseline</p>
+					</div>
+				{:else if src}
+					<img src={src} alt={tab.label} />
+				{:else}
+					<div class="no-image">
+						{@html photo}
+						<p>No image available</p>
+					</div>
+				{/if}
 			</div>
-		{:else if currentSrc}
-			<img src={currentSrc} alt={activeTab} />
-		{:else}
-			<div class="no-image">
-				{@html photo}
-				<p>No image available</p>
-			</div>
-		{/if}
+		{/each}
 	</div>
 </div>
 
@@ -93,6 +99,9 @@
 		overflow: auto;
 		max-height: 600px;
 		background: var(--color-bg-tertiary);
+	}
+	.image-panel.hidden {
+		display: none;
 	}
 	.image-container img {
 		display: block;
