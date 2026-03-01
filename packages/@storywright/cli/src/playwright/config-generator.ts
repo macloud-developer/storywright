@@ -1,4 +1,5 @@
-import type { StorywrightConfig } from '../config/types.js';
+import { STANDARD_BROWSERS } from '../config/types.js';
+import type { BrowserOption, StorywrightConfig } from '../config/types.js';
 
 export function generatePlaywrightConfig(
 	config: StorywrightConfig,
@@ -8,18 +9,20 @@ export function generatePlaywrightConfig(
 		snapshotDir: string;
 		reporterPath: string;
 		testMatch: string;
+		testMatchByBrowser?: Record<string, string>;
 		shard?: string;
 		reporters?: string[];
 	},
 ): string {
 	const projects = config.browsers.map((browser) => {
-		const browserOptions = config.browserOptions[browser];
-		const useObj = browserOptions
-			? JSON.stringify(browserOptions, null, '\t\t')
-			: getDefaultBrowserUse(browser);
+		const rawOptions = config.browserOptions[browser];
+		const useObj = buildBrowserUseObject(browser, rawOptions);
+		const useStr = JSON.stringify(useObj, null, '\t\t');
+		const testMatch = options.testMatchByBrowser?.[browser];
+		const testMatchLine = testMatch ? `\n\t\t\ttestMatch: '${escapeBackslash(testMatch)}',` : '';
 		return `\t\t{
-\t\t\tname: '${browser}',
-\t\t\tuse: ${useObj},
+\t\t\tname: '${browser}',${testMatchLine}
+\t\t\tuse: ${useStr},
 \t\t}`;
 	});
 
@@ -43,12 +46,15 @@ export function generatePlaywrightConfig(
 	// Always include custom storywright reporter
 	reporterEntries.push(`\t\t['${escapeBackslash(options.reporterPath)}']`);
 
+	const testMatchLine = options.testMatchByBrowser
+		? ''
+		: `\ttestMatch: '${escapeBackslash(options.testMatch)}',\n`;
+
 	return `import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
 \ttestDir: '${escapeBackslash(options.tmpDir)}',
-\ttestMatch: '${escapeBackslash(options.testMatch)}',
-\tsnapshotDir: '${escapeBackslash(options.snapshotDir)}',
+${testMatchLine}\tsnapshotDir: '${escapeBackslash(options.snapshotDir)}',
 \tsnapshotPathTemplate: '{snapshotDir}/{arg}-{projectName}{ext}',
 \ttimeout: ${config.timeout.test},
 \texpect: {
@@ -79,17 +85,28 @@ ${projects.join(',\n')}
 `;
 }
 
-function getDefaultBrowserUse(browser: string): string {
-	switch (browser) {
-		case 'chromium':
-			return "{ browserName: 'chromium' }";
-		case 'firefox':
-			return "{ browserName: 'firefox' }";
-		case 'webkit':
-			return "{ browserName: 'webkit' }";
-		default:
-			return `{ browserName: '${browser}' }`;
+function buildBrowserUseObject(
+	browser: string,
+	rawOptions?: BrowserOption,
+): Record<string, unknown> {
+	let browserName: string;
+	if (rawOptions?.browserName) {
+		browserName = rawOptions.browserName;
+	} else if (STANDARD_BROWSERS.has(browser)) {
+		browserName = browser;
+	} else {
+		throw new Error(
+			`Cannot resolve browserName for custom browser project '${browser}'.\n\nError code: SW_E_INTERNAL_BROWSER_RESOLVE`,
+		);
 	}
+	const useObj: Record<string, unknown> = { browserName };
+
+	if (rawOptions) {
+		const { browserName: _, exclude: __, ...rest } = rawOptions;
+		Object.assign(useObj, rest);
+	}
+
+	return useObj;
 }
 
 function escapeBackslash(str: string): string {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_CONFIG } from '../src/config/defaults.js';
-import { filterStories } from '../src/core/storybook.js';
+import { excludeStoriesForBrowser, filterStories } from '../src/core/storybook.js';
 import type { StoryIndex } from '../src/core/types.js';
 
 const stubIndex: StoryIndex = {
@@ -72,5 +72,27 @@ describe('filterStories', () => {
 		const result = filterStories(stubIndex, config);
 		expect(result.entries['button--primary']).toBeDefined();
 		expect(result.entries['form--default']).toBeUndefined();
+	});
+});
+
+describe('excludeStoriesForBrowser', () => {
+	const filteredIndex = filterStories(stubIndex, DEFAULT_CONFIG);
+
+	it('should exclude stories matching the pattern', () => {
+		const result = excludeStoriesForBrowser(filteredIndex, ['**/Animated/**']);
+		expect(result.entries['animated--spin']).toBeUndefined();
+		expect(result.entries['button--primary']).toBeDefined();
+	});
+
+	it('should return all stories when exclude patterns are empty', () => {
+		const result = excludeStoriesForBrowser(filteredIndex, []);
+		expect(Object.keys(result.entries)).toEqual(Object.keys(filteredIndex.entries));
+	});
+
+	it('should apply multiple exclude patterns', () => {
+		const result = excludeStoriesForBrowser(filteredIndex, ['**/Button/**', '**/Form/**']);
+		expect(result.entries['button--primary']).toBeUndefined();
+		expect(result.entries['form--default']).toBeUndefined();
+		expect(result.entries['animated--spin']).toBeDefined();
 	});
 });

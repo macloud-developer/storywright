@@ -95,3 +95,25 @@ export function filterStories(storyIndex: StoryIndex, config: StorywrightConfig)
 
 	return { ...storyIndex, entries };
 }
+
+export function excludeStoriesForBrowser(
+	storyIndex: StoryIndex,
+	excludePatterns: string[],
+): StoryIndex {
+	if (excludePatterns.length === 0) {
+		return storyIndex;
+	}
+
+	const excludeMatchers = excludePatterns.map((p) => picomatch(p));
+	const entries: Record<string, Story> = {};
+
+	for (const [id, story] of Object.entries(storyIndex.entries)) {
+		const fullName = `${story.title}/${story.name}`;
+		const isExcluded = excludeMatchers.some((m) => m(fullName));
+		if (!isExcluded) {
+			entries[id] = story;
+		}
+	}
+
+	return { ...storyIndex, entries };
+}

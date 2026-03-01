@@ -18,12 +18,22 @@ export interface StorywrightConfig {
 
 export type BrowserName = 'chromium' | 'firefox' | 'webkit' | (string & {});
 
+export type PlaywrightBrowserName = 'chromium' | 'firefox' | 'webkit';
+
+export const STANDARD_BROWSERS: ReadonlySet<string> = new Set<PlaywrightBrowserName>([
+	'chromium',
+	'firefox',
+	'webkit',
+]);
+
 export interface BrowserOption {
+	browserName?: PlaywrightBrowserName;
 	viewport?: { width: number; height: number };
 	deviceScaleFactor?: number;
 	isMobile?: boolean;
 	hasTouch?: boolean;
 	userAgent?: string;
+	exclude?: string[];
 }
 
 export interface StorybookConfig {

@@ -9,7 +9,12 @@ import { createStorageAdapter } from '../storage/index.js';
 import { logger } from '../utils/logger.js';
 import { resolveOutputDir } from '../utils/path.js';
 import { exec } from '../utils/process.js';
-import { buildStorybook, discoverStories, filterStories } from './storybook.js';
+import {
+	buildStorybook,
+	discoverStories,
+	excludeStoriesForBrowser,
+	filterStories,
+} from './storybook.js';
 import type { Story, StoryIndex, TestSummary } from './types.js';
 
 export interface TestOptions {
@@ -111,21 +116,69 @@ export async function runTests(
 	await baselinePromise;
 
 	// 5. Generate split test files for better worker distribution
-	const chunks = chunkStories(targetStories.entries);
-	const testFilePattern = chunks.length === 1 ? 'storywright-0.spec.ts' : 'storywright-*.spec.ts';
+	let testFilePattern: string;
+	let testMatchByBrowser: Record<string, string> | undefined;
 
-	for (let i = 0; i < chunks.length; i++) {
-		const chunkIndex: StoryIndex = { ...targetStories, entries: chunks[i] };
-		const chunkPath = path.join(tmpDir, `target-stories-${i}.json`);
-		await fs.writeFile(chunkPath, JSON.stringify(chunkIndex));
+	const browserExcludesExist = config.browsers.some(
+		(b) => (config.browserOptions[b]?.exclude ?? []).length > 0,
+	);
 
-		const testContent = generateTestFile(config.screenshot, {
-			targetStoriesPath: chunkPath.replace(/\\/g, '/'),
-		});
-		await fs.writeFile(path.join(tmpDir, `storywright-${i}.spec.ts`), testContent);
+	if (browserExcludesExist) {
+		// Generate per-browser test files when any browser has specific excludes
+		testMatchByBrowser = {};
+
+		for (const browser of config.browsers) {
+			const browserExclude = config.browserOptions[browser]?.exclude ?? [];
+			const browserStories = excludeStoriesForBrowser(targetStories, browserExclude);
+
+			if (Object.keys(browserStories.entries).length === 0) {
+				logger.warn(
+					`${browser}: All stories excluded by browser-specific 'exclude' patterns. No tests will run for this browser.`,
+				);
+			}
+
+			const browserChunks = chunkStories(browserStories.entries);
+
+			testMatchByBrowser[browser] =
+				browserChunks.length === 1
+					? `storywright-${browser}-0.spec.ts`
+					: `storywright-${browser}-*.spec.ts`;
+
+			for (let i = 0; i < browserChunks.length; i++) {
+				const chunkIndex: StoryIndex = { ...browserStories, entries: browserChunks[i] };
+				const chunkPath = path.join(tmpDir, `target-stories-${browser}-${i}.json`);
+				await fs.writeFile(chunkPath, JSON.stringify(chunkIndex));
+
+				const testContent = generateTestFile(config.screenshot, {
+					targetStoriesPath: chunkPath.replace(/\\/g, '/'),
+				});
+				await fs.writeFile(path.join(tmpDir, `storywright-${browser}-${i}.spec.ts`), testContent);
+			}
+
+			logger.info(
+				`${browser}: ${Object.keys(browserStories.entries).length} stories, ${browserChunks.length} test file(s)`,
+			);
+		}
+
+		testFilePattern = 'storywright-*.spec.ts';
+	} else {
+		// Default: shared test files for all browsers
+		const chunks = chunkStories(targetStories.entries);
+		testFilePattern = chunks.length === 1 ? 'storywright-0.spec.ts' : 'storywright-*.spec.ts';
+
+		for (let i = 0; i < chunks.length; i++) {
+			const chunkIndex: StoryIndex = { ...targetStories, entries: chunks[i] };
+			const chunkPath = path.join(tmpDir, `target-stories-${i}.json`);
+			await fs.writeFile(chunkPath, JSON.stringify(chunkIndex));
+
+			const testContent = generateTestFile(config.screenshot, {
+				targetStoriesPath: chunkPath.replace(/\\/g, '/'),
+			});
+			await fs.writeFile(path.join(tmpDir, `storywright-${i}.spec.ts`), testContent);
+		}
+
+		logger.info(`${chunks.length} test file(s) generated`);
 	}
-
-	logger.info(`${chunks.length} test file(s) generated`);
 
 	// 6. Generate Playwright config
 	const reporterWrapperPath = path.join(tmpDir, 'reporter.mjs');
@@ -151,6 +204,7 @@ export async function runTests(
 		snapshotDir: snapshotDir.replace(/\\/g, '/'),
 		reporterPath: reporterWrapperPath.replace(/\\/g, '/'),
 		testMatch: testFilePattern,
+		testMatchByBrowser,
 		shard: options.shard,
 		reporters: options.reporters,
 	});
