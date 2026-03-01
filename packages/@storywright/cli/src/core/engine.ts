@@ -250,10 +250,19 @@ export async function runTests(
 
 export async function updateBaselines(
 	config: StorywrightConfig,
-	options: { all?: boolean; upload?: boolean } = {},
+	options: { all?: boolean; upload?: boolean; shard?: string; filter?: string } = {},
 	cwd: string = process.cwd(),
 ): Promise<void> {
-	const result = await runTests(config, { updateSnapshots: true, diffOnly: !options.all }, cwd);
+	const result = await runTests(
+		config,
+		{
+			updateSnapshots: true,
+			diffOnly: !options.all,
+			shard: options.shard,
+			filter: options.filter,
+		},
+		cwd,
+	);
 
 	if (result.exitCode !== 0) {
 		logger.warn('Some tests failed during baseline update');

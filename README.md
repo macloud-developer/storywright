@@ -103,6 +103,7 @@ npx storywright test
 npx storywright test --diff-only
 npx storywright test --browsers chromium,webkit
 npx storywright test --shard 1/4
+npx storywright test --workers 4
 npx storywright test --threshold 0.05
 npx storywright test --max-diff-pixel-ratio 0.03
 npx storywright test --filter "Components/**"
@@ -117,6 +118,7 @@ Main options:
 - `--browsers`: comma-separated browser projects
 - `--diff-only`: run only affected stories from git diff
 - `--shard`: shard format `index/total`
+- `--workers`: number of parallel workers (`auto` or number)
 - `--threshold`: per-pixel color threshold
 - `--max-diff-pixel-ratio`: allowed diff ratio
 - `--filter`: story filter glob
@@ -129,11 +131,25 @@ Main options:
 
 ### `storywright update`
 
+Update baseline snapshots. Supports the same parallel options as `test`.
+
 ```bash
 npx storywright update
 npx storywright update --all
 npx storywright update --upload
+npx storywright update --shard 1/4
+npx storywright update --workers 4
+npx storywright update --browsers chromium,webkit
+npx storywright update --filter "Components/**"
 ```
+
+- `--all`: regenerate all baselines (skip diff detection)
+- `--upload`: upload baselines to remote storage after update
+- `--shard`: shard format `index/total`
+- `--workers`: number of parallel workers (`auto` or number)
+- `--browsers`: comma-separated browser projects
+- `--filter`: filter stories by glob pattern
+- `--retries`: retry count for failed tests
 
 ### `storywright upload` / `storywright download`
 

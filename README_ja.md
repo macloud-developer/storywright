@@ -101,6 +101,7 @@ npx storywright test
 npx storywright test --diff-only
 npx storywright test --browsers chromium,webkit
 npx storywright test --shard 1/4
+npx storywright test --workers 4
 npx storywright test --threshold 0.05
 npx storywright test --max-diff-pixel-ratio 0.03
 npx storywright test --filter "Components/**"
@@ -115,6 +116,7 @@ npx storywright test --retries 2
 - `--browsers`: ブラウザ指定（カンマ区切り）
 - `--diff-only`: 変更影響のあるストーリーのみ実行
 - `--shard`: `index/total` 形式
+- `--workers`: 並列ワーカー数（`auto` または数値）
 - `--threshold`: 1ピクセル単位の閾値
 - `--max-diff-pixel-ratio`: 画像全体の差分許容率
 - `--filter`: ストーリー絞り込み glob
@@ -127,11 +129,25 @@ npx storywright test --retries 2
 
 ### `storywright update`
 
+ベースラインスナップショットを更新します。`test` と同じ並列オプションに対応しています。
+
 ```bash
 npx storywright update
 npx storywright update --all
 npx storywright update --upload
+npx storywright update --shard 1/4
+npx storywright update --workers 4
+npx storywright update --browsers chromium,webkit
+npx storywright update --filter "Components/**"
 ```
+
+- `--all`: 全ベースラインを再生成（差分検出をスキップ）
+- `--upload`: 更新後にリモートストレージへアップロード
+- `--shard`: `index/total` 形式
+- `--workers`: 並列ワーカー数（`auto` または数値）
+- `--browsers`: ブラウザ指定（カンマ区切り）
+- `--filter`: ストーリー絞り込み glob
+- `--retries`: 失敗テストのリトライ回数
 
 ### `storywright upload` / `storywright download`
 
