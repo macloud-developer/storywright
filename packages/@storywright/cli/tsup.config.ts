@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'tsup';
 
 const { version } = JSON.parse(readFileSync('./package.json', 'utf-8'));
