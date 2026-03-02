@@ -16,7 +16,7 @@ export async function createStorageAdapter(config: StorageConfig): Promise<Stora
 async function loadS3Adapter(config: StorageConfig): Promise<StorageAdapter> {
 	try {
 		const { S3StorageAdapter } = await import('@storywright/storage-s3');
-		return new S3StorageAdapter(config.s3);
+		return new S3StorageAdapter(config.s3) as StorageAdapter;
 	} catch {
 		throw new Error(
 			'S3 storage adapter requires the @storywright/storage-s3 package.\nInstall it with: pnpm add @storywright/storage-s3',

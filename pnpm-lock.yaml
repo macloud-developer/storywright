@@ -51,9 +51,6 @@ importers:
       '@playwright/test':
         specifier: ^1.50.0
         version: 1.58.2
-      '@storywright/storage-s3':
-        specifier: workspace:*
-        version: link:../storage-s3
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.11
@@ -97,9 +94,6 @@ importers:
       '@aws-sdk/lib-storage':
         specifier: ^3.750.0
         version: 3.1000.0(@aws-sdk/client-s3@3.995.0)
-      '@storywright/cli':
-        specifier: workspace:*
-        version: link:../cli
       tar:
         specifier: ^7.0.0
         version: 7.5.9
@@ -107,6 +101,9 @@ importers:
         specifier: ^0.0.12
         version: 0.0.12
     devDependencies:
+      '@storywright/cli':
+        specifier: workspace:*
+        version: link:../cli
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.11
