@@ -78,6 +78,14 @@ export const reportCommand = defineCommand({
 				merged.duration = Math.max(merged.duration, summary.duration);
 				merged.browsers = [...new Set([...merged.browsers, ...summary.browsers])];
 				merged.failures.push(...summary.failures);
+
+				const shardAssetsDir = path.join(path.dirname(file), 'assets');
+				const destAssetsDir = path.join(reportDir, 'assets');
+				try {
+					await fs.cp(shardAssetsDir, destAssetsDir, { recursive: true });
+				} catch {
+					// assets/ が存在しないシャード (全テスト pass) はスキップ
+				}
 			}
 
 			await fs.mkdir(reportDir, { recursive: true });
