@@ -1,5 +1,11 @@
 # @storywright/cli
 
+## 0.5.2
+
+### Patch Changes
+
+- [`0306903`](https://github.com/macloud-developer/storywright/commit/0306903d8c9c1a9c7c3d69c36b06370d06362829) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Fix S3 storage adapter ESM compatibility by replacing `createRequire()` with dynamic `import()`
+
 ## 0.5.1
 
 ### Patch Changes
