@@ -1,5 +1,11 @@
 # @storywright/storage-s3
 
+## 1.0.2
+
+### Patch Changes
+
+- [`d6d00e8`](https://github.com/macloud-developer/storywright/commit/d6d00e8d743abf5ba68ab52434ec476acef87518) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Fix S3 download missing files when >1000 objects exist by adding ListObjectsV2 pagination
+
 ## 1.0.1
 
 ### Patch Changes
