@@ -74,7 +74,7 @@ export async function runTests(
 	await fs.mkdir(snapshotDir, { recursive: true });
 
 	// Start baseline download in parallel with Storybook build
-	const storage = createStorageAdapter(config.storage);
+	const storage = await createStorageAdapter(config.storage);
 	const baselinePromise = storage
 		.download({ branch: 'current', destDir: snapshotDir })
 		.catch(() => {
@@ -278,7 +278,7 @@ export async function updateBaselines(
 
 	// --upload: upload to remote storage (S3 etc.) only when explicitly requested
 	if (options.upload) {
-		const storage = createStorageAdapter(config.storage);
+		const storage = await createStorageAdapter(config.storage);
 		const baselineDir = path.resolve(cwd, config.storage.local.baselineDir);
 		await storage.upload({
 			branch: 'current',

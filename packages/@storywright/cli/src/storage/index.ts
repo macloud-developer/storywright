@@ -1,23 +1,21 @@
-import { createRequire } from 'node:module';
 import type { StorageConfig } from '../config/types.js';
 import { LocalStorageAdapter } from './local.js';
 import type { StorageAdapter } from './types.js';
 
-export function createStorageAdapter(config: StorageConfig): StorageAdapter {
+export async function createStorageAdapter(config: StorageConfig): Promise<StorageAdapter> {
 	switch (config.provider) {
 		case 'local':
 			return new LocalStorageAdapter(config.local.baselineDir);
 		case 's3':
-			return loadS3Adapter(config);
+			return await loadS3Adapter(config);
 		default:
 			throw new Error(`Unknown storage provider: ${config.provider}`);
 	}
 }
 
-function loadS3Adapter(config: StorageConfig): StorageAdapter {
+async function loadS3Adapter(config: StorageConfig): Promise<StorageAdapter> {
 	try {
-		const require = createRequire(import.meta.url);
-		const { S3StorageAdapter } = require('@storywright/storage-s3') as {
+		const { S3StorageAdapter } = (await import('@storywright/storage-s3')) as {
 			S3StorageAdapter: new (cfg: {
 				bucket: string;
 				prefix: string;

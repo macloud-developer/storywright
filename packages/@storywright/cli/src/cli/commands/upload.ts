@@ -12,7 +12,7 @@ export const uploadCommand = defineCommand({
 	args: {},
 	async run() {
 		const config = await loadConfig();
-		const storage = createStorageAdapter(config.storage);
+		const storage = await createStorageAdapter(config.storage);
 		const snapshotDir = path.resolve(config.storage.local.baselineDir);
 
 		logger.start('Uploading baselines...');

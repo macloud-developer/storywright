@@ -52,7 +52,7 @@ export async function createStorywright(
 		},
 
 		async upload() {
-			const storage = createStorageAdapter(config.storage);
+			const storage = await createStorageAdapter(config.storage);
 			await storage.upload({
 				branch: 'current',
 				sourceDir: path.resolve(cwd, config.storage.local.baselineDir),
@@ -60,7 +60,7 @@ export async function createStorywright(
 		},
 
 		async download(options = {}) {
-			const storage = createStorageAdapter(config.storage);
+			const storage = await createStorageAdapter(config.storage);
 			const destDir = path.resolve(cwd, config.storage.local.baselineDir);
 			const branch = options.branch ?? 'main';
 

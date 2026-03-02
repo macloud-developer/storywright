@@ -19,7 +19,7 @@ export const downloadCommand = defineCommand({
 	},
 	async run({ args }) {
 		const config = await loadConfig();
-		const storage = createStorageAdapter(config.storage);
+		const storage = await createStorageAdapter(config.storage);
 		const destDir = path.resolve(config.storage.local.baselineDir);
 		const branch = args.branch ?? 'main';
 
