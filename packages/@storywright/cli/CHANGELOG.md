@@ -1,5 +1,11 @@
 # @storywright/cli
 
+## 0.5.3
+
+### Patch Changes
+
+- [`56f6957`](https://github.com/macloud-developer/storywright/commit/56f69576e31ad53d7f746c0fd30c511139f9a031) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Propagate exit code from `updateBaselines()` so CI correctly fails on test errors
+
 ## 0.5.2
 
 ### Patch Changes
