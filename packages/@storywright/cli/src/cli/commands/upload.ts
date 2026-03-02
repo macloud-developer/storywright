@@ -9,8 +9,13 @@ export const uploadCommand = defineCommand({
 		name: 'upload',
 		description: 'Upload baselines to remote storage',
 	},
-	args: {},
-	async run() {
+	args: {
+		shard: {
+			type: 'string',
+			description: 'Shard identifier (e.g. "1/3")',
+		},
+	},
+	async run({ args }) {
 		const config = await loadConfig();
 		const storage = await createStorageAdapter(config.storage);
 		const snapshotDir = path.resolve(config.storage.local.baselineDir);
@@ -19,6 +24,7 @@ export const uploadCommand = defineCommand({
 		await storage.upload({
 			branch: 'current',
 			sourceDir: snapshotDir,
+			shard: args.shard,
 		});
 		logger.success('Baselines uploaded');
 	},

@@ -283,6 +283,7 @@ export async function updateBaselines(
 		await storage.upload({
 			branch: 'current',
 			sourceDir: baselineDir,
+			shard: options.shard,
 		});
 		logger.success('Baselines uploaded to remote storage');
 	}

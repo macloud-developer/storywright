@@ -12,5 +12,5 @@ export interface DownloadOptions {
 export interface UploadOptions {
 	branch: string;
 	sourceDir: string;
-	compression?: 'zstd' | 'gzip' | 'none';
+	shard?: string;
 }

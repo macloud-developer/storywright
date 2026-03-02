@@ -5,6 +5,6 @@ export default defineConfig({
 	format: ['esm'],
 	dts: true,
 	clean: true,
-	target: 'node18',
-	external: ['storywright'],
+	target: 'node20',
+	external: [/@storywright/, /@aws-sdk/, 'zstd-napi', 'tar'],
 });

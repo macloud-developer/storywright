@@ -15,7 +15,7 @@ export interface Storywright {
 	}): Promise<TestRunResult>;
 
 	update(options?: { all?: boolean }): Promise<TestRunResult>;
-	upload(): Promise<void>;
+	upload(options?: { shard?: string }): Promise<void>;
 	download(options?: { branch?: string }): Promise<void>;
 	generateReport(result: TestRunResult): string | undefined;
 }
@@ -51,11 +51,12 @@ export async function createStorywright(
 			return updateBaselines(config, { all: options.all }, cwd);
 		},
 
-		async upload() {
+		async upload(options = {}) {
 			const storage = await createStorageAdapter(config.storage);
 			await storage.upload({
 				branch: 'current',
 				sourceDir: path.resolve(cwd, config.storage.local.baselineDir),
+				shard: options.shard,
 			});
 		},
 
