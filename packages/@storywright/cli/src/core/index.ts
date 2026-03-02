@@ -14,7 +14,7 @@ export interface Storywright {
 		filter?: string;
 	}): Promise<TestRunResult>;
 
-	update(options?: { all?: boolean }): Promise<void>;
+	update(options?: { all?: boolean }): Promise<TestRunResult>;
 	upload(): Promise<void>;
 	download(options?: { branch?: string }): Promise<void>;
 	generateReport(result: TestRunResult): string | undefined;
@@ -48,7 +48,7 @@ export async function createStorywright(
 		},
 
 		async update(options = {}) {
-			await updateBaselines(config, { all: options.all }, cwd);
+			return updateBaselines(config, { all: options.all }, cwd);
 		},
 
 		async upload() {

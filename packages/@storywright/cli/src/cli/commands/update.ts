@@ -54,11 +54,13 @@ export const updateCommand = defineCommand({
 		}
 
 		const config = await loadConfig(process.cwd(), overrides);
-		await updateBaselines(config, {
+		const result = await updateBaselines(config, {
 			all: args.all,
 			upload: args.upload,
 			shard: args.shard,
 			filter: args.filter,
 		});
+
+		process.exit(result.exitCode);
 	},
 });

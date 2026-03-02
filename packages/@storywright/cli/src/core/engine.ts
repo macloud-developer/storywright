@@ -252,7 +252,7 @@ export async function updateBaselines(
 	config: StorywrightConfig,
 	options: { all?: boolean; upload?: boolean; shard?: string; filter?: string } = {},
 	cwd: string = process.cwd(),
-): Promise<void> {
+): Promise<TestRunResult> {
 	const result = await runTests(
 		config,
 		{
@@ -286,6 +286,8 @@ export async function updateBaselines(
 		});
 		logger.success('Baselines uploaded to remote storage');
 	}
+
+	return result;
 }
 
 function applyFilter(storyIndex: StoryIndex, filter: string): StoryIndex {
