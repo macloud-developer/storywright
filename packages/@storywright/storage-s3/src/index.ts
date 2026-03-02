@@ -24,19 +24,15 @@ export class S3StorageAdapter implements StorageAdapter {
 
 	async download(options: DownloadOptions): Promise<void> {
 		const prefix = this.getPrefix(options.branch);
-		const listCommand = new ListObjectsV2Command({
-			Bucket: this.config.bucket,
-			Prefix: prefix,
-		});
+		const objects = await this.listAllObjects(prefix);
 
-		const listResult = await this.client.send(listCommand);
-		if (!listResult.Contents || listResult.Contents.length === 0) {
+		if (objects.length === 0) {
 			return;
 		}
 
 		await fs.mkdir(options.destDir, { recursive: true });
 
-		for (const object of listResult.Contents) {
+		for (const object of objects) {
 			if (!object.Key) continue;
 
 			const relativePath = object.Key.slice(prefix.length);
@@ -102,6 +98,29 @@ export class S3StorageAdapter implements StorageAdapter {
 		if (filePath.endsWith('.png')) return 'image/png';
 		if (filePath.endsWith('.json')) return 'application/json';
 		return 'application/octet-stream';
+	}
+
+	private async listAllObjects(prefix: string): Promise<{ Key?: string }[]> {
+		const objects: { Key?: string }[] = [];
+		let continuationToken: string | undefined;
+
+		do {
+			const result = await this.client.send(
+				new ListObjectsV2Command({
+					Bucket: this.config.bucket,
+					Prefix: prefix,
+					ContinuationToken: continuationToken,
+				}),
+			);
+
+			if (result.Contents) {
+				objects.push(...result.Contents);
+			}
+
+			continuationToken = result.IsTruncated ? result.NextContinuationToken : undefined;
+		} while (continuationToken);
+
+		return objects;
 	}
 
 	private async walkDir(dir: string): Promise<string[]> {
