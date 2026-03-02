@@ -1,6 +1,6 @@
 {
 	"name": "@storywright/cli",
-	"version": "0.5.3",
+	"version": "0.5.4",
 	"description": "Zero-config visual regression testing powered by Storybook + Playwright",
 	"type": "module",
 	"license": "MIT",
