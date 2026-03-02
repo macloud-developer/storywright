@@ -51,6 +51,9 @@ importers:
       '@playwright/test':
         specifier: ^1.50.0
         version: 1.58.2
+      '@storywright/storage-s3':
+        specifier: workspace:*
+        version: link:../storage-s3
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.11

@@ -16,7 +16,7 @@ export default defineConfig({
 	target: 'node20',
 	splitting: true,
 	sourcemap: true,
-	external: ['@playwright/test'],
+	external: ['@playwright/test', '@storywright/storage-s3'],
 	define: {
 		__PKG_VERSION__: JSON.stringify(version),
 	},

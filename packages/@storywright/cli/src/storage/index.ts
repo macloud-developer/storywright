@@ -15,14 +15,7 @@ export async function createStorageAdapter(config: StorageConfig): Promise<Stora
 
 async function loadS3Adapter(config: StorageConfig): Promise<StorageAdapter> {
 	try {
-		const { S3StorageAdapter } = (await import('@storywright/storage-s3')) as {
-			S3StorageAdapter: new (cfg: {
-				bucket: string;
-				prefix: string;
-				region: string;
-				compression?: string;
-			}) => StorageAdapter;
-		};
+		const { S3StorageAdapter } = await import('@storywright/storage-s3');
 		return new S3StorageAdapter(config.s3);
 	} catch {
 		throw new Error(

@@ -38,6 +38,7 @@
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.50.0",
+		"@storywright/storage-s3": "workspace:*",
 		"@types/node": "^22.0.0",
 		"@types/picomatch": "^3.0.1",
 		"tsup": "^8.3.0",
