@@ -1,5 +1,21 @@
 # @storywright/cli
 
+## 0.5.4
+
+### Patch Changes
+
+- [`2160b8c`](https://github.com/macloud-developer/storywright/commit/2160b8c941150ef9b737b6765e6db5e7f89e1263) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Fix report merge to copy shard assets directories
+
+  - `storywright report --merge` now copies `assets/` directories from each shard report into the merged report directory
+  - Fixes broken image links (expected/actual/diff) in merged HTML reports
+
+- [`f46dcf3`](https://github.com/macloud-developer/storywright/commit/f46dcf33451a4699aa8d7443082f00269d5b82fa) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Implement tar.zst/tar.gz archive compression for S3 storage adapter
+
+  - Upload: bundle files into a single tar archive, compress with zstd or gzip, multipart upload via `@aws-sdk/lib-storage`
+  - Download: auto-detect compression from file extension, decompress and extract; falls back to individual file download for backward compatibility
+  - Add `--shard` option to `upload` command for shard-aware archive naming
+  - Clean up stale archives when shard count or compression format changes
+
 ## 0.5.3
 
 ### Patch Changes
