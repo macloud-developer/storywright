@@ -37,27 +37,30 @@ export class S3StorageAdapter implements StorageAdapter {
 
 	async download(options: DownloadOptions): Promise<void> {
 		const prefix = this.getPrefix(options.branch);
+		const progress = options.onProgress ?? (() => {});
 		const archivePrefix = `${prefix}${ARCHIVE_DIR}/`;
 		const archives = await this.listAllObjects(archivePrefix);
 
 		if (archives.length > 0) {
-			await this.downloadArchives(archives, options.destDir);
+			progress(`Downloading ${archives.length} archive(s)...`);
+			await this.downloadArchives(archives, options.destDir, progress);
 			return;
 		}
 
 		// Fall back to individual files (backward compat)
-		await this.downloadIndividualFiles(prefix, options.destDir);
+		await this.downloadIndividualFiles(prefix, options.destDir, progress);
 	}
 
 	async upload(options: UploadOptions): Promise<void> {
 		const compression = this.config.compression ?? 'none';
+		const progress = options.onProgress ?? (() => {});
 
 		if (compression === 'none') {
-			await this.uploadIndividualFiles(options);
+			await this.uploadIndividualFiles(options, progress);
 			return;
 		}
 
-		await this.uploadArchive(options, compression);
+		await this.uploadArchive(options, compression, progress);
 	}
 
 	async exists(branch: string): Promise<boolean> {
@@ -89,7 +92,11 @@ export class S3StorageAdapter implements StorageAdapter {
 
 	// --- Archive upload ---
 
-	private async uploadArchive(options: UploadOptions, compression: 'zstd' | 'gzip'): Promise<void> {
+	private async uploadArchive(
+		options: UploadOptions,
+		compression: 'zstd' | 'gzip',
+		progress: (msg: string) => void,
+	): Promise<void> {
 		const prefix = this.getPrefix(options.branch);
 		const files = await this.walkDir(options.sourceDir);
 
@@ -97,7 +104,7 @@ export class S3StorageAdapter implements StorageAdapter {
 
 		const relativeFiles = files.map((f) => path.relative(options.sourceDir, f).replace(/\\/g, '/'));
 
-		// Create tar archive in memory
+		progress(`Archiving ${files.length} files...`);
 		const pack = tar.create({ cwd: options.sourceDir }, relativeFiles);
 		const chunks: Buffer[] = [];
 		for await (const chunk of pack) {
@@ -105,14 +112,16 @@ export class S3StorageAdapter implements StorageAdapter {
 		}
 		const tarBuffer = Buffer.concat(chunks);
 
-		// Compress
+		progress(
+			`Compressing with ${compression} (${(tarBuffer.length / 1024 / 1024).toFixed(1)} MB)...`,
+		);
 		const compressed =
 			compression === 'zstd' ? zstdCompress(tarBuffer) : await gzipAsync(tarBuffer);
 
-		// Upload with multipart support for large archives
 		const archiveName = this.getArchiveName(options.shard, compression);
 		const key = `${prefix}${ARCHIVE_DIR}/${archiveName}`;
 
+		progress(`Uploading ${archiveName} (${(compressed.length / 1024 / 1024).toFixed(1)} MB)...`);
 		const upload = new Upload({
 			client: this.client,
 			params: {
@@ -125,17 +134,24 @@ export class S3StorageAdapter implements StorageAdapter {
 		});
 		await upload.done();
 
-		// Clean up stale archives (e.g. when shard count or compression changes)
 		await this.cleanupStaleArchives(prefix, options.shard, compression);
 	}
 
 	// --- Archive download ---
 
-	private async downloadArchives(archives: { Key?: string }[], destDir: string): Promise<void> {
+	private async downloadArchives(
+		archives: { Key?: string }[],
+		destDir: string,
+		progress: (msg: string) => void,
+	): Promise<void> {
 		await fs.mkdir(destDir, { recursive: true });
 
-		for (const archive of archives) {
+		for (let i = 0; i < archives.length; i++) {
+			const archive = archives[i];
 			if (!archive.Key) continue;
+
+			const name = archive.Key.split('/').pop() ?? archive.Key;
+			progress(`Downloading archive ${i + 1}/${archives.length}: ${name}`);
 
 			const getResult = await this.client.send(
 				new GetObjectCommand({ Bucket: this.config.bucket, Key: archive.Key }),
@@ -145,7 +161,6 @@ export class S3StorageAdapter implements StorageAdapter {
 			const bytes = await getResult.Body.transformToByteArray();
 			const archiveBuffer = Buffer.from(bytes);
 
-			// Detect compression from file extension
 			let tarBuffer: Buffer;
 			if (archive.Key.endsWith('.tar.zst')) {
 				tarBuffer = zstdDecompress(archiveBuffer);
@@ -155,7 +170,7 @@ export class S3StorageAdapter implements StorageAdapter {
 				continue;
 			}
 
-			// Extract tar to destination
+			progress(`Extracting ${name} (${(tarBuffer.length / 1024 / 1024).toFixed(1)} MB)...`);
 			await pipeline(
 				Readable.from(tarBuffer),
 				tar.extract({ cwd: destDir }) as unknown as NodeJS.WritableStream,
@@ -165,18 +180,32 @@ export class S3StorageAdapter implements StorageAdapter {
 
 	// --- Individual file operations (backward compat) ---
 
-	private async downloadIndividualFiles(prefix: string, destDir: string): Promise<void> {
+	private async downloadIndividualFiles(
+		prefix: string,
+		destDir: string,
+		progress: (msg: string) => void,
+	): Promise<void> {
 		const objects = await this.listAllObjects(prefix);
 		if (objects.length === 0) return;
 
+		const files = objects.filter((o) => {
+			if (!o.Key) return false;
+			const rel = o.Key.slice(prefix.length);
+			return rel && !rel.startsWith(`${ARCHIVE_DIR}/`);
+		});
+
+		progress(`Downloading ${files.length} files...`);
 		await fs.mkdir(destDir, { recursive: true });
 
-		for (const object of objects) {
+		for (let i = 0; i < files.length; i++) {
+			const object = files[i];
 			if (!object.Key) continue;
 
-			const relativePath = object.Key.slice(prefix.length);
-			if (!relativePath || relativePath.startsWith(`${ARCHIVE_DIR}/`)) continue;
+			if ((i + 1) % 100 === 0 || i + 1 === files.length) {
+				progress(`Downloaded ${i + 1}/${files.length} files`);
+			}
 
+			const relativePath = object.Key.slice(prefix.length);
 			const destPath = path.join(destDir, relativePath);
 			await fs.mkdir(path.dirname(destPath), { recursive: true });
 
@@ -191,14 +220,24 @@ export class S3StorageAdapter implements StorageAdapter {
 		}
 	}
 
-	private async uploadIndividualFiles(options: UploadOptions): Promise<void> {
+	private async uploadIndividualFiles(
+		options: UploadOptions,
+		progress: (msg: string) => void,
+	): Promise<void> {
 		const prefix = this.getPrefix(options.branch);
 		const files = await this.walkDir(options.sourceDir);
 
-		for (const file of files) {
+		progress(`Uploading ${files.length} files...`);
+
+		for (let i = 0; i < files.length; i++) {
+			const file = files[i];
 			const relativePath = path.relative(options.sourceDir, file).replace(/\\/g, '/');
 			const key = `${prefix}${relativePath}`;
 			const content = await fs.readFile(file);
+
+			if ((i + 1) % 100 === 0 || i + 1 === files.length) {
+				progress(`Uploaded ${i + 1}/${files.length} files`);
+			}
 
 			await this.client.send(
 				new PutObjectCommand({

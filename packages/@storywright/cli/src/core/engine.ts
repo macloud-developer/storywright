@@ -74,12 +74,16 @@ export async function runTests(
 	await fs.mkdir(snapshotDir, { recursive: true });
 
 	// Start baseline download in parallel with Storybook build
-	const storage = await createStorageAdapter(config.storage);
-	const baselinePromise = storage
-		.download({ branch: 'current', destDir: snapshotDir })
-		.catch(() => {
-			logger.info('No existing baselines found');
-		});
+	// Skip download when updating snapshots (update command) — baselines are regenerated
+	let baselinePromise: Promise<void> | undefined;
+	if (!options.updateSnapshots) {
+		const storage = await createStorageAdapter(config.storage);
+		baselinePromise = storage
+			.download({ branch: 'current', destDir: snapshotDir, onProgress: (msg) => logger.info(msg) })
+			.catch(() => {
+				logger.info('No existing baselines found');
+			});
+	}
 
 	// 1. Build Storybook if needed
 	await buildStorybook(config, cwd);
@@ -284,6 +288,7 @@ export async function updateBaselines(
 			branch: 'current',
 			sourceDir: baselineDir,
 			shard: options.shard,
+			onProgress: (msg) => logger.info(msg),
 		});
 		logger.success('Baselines uploaded to remote storage');
 	}
