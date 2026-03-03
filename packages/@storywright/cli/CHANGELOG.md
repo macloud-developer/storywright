@@ -1,5 +1,14 @@
 # @storywright/cli
 
+## 0.5.6
+
+### Patch Changes
+
+- [`27ea5e3`](https://github.com/macloud-developer/storywright/commit/27ea5e35e96bc9f3edd78dc1ac0b28a41316cd84) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Fix WebKit screenshot capturing images before decode completes
+
+  - Add `img.decode()` after image load wait to ensure bitmaps are fully decoded before screenshot
+  - Fixes issue where expected screenshots on WebKit (Mobile Safari) captured placeholder/blank images, especially on ARM environments
+
 ## 0.5.5
 
 ### Patch Changes
