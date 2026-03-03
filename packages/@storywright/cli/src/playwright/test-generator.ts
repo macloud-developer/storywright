@@ -65,7 +65,22 @@ ${
 \t\t\t// Wait for web fonts to finish loading
 \t\t\tawait page.waitForFunction(() => document.fonts.ready);
 
-\t\t\t// Force lazy-loaded images to eager, wait for load, then decode for paint-readiness
+\t\t\t// Allow async renders to settle (multiple animation frames)
+\t\t\t// This must run BEFORE image checks so the framework has finished adding
+\t\t\t// all <img> elements to the DOM
+\t\t\tawait page.waitForFunction(
+\t\t\t\t() =>
+\t\t\t\t\tnew Promise((resolve) => {
+\t\t\t\t\t\tlet count = 0;
+\t\t\t\t\t\tconst tick = () => {
+\t\t\t\t\t\t\tif (++count >= 3) return resolve(true);
+\t\t\t\t\t\t\trequestAnimationFrame(tick);
+\t\t\t\t\t\t};
+\t\t\t\t\t\trequestAnimationFrame(tick);
+\t\t\t\t\t}),
+\t\t\t);
+
+\t\t\t// Force lazy-loaded images to eager and wait for load
 \t\t\tawait page.evaluate(async () => {
 \t\t\t\tconst lazyImages = document.querySelectorAll('img[loading="lazy"]');
 \t\t\t\tfor (const img of lazyImages) {
@@ -85,12 +100,6 @@ ${
 \t\t\t\t\t\t\t}),
 \t\t\t\t\t),
 \t\t\t\t);
-
-\t\t\t\t// Ensure all images are decoded and paint-ready (WebKit may report
-\t\t\t\t// complete/onload before the bitmap is decoded for rendering)
-\t\t\t\tawait Promise.all(
-\t\t\t\t\tArray.from(document.images).map((img) => img.decode().catch(() => {})),
-\t\t\t\t);
 \t\t\t});
 ${
 	disableAnimations
@@ -104,19 +113,6 @@ ${
 `
 		: ''
 }
-\t\t\t// Allow async renders to settle (multiple animation frames)
-\t\t\tawait page.waitForFunction(
-\t\t\t\t() =>
-\t\t\t\t\tnew Promise((resolve) => {
-\t\t\t\t\t\tlet count = 0;
-\t\t\t\t\t\tconst tick = () => {
-\t\t\t\t\t\t\tif (++count >= 3) return resolve(true);
-\t\t\t\t\t\t\trequestAnimationFrame(tick);
-\t\t\t\t\t\t};
-\t\t\t\t\t\trequestAnimationFrame(tick);
-\t\t\t\t\t}),
-\t\t\t);
-
 \t\t\t// Final stabilization delay for layout shifts
 \t\t\tawait page.waitForTimeout(200);
 
