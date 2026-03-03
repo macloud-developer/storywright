@@ -1,5 +1,15 @@
 # @storywright/cli
 
+## 0.5.7
+
+### Patch Changes
+
+- [`27ea5e3`](https://github.com/macloud-developer/storywright/commit/27ea5e35e96bc9f3edd78dc1ac0b28a41316cd84) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Fix WebKit screenshot capturing blank images on ARM environments
+
+  - Reorder stabilization: run rAF settle before image load checks so the framework has finished adding all `<img>` elements to the DOM
+  - Remove `img.decode()` which caused ~2x slowdown on WebKit ARM without fixing the blank image issue
+  - Fixes issue where expected screenshots on WebKit (Mobile Safari) captured placeholder/blank images during update
+
 ## 0.5.6
 
 ### Patch Changes
