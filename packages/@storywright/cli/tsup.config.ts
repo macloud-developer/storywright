@@ -9,6 +9,7 @@ export default defineConfig({
 		index: 'src/index.ts',
 		cli: 'src/cli/index.ts',
 		'playwright/reporter': 'src/playwright/reporter.ts',
+		'playwright/stabilize': 'src/playwright/stabilize.ts',
 	},
 	format: ['esm'],
 	dts: true,

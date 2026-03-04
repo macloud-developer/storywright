@@ -15,6 +15,10 @@
 		"./playwright/reporter": {
 			"import": "./dist/playwright/reporter.js",
 			"types": "./dist/playwright/reporter.d.ts"
+		},
+		"./playwright/stabilize": {
+			"import": "./dist/playwright/stabilize.js",
+			"types": "./dist/playwright/stabilize.d.ts"
 		}
 	},
 	"files": ["dist", "bin"],
