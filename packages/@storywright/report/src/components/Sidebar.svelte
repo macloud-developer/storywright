@@ -1,20 +1,20 @@
 <script lang="ts">
-	import type { FailureEntry, TypeFilter } from '../lib/types.js';
-	import { failureKey } from '../lib/types.js';
-	import { magnifyingGlass, xCircle, plusCircle } from '../lib/icons.js';
+	import type { TestEntry, TypeFilter } from '../lib/types.js';
+	import { entryKey } from '../lib/types.js';
+	import { magnifyingGlass, checkCircle, xCircle, plusCircle } from '../lib/icons.js';
 
 	let {
-		failures,
+		entries,
 		search = $bindable(''),
 		typeFilter = $bindable<TypeFilter>('all'),
 		activeId = '',
 		onSelect,
 	}: {
-		failures: FailureEntry[];
+		entries: TestEntry[];
 		search: string;
 		typeFilter: TypeFilter;
 		activeId?: string;
-		onSelect?: (failure: FailureEntry, index: number) => void;
+		onSelect?: (entry: TestEntry, index: number) => void;
 	} = $props();
 </script>
 
@@ -35,6 +35,14 @@
 			onclick={() => (typeFilter = 'all')}
 		>All</button>
 		<button
+			class="filter-btn filter-pass"
+			class:active={typeFilter === 'pass'}
+			onclick={() => (typeFilter = 'pass')}
+		>
+			{@html checkCircle}
+			Pass
+		</button>
+		<button
 			class="filter-btn filter-diff"
 			class:active={typeFilter === 'diff'}
 			onclick={() => (typeFilter = 'diff')}
@@ -51,29 +59,31 @@
 			New
 		</button>
 	</div>
-	<nav class="failure-list" aria-label="Failure list">
-		{#if failures.length === 0}
+	<nav class="entry-list" aria-label="Test entry list">
+		{#if entries.length === 0}
 			<div class="empty">No matches</div>
 		{:else}
-			{#each failures as failure, i}
+			{#each entries as entry, i}
 				<button
-					class="failure-item"
-					class:active={activeId === failureKey(failure)}
-					onclick={() => onSelect?.(failure, i)}
+					class="entry-item"
+					class:active={activeId === entryKey(entry)}
+					onclick={() => onSelect?.(entry, i)}
 				>
 					<span class="item-icon">
-						{#if failure.type === 'new'}
+						{#if entry.type === 'pass'}
+							{@html checkCircle}
+						{:else if entry.type === 'new'}
 							{@html plusCircle}
 						{:else}
 							{@html xCircle}
 						{/if}
 					</span>
 					<div class="item-info">
-						<span class="item-title">{failure.story}</span>
+						<span class="item-title">{entry.story}</span>
 						<span class="item-meta">
-							{failure.variant} · {failure.browser}
-							{#if failure.type === 'diff' && failure.diffRatio > 0}
-								· {(failure.diffRatio * 100).toFixed(1)}%
+							{entry.variant} · {entry.browser}
+							{#if entry.type === 'diff' && entry.diffRatio > 0}
+								· {(entry.diffRatio * 100).toFixed(1)}%
 							{/if}
 						</span>
 					</div>
@@ -146,13 +156,16 @@
 		color: var(--color-bg-primary);
 		border-color: var(--color-fg-default);
 	}
+	.filter-pass {
+		color: var(--color-success);
+	}
 	.filter-diff {
 		color: var(--color-danger);
 	}
 	.filter-new {
 		color: var(--color-accent);
 	}
-	.failure-list {
+	.entry-list {
 		flex: 1;
 		overflow-y: auto;
 	}
@@ -162,7 +175,7 @@
 		color: var(--color-fg-muted);
 		font-size: 0.85rem;
 	}
-	.failure-item {
+	.entry-item {
 		display: flex;
 		align-items: flex-start;
 		gap: 8px;
@@ -178,13 +191,13 @@
 		color: var(--color-fg-default);
 		transition: background 0.1s;
 	}
-	.failure-item:last-child {
+	.entry-item:last-child {
 		border-bottom: none;
 	}
-	.failure-item:hover {
+	.entry-item:hover {
 		background: var(--color-bg-secondary);
 	}
-	.failure-item.active {
+	.entry-item.active {
 		background: var(--color-bg-tertiary);
 		border-left: 2px solid var(--color-accent);
 	}
@@ -194,7 +207,7 @@
 		flex-shrink: 0;
 		margin-top: 2px;
 	}
-	.failure-item:not(.active) .item-icon {
+	.entry-item:not(.active) .item-icon {
 		color: var(--color-fg-muted);
 	}
 	.item-info {

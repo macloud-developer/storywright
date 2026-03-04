@@ -9,8 +9,8 @@
 	const seconds = $derived(durationSec % 60);
 	const durationStr = $derived(minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`);
 
-	const newCount = $derived(summary.failures.filter((f) => f.type === 'new').length);
-	const diffCount = $derived(summary.failures.filter((f) => f.type === 'diff').length);
+	const newCount = $derived(summary.entries.filter((f) => f.type === 'new').length);
+	const diffCount = $derived(summary.entries.filter((f) => f.type === 'diff').length);
 </script>
 
 <div class="dashboard">

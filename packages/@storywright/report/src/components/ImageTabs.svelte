@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type { FailureEntry } from '../lib/types.js';
+	import type { TestEntry } from '../lib/types.js';
 	import { photo } from '../lib/icons.js';
 
-	let { failure }: { failure: FailureEntry } = $props();
+	let { entry }: { entry: TestEntry } = $props();
 
 	type Tab = 'expected' | 'actual' | 'diff';
-	const defaultTab: Tab = $derived(failure.type === 'new' ? 'actual' : 'diff');
+	const defaultTab: Tab = $derived(entry.type === 'new' ? 'actual' : 'diff');
 	let activeTab: Tab = $state('diff');
 	$effect(() => {
 		activeTab = defaultTab;
@@ -18,7 +18,7 @@
 	];
 
 	function isDisabled(tab: Tab): boolean {
-		if (failure.type === 'new') {
+		if (entry.type === 'new') {
 			return tab === 'expected' || tab === 'diff';
 		}
 		return false;
@@ -43,9 +43,9 @@
 	</div>
 	<div class="image-container">
 		{#each tabs as tab (tab.key)}
-			{@const src = failure[tab.key] || ''}
+			{@const src = entry[tab.key] || ''}
 			{@const isActive = activeTab === tab.key}
-			{@const isNewPlaceholder = failure.type === 'new' && tab.key !== 'actual'}
+			{@const isNewPlaceholder = entry.type === 'new' && tab.key !== 'actual'}
 			<div class="image-panel" class:hidden={!isActive}>
 				{#if isNewPlaceholder}
 					<div class="no-image">

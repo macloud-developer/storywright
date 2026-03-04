@@ -65,7 +65,7 @@ export const reportCommand = defineCommand({
 				duration: 0,
 				timestamp: new Date().toISOString(),
 				browsers: [],
-				failures: [],
+				entries: [],
 			};
 
 			for (const file of files) {
@@ -77,7 +77,7 @@ export const reportCommand = defineCommand({
 				merged.skipped += summary.skipped;
 				merged.duration = Math.max(merged.duration, summary.duration);
 				merged.browsers = [...new Set([...merged.browsers, ...summary.browsers])];
-				merged.failures.push(...summary.failures);
+				merged.entries.push(...summary.entries);
 
 				const shardAssetsDir = path.join(path.dirname(file), 'assets');
 				const destAssetsDir = path.join(reportDir, 'assets');

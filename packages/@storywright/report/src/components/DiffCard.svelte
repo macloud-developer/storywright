@@ -1,19 +1,19 @@
 <script lang="ts">
-	import type { FailureEntry } from '../lib/types.js';
-	import { xCircle, plusCircle, eye, chevronDown, chevronUp } from '../lib/icons.js';
+	import type { TestEntry } from '../lib/types.js';
+	import { checkCircle, xCircle, plusCircle, eye, chevronDown, chevronUp } from '../lib/icons.js';
 	import ImageTabs from './ImageTabs.svelte';
 
 	let {
-		failure,
+		entry,
 		viewed = false,
 		onViewedChange,
 	}: {
-		failure: FailureEntry;
+		entry: TestEntry;
 		viewed?: boolean;
 		onViewedChange?: (viewed: boolean) => void;
 	} = $props();
 
-	let collapsed = $derived(viewed);
+	let collapsed = $derived(entry.type === 'pass' || viewed);
 
 	// Lazy mount: ビューポート付近に入るまで ImageTabs をマウントしない
 	let nearViewport = $state(false);
@@ -22,8 +22,8 @@
 	$effect(() => {
 		if (!cardEl || nearViewport) return;
 		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting) {
+			([ioEntry]) => {
+				if (ioEntry.isIntersecting) {
 					nearViewport = true;
 					observer.disconnect();
 				}
@@ -56,51 +56,60 @@
 	}
 
 	const diffPercent = $derived(
-		failure.type === 'diff' ? `${(failure.diffRatio * 100).toFixed(1)}%` : null,
+		entry.type === 'diff' ? `${(entry.diffRatio * 100).toFixed(1)}%` : null,
 	);
 </script>
 
-<div class="diff-card" class:collapsed class:is-new={failure.type === 'new'} bind:this={cardEl}>
+<div class="diff-card" class:collapsed class:is-new={entry.type === 'new'} class:is-pass={entry.type === 'pass'} bind:this={cardEl}>
 	<div class="card-header" role="button" tabindex="0" onclick={collapsed ? handleCollapseToggle : undefined} onkeydown={handleHeaderKeydown}>
 		<div class="header-left">
 			<span class="type-icon">
-				{#if failure.type === 'new'}
+				{#if entry.type === 'pass'}
+					{@html checkCircle}
+				{:else if entry.type === 'new'}
 					{@html plusCircle}
 				{:else}
 					{@html xCircle}
 				{/if}
 			</span>
-			<span class="story-name">{failure.story}: {failure.variant}</span>
-			<span class="browser-badge">{failure.browser}</span>
+			<span class="story-name">{entry.story}: {entry.variant}</span>
+			<span class="browser-badge">{entry.browser}</span>
 			{#if diffPercent}
 				<span class="diff-badge">{diffPercent}</span>
 			{/if}
-			{#if failure.type === 'new'}
+			{#if entry.type === 'new'}
 				<span class="new-badge">NEW</span>
+			{/if}
+			{#if entry.type === 'pass'}
+				<span class="pass-badge">PASS</span>
 			{/if}
 		</div>
 		<div class="header-right">
-			<button
-				class="viewed-btn"
-				class:viewed
-				onclick={handleViewedToggle}
-				aria-label={viewed ? 'Mark as not viewed' : 'Mark as viewed'}
-			>
-				{@html eye}
-				<span class="viewed-label">{viewed ? 'Viewed' : 'View'}</span>
-			</button>
-			<button
-				class="collapse-btn"
-				onclick={handleCollapseToggle}
-				aria-label={collapsed ? 'Expand' : 'Collapse'}
-			>
-				{@html collapsed ? chevronDown : chevronUp}
-			</button>
+			{#if entry.type !== 'pass'}
+				<button
+					class="viewed-btn"
+					class:viewed
+					onclick={handleViewedToggle}
+					aria-label={viewed ? 'Mark as not viewed' : 'Mark as viewed'}
+				>
+					{@html eye}
+					<span class="viewed-label">{viewed ? 'Viewed' : 'View'}</span>
+				</button>
+			{/if}
+			{#if entry.type !== 'pass'}
+				<button
+					class="collapse-btn"
+					onclick={handleCollapseToggle}
+					aria-label={collapsed ? 'Expand' : 'Collapse'}
+				>
+					{@html collapsed ? chevronDown : chevronUp}
+				</button>
+			{/if}
 		</div>
 	</div>
-	{#if !collapsed && nearViewport}
+	{#if !collapsed && nearViewport && entry.type !== 'pass'}
 		<div class="card-body">
-			<ImageTabs {failure} />
+			<ImageTabs {entry} />
 		</div>
 	{/if}
 </div>
@@ -118,6 +127,12 @@
 	.diff-card.collapsed:hover {
 		opacity: 1;
 	}
+	.diff-card.is-pass {
+		opacity: 0.7;
+	}
+	.diff-card.is-pass:hover {
+		opacity: 1;
+	}
 	.card-header {
 		display: flex;
 		align-items: center;
@@ -131,6 +146,9 @@
 		border-bottom: none;
 		cursor: pointer;
 	}
+	.is-pass .card-header {
+		border-bottom: none;
+	}
 	.header-left {
 		display: flex;
 		align-items: center;
@@ -143,11 +161,14 @@
 		align-items: center;
 		flex-shrink: 0;
 	}
-	.diff-card:not(.is-new) .type-icon {
+	.diff-card:not(.is-new):not(.is-pass) .type-icon {
 		color: var(--color-danger);
 	}
 	.is-new .type-icon {
 		color: var(--color-accent);
+	}
+	.is-pass .type-icon {
+		color: var(--color-success);
 	}
 	.story-name {
 		font-size: 0.9rem;
@@ -180,6 +201,15 @@
 		padding: 1px 8px;
 		background: var(--color-accent-subtle);
 		color: var(--color-accent);
+		border-radius: 12px;
+		font-size: 0.7rem;
+		font-weight: 600;
+	}
+	.pass-badge {
+		flex-shrink: 0;
+		padding: 1px 8px;
+		background: var(--color-success-subtle);
+		color: var(--color-success);
 		border-radius: 12px;
 		font-size: 0.7rem;
 		font-weight: 600;

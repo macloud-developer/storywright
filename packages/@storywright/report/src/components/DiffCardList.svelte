@@ -1,16 +1,16 @@
 <script lang="ts">
-	import type { FailureEntry } from '../lib/types.js';
-	import { failureKey } from '../lib/types.js';
+	import type { TestEntry } from '../lib/types.js';
+	import { entryKey } from '../lib/types.js';
 	import DiffCard from './DiffCard.svelte';
 
 	let {
-		failures,
+		entries,
 		viewedSet,
 		onViewedChange,
 		onVisibleChange,
 		scrollToKey = '',
 	}: {
-		failures: FailureEntry[];
+		entries: TestEntry[];
 		viewedSet: Set<string>;
 		onViewedChange: (key: string, viewed: boolean) => void;
 		onVisibleChange?: (key: string) => void;
@@ -19,25 +19,25 @@
 
 	let containerEl: HTMLDivElement | undefined = $state();
 
-	function cardId(f: FailureEntry) {
-		return `card-${failureKey(f).replace(/[^a-zA-Z0-9]/g, '-')}`;
+	function cardId(f: TestEntry) {
+		return `card-${entryKey(f).replace(/[^a-zA-Z0-9]/g, '-')}`;
 	}
 
 	// Fix #5: $effect で Observer をフィルター変更に追従
 	$effect(() => {
 		if (!containerEl) return;
-		// failures を依存に含めることで、フィルター変更時に再構築
-		const _deps = failures.length;
+		// entries を依存に含めることで、フィルター変更時に再構築
+		const _deps = entries.length;
 		void _deps;
 
 		// DOM 更新を待ってから observe
 		const timer = setTimeout(() => {
 			const observer = new IntersectionObserver(
-				(entries) => {
-					for (const entry of entries) {
-						if (entry.isIntersecting) {
-							const el = entry.target as HTMLElement;
-							const key = el.dataset.failureKey;
+				(ioEntries) => {
+					for (const ioEntry of ioEntries) {
+						if (ioEntry.isIntersecting) {
+							const el = ioEntry.target as HTMLElement;
+							const key = el.dataset.entryKey;
 							if (key) {
 								onVisibleChange?.(key);
 							}
@@ -53,7 +53,7 @@
 			);
 
 			// Fix #3: Array.from で NodeListOf を変換
-			const cards = Array.from(containerEl!.querySelectorAll('[data-failure-key]'));
+			const cards = Array.from(containerEl!.querySelectorAll('[data-entry-key]'));
 			for (const card of cards) {
 				observer.observe(card);
 			}
@@ -72,7 +72,7 @@
 	// Scroll to card when scrollToKey changes
 	$effect(() => {
 		if (scrollToKey && containerEl) {
-			const el = containerEl.querySelector(`[data-failure-key="${CSS.escape(scrollToKey)}"]`);
+			const el = containerEl.querySelector(`[data-entry-key="${CSS.escape(scrollToKey)}"]`);
 			if (el) {
 				el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 			}
@@ -81,11 +81,11 @@
 </script>
 
 <div class="card-list" bind:this={containerEl}>
-	{#each failures as failure, i (`${failureKey(failure)}::${i}`)}
-		{@const key = failureKey(failure)}
-		<div id={cardId(failure)} data-failure-key={key}>
+	{#each entries as entry, i (`${entryKey(entry)}::${i}`)}
+		{@const key = entryKey(entry)}
+		<div id={cardId(entry)} data-entry-key={key}>
 			<DiffCard
-				{failure}
+				{entry}
 				viewed={viewedSet.has(key)}
 				onViewedChange={(v) => onViewedChange(key, v)}
 			/>

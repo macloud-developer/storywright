@@ -9,7 +9,7 @@ import type {
 	Suite,
 	TestCase,
 } from '@playwright/test/reporter';
-import type { FailureEntry, TestSummary } from '../core/types.js';
+import type { TestEntry, TestSummary } from '../core/types.js';
 
 interface StorywrightReporterOptions {
 	outputDir?: string;
@@ -65,7 +65,7 @@ class StorywrightReporter implements Reporter {
 		const skipped = allResults.filter((r) => r.status === 'skipped').length;
 
 		const browsers = [...new Set(allResults.map((r) => r.project))];
-		const failures: FailureEntry[] = [];
+		const entries: TestEntry[] = [];
 
 		// Collect failure images
 		const assetsDir = path.join(this.outputDir, 'assets');
@@ -74,11 +74,26 @@ class StorywrightReporter implements Reporter {
 		}
 
 		for (const testResult of allResults) {
-			if (testResult.status !== 'failed') continue;
+			if (testResult.status === 'skipped') continue;
 
 			const titleParts = testResult.title.split(': ');
 			const storyTitle = titleParts[0] ?? testResult.title;
 			const variant = titleParts.slice(1).join(': ') || 'default';
+
+			if (testResult.status === 'passed') {
+				entries.push({
+					type: 'pass',
+					story: storyTitle,
+					variant,
+					browser: testResult.project,
+					diffRatio: 0,
+					expected: '',
+					actual: '',
+					diff: '',
+				});
+				continue;
+			}
+
 			const sanitizedName = testResult.title.replace(/[^a-zA-Z0-9-_]/g, '-').toLowerCase();
 
 			const imageAttachments = testResult.attachments.filter(
@@ -86,7 +101,7 @@ class StorywrightReporter implements Reporter {
 			);
 			const hasDiff = imageAttachments.some((a) => a.name.includes('diff'));
 
-			const failure: FailureEntry = {
+			const entry: TestEntry = {
 				type: hasDiff ? 'diff' : 'new',
 				story: storyTitle,
 				variant,
@@ -105,19 +120,19 @@ class StorywrightReporter implements Reporter {
 				if (attachment.name.includes('expected')) {
 					const dest = path.join(assetsDir, 'expected', destName);
 					copyFileIfExists(attachment.path, dest);
-					failure.expected = `assets/expected/${destName}`;
+					entry.expected = `assets/expected/${destName}`;
 				} else if (attachment.name.includes('actual')) {
 					const dest = path.join(assetsDir, 'actual', destName);
 					copyFileIfExists(attachment.path, dest);
-					failure.actual = `assets/actual/${destName}`;
+					entry.actual = `assets/actual/${destName}`;
 				} else if (attachment.name.includes('diff')) {
 					const dest = path.join(assetsDir, 'diff', destName);
 					copyFileIfExists(attachment.path, dest);
-					failure.diff = `assets/diff/${destName}`;
+					entry.diff = `assets/diff/${destName}`;
 				}
 			}
 
-			failures.push(failure);
+			entries.push(entry);
 		}
 
 		const summary: TestSummary = {
@@ -128,7 +143,7 @@ class StorywrightReporter implements Reporter {
 			duration,
 			timestamp: new Date().toISOString(),
 			browsers,
-			failures,
+			entries,
 		};
 
 		fs.mkdirSync(this.outputDir, { recursive: true });

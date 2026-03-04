@@ -6,11 +6,11 @@ export interface ReportSummary {
 	duration: number;
 	timestamp: string;
 	browsers: string[];
-	failures: FailureEntry[];
+	entries: TestEntry[];
 }
 
-export interface FailureEntry {
-	type: 'diff' | 'new';
+export interface TestEntry {
+	type: 'diff' | 'new' | 'pass';
 	story: string;
 	variant: string;
 	browser: string;
@@ -20,8 +20,8 @@ export interface FailureEntry {
 	diff: string;
 }
 
-export type TypeFilter = 'all' | 'diff' | 'new';
+export type TypeFilter = 'all' | 'diff' | 'new' | 'pass';
 
-export function failureKey(f: FailureEntry): string {
+export function entryKey(f: TestEntry): string {
 	return `${f.story}::${f.variant}::${f.browser}`;
 }

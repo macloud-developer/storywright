@@ -15,8 +15,8 @@ export function formatSummary(summary: TestSummary, options?: { reportPath?: str
 		`  Browsers: ${summary.browsers.join(', ')}`,
 	];
 
-	const newFailures = summary.failures.filter((f) => f.type === 'new');
-	const diffFailures = summary.failures.filter((f) => f.type !== 'new');
+	const newFailures = summary.entries.filter((f) => f.type === 'new');
+	const diffFailures = summary.entries.filter((f) => f.type === 'diff');
 
 	if (newFailures.length > 0) {
 		lines.push('');

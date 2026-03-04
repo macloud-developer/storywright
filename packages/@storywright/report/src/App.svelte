@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { FailureEntry, ReportSummary, TypeFilter } from './lib/types.js';
-	import { failureKey } from './lib/types.js';
+	import type { TestEntry, ReportSummary, TypeFilter } from './lib/types.js';
+	import { entryKey } from './lib/types.js';
 	import Header from './components/Header.svelte';
 	import Dashboard from './components/Dashboard.svelte';
 	import Sidebar from './components/Sidebar.svelte';
@@ -14,8 +14,8 @@
 	let scrollToKey = $state('');
 	let viewedSet = $state(new Set<string>());
 
-	const filteredFailures = $derived.by(() => {
-		let results = summary.failures;
+	const filteredEntries = $derived.by(() => {
+		let results = summary.entries;
 
 		if (search) {
 			const q = search.toLowerCase();
@@ -33,8 +33,8 @@
 		return results;
 	});
 
-	function handleSidebarSelect(failure: FailureEntry, _index: number) {
-		const key = failureKey(failure);
+	function handleSidebarSelect(entry: TestEntry, _index: number) {
+		const key = entryKey(entry);
 		scrollToKey = key;
 		activeKey = key;
 		// Reset after scroll triggers
@@ -61,24 +61,24 @@
 	<Dashboard {summary} />
 	<div class="layout">
 		<Sidebar
-			failures={filteredFailures}
+			entries={filteredEntries}
 			bind:search
 			bind:typeFilter
 			activeId={activeKey}
 			onSelect={handleSidebarSelect}
 		/>
 		<main class="main-content">
-			{#if filteredFailures.length === 0}
+			{#if filteredEntries.length === 0}
 				<div class="empty-state">
-					{#if summary.failures.length === 0}
+					{#if summary.entries.length === 0}
 						<p class="all-passed">All tests passed!</p>
 					{:else}
-						<p>No matching failures</p>
+						<p>No matching results</p>
 					{/if}
 				</div>
 			{:else}
 				<DiffCardList
-					failures={filteredFailures}
+					entries={filteredEntries}
 					{viewedSet}
 					{scrollToKey}
 					onViewedChange={handleViewedChange}

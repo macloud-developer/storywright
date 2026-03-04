@@ -6,6 +6,6 @@ export type {
 	DeepPartial,
 	PlaywrightBrowserName,
 } from './config/types.js';
-export type { Story, StoryIndex, TestResult, TestSummary, FailureEntry } from './core/types.js';
+export type { Story, StoryIndex, TestResult, TestSummary, TestEntry } from './core/types.js';
 export type { StorageAdapter, DownloadOptions, UploadOptions } from './storage/types.js';
 export type { ReportData } from './reporter/types.js';

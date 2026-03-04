@@ -42,11 +42,11 @@ export interface TestSummary {
 	duration: number;
 	timestamp: string;
 	browsers: string[];
-	failures: FailureEntry[];
+	entries: TestEntry[];
 }
 
-export interface FailureEntry {
-	type: 'diff' | 'new';
+export interface TestEntry {
+	type: 'diff' | 'new' | 'pass';
 	story: string;
 	variant: string;
 	browser: string;
