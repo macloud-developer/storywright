@@ -1,5 +1,5 @@
 ---
-"@storywright/cli": minor
+"@storywright/cli": patch
 ---
 
 Extract page stabilization logic into `@storywright/cli/playwright/stabilize` module
