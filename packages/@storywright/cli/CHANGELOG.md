@@ -1,5 +1,19 @@
 # @storywright/cli
 
+## 0.5.9
+
+### Patch Changes
+
+- [`46475bb`](https://github.com/macloud-developer/storywright/commit/46475bba85e209f901d65f1cacdf9e208d878cd7) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Show all test results (including Pass) in the HTML report
+
+  - Rename `FailureEntry` to `TestEntry` with new `'pass'` type
+  - Rename `failures` to `entries` across CLI and report packages
+  - Add Pass filter button in report sidebar
+  - Pass entries show green checkCircle icon and PASS badge, no image tabs
+
+- Updated dependencies [[`46475bb`](https://github.com/macloud-developer/storywright/commit/46475bba85e209f901d65f1cacdf9e208d878cd7)]:
+  - @storywright/report@0.5.9
+
 ## 0.5.8
 
 ### Patch Changes
