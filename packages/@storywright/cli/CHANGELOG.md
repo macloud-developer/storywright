@@ -1,5 +1,15 @@
 # @storywright/cli
 
+## 0.5.8
+
+### Patch Changes
+
+- [`0ff461e`](https://github.com/macloud-developer/storywright/commit/0ff461e545488714eec484dc12b59e4ee3a968c7) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Extract page stabilization logic into `@storywright/cli/playwright/stabilize` module
+
+  - Add `initPage()` and `stabilizePage()` as public API for reproducible screenshot setup
+  - Simplify test-generator template from ~120 lines to ~55 lines
+  - No behavioral changes to the stabilization logic
+
 ## 0.5.7
 
 ### Patch Changes
