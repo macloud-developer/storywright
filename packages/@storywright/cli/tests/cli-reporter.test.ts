@@ -12,7 +12,7 @@ describe('formatSummary', () => {
 			duration: 5000,
 			timestamp: '2024-01-01T00:00:00Z',
 			browsers: ['chromium'],
-			failures: [],
+			entries: [],
 		};
 		const output = formatSummary(summary);
 		expect(output).toContain('Total: 10');
@@ -30,8 +30,9 @@ describe('formatSummary', () => {
 			duration: 154000,
 			timestamp: '2024-01-01T00:00:00Z',
 			browsers: ['chromium', 'webkit'],
-			failures: [
+			entries: [
 				{
+					type: 'diff',
 					story: 'Components/Button',
 					variant: 'Primary',
 					browser: 'chromium',
@@ -58,7 +59,7 @@ describe('formatSummary', () => {
 			duration: 1000,
 			timestamp: '2024-01-01T00:00:00Z',
 			browsers: ['chromium'],
-			failures: [],
+			entries: [],
 		};
 		const output = formatSummary(summary, {
 			reportPath: '/custom/output/report/index.html',
@@ -76,7 +77,7 @@ describe('formatSummary', () => {
 			duration: 1000,
 			timestamp: '2024-01-01T00:00:00Z',
 			browsers: ['chromium'],
-			failures: [],
+			entries: [],
 		};
 		const output = formatSummary(summary);
 		expect(output).toContain('.storywright/report/index.html');
