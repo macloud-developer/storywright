@@ -1,5 +1,11 @@
 # @storywright/cli
 
+## 1.1.0
+
+### Minor Changes
+
+- [`0bf8177`](https://github.com/macloud-developer/storywright/commit/0bf8177c81e3c71e859bd5f84694f0a52359bb5d) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Add `baseBranchDiffDepth` config option and `--base-branch-diff-depth` CLI flag for proper diff detection on the base branch. Fix corrupted favicon base64 data in HTML report.
+
 ## 1.0.0
 
 ### Major Changes
