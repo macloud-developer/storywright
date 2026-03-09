@@ -344,6 +344,8 @@ When a pull request is merged into `main`, baselines should be updated so that s
 
 By default, `storywright update` only re-captures screenshots for stories affected by the diff (i.e., diff-only). Use `--all` to force a full re-capture of every story.
 
+> **Important:** When running on the base branch (e.g. `main`), `git merge-base main HEAD` returns `HEAD` itself, which means the diff is empty and no stories are detected as changed. Storywright handles this automatically using `baseBranchDiffDepth` (default: `1`), which compares `HEAD~N..HEAD` instead. If your merge commits include multiple parents, increase this value via config or CLI (`--base-branch-diff-depth`).
+
 ### GitHub Actions
 
 ```yaml
@@ -388,6 +390,8 @@ jobs:
 ```
 
 > **Note:** `storywright update` (without `--all`) only re-captures stories that changed since the last baseline. To force a full re-capture, use `npx storywright update --all --upload`.
+
+> **Tip:** Adjust `--base-branch-diff-depth` to control how many commits back to compare on the base branch. The default is `1`. Increase this if your merge strategy produces commits that span more history (e.g., squash merges with large changesets).
 
 ### CircleCI
 
@@ -439,6 +443,10 @@ export default defineConfig({
     locale: 'en-US',
     seed: 1,
   },
+  diffDetection: {
+    baseBranch: 'main',
+    baseBranchDiffDepth: 1, // commits to compare when running on base branch
+  },
   workers: 'auto',
 });
 ```
@@ -453,6 +461,8 @@ export default defineConfig({
   - Alternatively, use the `aws-cli` orb's built-in install or pre-install AWS CLI in a custom Docker image.
 - `--diff-only` runs all stories unexpectedly:
   - Verify git history is available and `baseBranch` is correct in `storywright.config.ts`.
+- Diff-only detects no changes on the base branch (e.g. `main`):
+  - On the base branch, `merge-base` returns `HEAD`, resulting in an empty diff. Storywright uses `baseBranchDiffDepth` (default: `1`) to compare `HEAD~N..HEAD` instead. If your changes span more commits, increase `baseBranchDiffDepth` in config or use `--base-branch-diff-depth` on the CLI.
 - No baselines found:
   - Ensure `download` runs before `storywright test`.
 - Report merge found no files:

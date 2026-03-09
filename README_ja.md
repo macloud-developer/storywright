@@ -73,6 +73,7 @@ export default defineConfig({
   diffDetection: {
     enabled: true,
     baseBranch: 'main',
+    baseBranchDiffDepth: 1, // ベースブランチ上で比較するコミット数
   },
 
   storage: {
@@ -111,6 +112,7 @@ npx storywright test --reporters default,html
 npx storywright test --output-dir .artifacts/storywright
 npx storywright test --storybook-url http://localhost:6006
 npx storywright test --retries 2
+npx storywright test --base-branch-diff-depth 3
 ```
 
 主なオプション:
@@ -128,6 +130,7 @@ npx storywright test --retries 2
 - `--storybook-dir`: Storybook 静的ファイルディレクトリ
 - `--retries`: 失敗テストのリトライ回数
 - `--update-snapshots`: ベースライン更新
+- `--base-branch-diff-depth`: ベースブランチ上で比較するコミット数（デフォルト: `1`）
 
 ### `storywright update`
 
@@ -150,6 +153,7 @@ npx storywright update --filter "Components/**"
 - `--browsers`: ブラウザ指定（カンマ区切り）
 - `--filter`: ストーリー絞り込み glob
 - `--retries`: 失敗テストのリトライ回数
+- `--base-branch-diff-depth`: ベースブランチ上で比較するコミット数（デフォルト: `1`）
 
 ### `storywright upload` / `storywright download`
 

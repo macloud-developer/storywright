@@ -58,6 +58,7 @@ export interface DiffDetectionConfig {
 	enabled: boolean;
 	watchFiles: string[];
 	baseBranch: string;
+	baseBranchDiffDepth: number;
 }
 
 export interface StorageConfig {

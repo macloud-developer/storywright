@@ -26,6 +26,7 @@ export const DEFAULT_CONFIG: StorywrightConfig = {
 		enabled: true,
 		watchFiles: ['package.json', 'package-lock.json', '.storybook/**/*'],
 		baseBranch: 'main',
+		baseBranchDiffDepth: 1,
 	},
 
 	storage: {

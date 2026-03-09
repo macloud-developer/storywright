@@ -344,6 +344,8 @@ PR が `main` にマージされたタイミングでベースラインを更新
 
 `storywright update` はデフォルトで差分のみ（変更影響のあるストーリーだけ）を再キャプチャします。全件再取得するには `--all` を付けてください。
 
+> **重要:** ベースブランチ（例: `main`）上で実行すると、`git merge-base main HEAD` は `HEAD` 自身を返すため、差分が空になりストーリーが検出されません。Storywright は `baseBranchDiffDepth`（デフォルト: `1`）を使って `HEAD~N..HEAD` で比較することでこれを自動的に処理します。マージコミットに複数の親がある場合は、config または CLI（`--base-branch-diff-depth`）でこの値を増やしてください。
+
 ### GitHub Actions
 
 ```yaml
@@ -388,6 +390,8 @@ jobs:
 ```
 
 > **補足:** `storywright update`（`--all` なし）は変更のあったストーリーのみ再キャプチャします。全件再取得するには `npx storywright update --all --upload` を使用してください。
+
+> **Tip:** `--base-branch-diff-depth` でベースブランチ上の比較コミット数を調整できます（デフォルト: `1`）。squash マージなど、1コミットに多くの変更が含まれるマージ戦略の場合は値を増やしてください。
 
 ### CircleCI
 
@@ -439,6 +443,10 @@ export default defineConfig({
     locale: 'en-US',
     seed: 1,
   },
+  diffDetection: {
+    baseBranch: 'main',
+    baseBranchDiffDepth: 1, // ベースブランチ上で比較するコミット数
+  },
   workers: 'auto',
 });
 ```
@@ -453,6 +461,8 @@ export default defineConfig({
   - または、カスタム Docker イメージで AWS CLI をプリインストールする方法もあります。
 - `--diff-only` なのに全件実行される:
   - git 履歴取得と `storywright.config.ts` の `baseBranch` を確認。
+- ベースブランチ（`main` など）上で差分が検出されない:
+  - ベースブランチ上では `merge-base` が `HEAD` を返すため差分が空になります。Storywright は `baseBranchDiffDepth`（デフォルト: `1`）を使い `HEAD~N..HEAD` で比較します。変更が複数コミットにまたがる場合は、config の `baseBranchDiffDepth` または CLI の `--base-branch-diff-depth` で値を増やしてください。
 - ベースラインが見つからない:
   - `storywright test` 前に `download` を実行しているか確認。
 - レポート統合でファイルが見つからない:

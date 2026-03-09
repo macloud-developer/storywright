@@ -39,6 +39,11 @@ export const updateCommand = defineCommand({
 			type: 'string',
 			description: 'Number of retries for failed tests',
 		},
+		'base-branch-diff-depth': {
+			type: 'string',
+			description:
+				'Number of commits to compare on the base branch (default: 1). Used when running on the base branch where merge-base equals HEAD.',
+		},
 	},
 	async run({ args }) {
 		const overrides: DeepPartial<StorywrightConfig> = {};
@@ -51,6 +56,12 @@ export const updateCommand = defineCommand({
 		}
 		if (args.retries) {
 			overrides.retries = Number(args.retries);
+		}
+		if (args['base-branch-diff-depth']) {
+			overrides.diffDetection = {
+				...overrides.diffDetection,
+				baseBranchDiffDepth: Number(args['base-branch-diff-depth']),
+			};
 		}
 
 		const config = await loadConfig(process.cwd(), overrides);

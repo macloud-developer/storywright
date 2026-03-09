@@ -73,6 +73,7 @@ export default defineConfig({
   diffDetection: {
     enabled: true,
     baseBranch: 'main',
+    baseBranchDiffDepth: 1, // commits to compare when running on base branch
   },
 
   storage: {
@@ -113,6 +114,7 @@ npx storywright test --reporters default,html
 npx storywright test --output-dir .artifacts/storywright
 npx storywright test --storybook-url http://localhost:6006
 npx storywright test --retries 2
+npx storywright test --base-branch-diff-depth 3
 ```
 
 Main options:
@@ -130,6 +132,7 @@ Main options:
 - `--storybook-dir`: static Storybook directory
 - `--retries`: retry count for failed tests
 - `--update-snapshots`: update baselines
+- `--base-branch-diff-depth`: number of commits to compare when on the base branch (default: `1`)
 
 ### `storywright update`
 
@@ -152,6 +155,7 @@ npx storywright update --filter "Components/**"
 - `--browsers`: comma-separated browser projects
 - `--filter`: filter stories by glob pattern
 - `--retries`: retry count for failed tests
+- `--base-branch-diff-depth`: number of commits to compare when on the base branch (default: `1`)
 
 ### `storywright upload` / `storywright download`
 

@@ -109,8 +109,22 @@ export async function resolveAffectedStories(
 	// Get diff summary
 	let diffEntries: DiffFileEntry[];
 	try {
-		const mergeBase = await git.raw(['merge-base', config.baseBranch, 'HEAD']);
-		const diff = await git.diffSummary([mergeBase.trim(), 'HEAD']);
+		// Detect if HEAD is on the base branch (e.g. main)
+		const currentBranch = (await git.raw(['rev-parse', '--abbrev-ref', 'HEAD'])).trim();
+		const isOnBaseBranch = currentBranch === config.baseBranch;
+
+		let diffBase: string;
+		if (isOnBaseBranch && config.baseBranchDiffDepth > 0) {
+			// On the base branch, merge-base == HEAD so diff would be empty.
+			// Use HEAD~N to compare against the previous commit(s) instead.
+			diffBase = `HEAD~${config.baseBranchDiffDepth}`;
+			logger.info(`On base branch '${config.baseBranch}', using ${diffBase} for diff detection`);
+		} else {
+			const mergeBase = await git.raw(['merge-base', config.baseBranch, 'HEAD']);
+			diffBase = mergeBase.trim();
+		}
+
+		const diff = await git.diffSummary([diffBase, 'HEAD']);
 		diffEntries = diff.files.map((f) => ({
 			file: f.file,
 			// Handle renames: include both old and new paths
