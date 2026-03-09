@@ -1,5 +1,16 @@
 # @storywright/cli
 
+## 1.0.0
+
+### Major Changes
+
+- [`1d6828a`](https://github.com/macloud-developer/storywright/commit/1d6828a6d6044eee4ebf2354199a2ec45e3a2757) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Add SVG logo branding and embed favicon in HTML report
+
+### Patch Changes
+
+- Updated dependencies [[`1d6828a`](https://github.com/macloud-developer/storywright/commit/1d6828a6d6044eee4ebf2354199a2ec45e3a2757)]:
+  - @storywright/report@1.0.0
+
 ## 0.5.9
 
 ### Patch Changes

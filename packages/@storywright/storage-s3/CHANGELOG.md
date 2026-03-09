@@ -1,5 +1,12 @@
 # @storywright/storage-s3
 
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies [[`1d6828a`](https://github.com/macloud-developer/storywright/commit/1d6828a6d6044eee4ebf2354199a2ec45e3a2757)]:
+  - @storywright/cli@1.0.0
+
 ## 1.1.5
 
 ### Patch Changes
