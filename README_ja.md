@@ -1,4 +1,6 @@
-# Storywright
+<p align="center">
+  <img src="./storywright.svg" alt="Storywright" width="400" />
+</p>
 
 > Storybook + Playwright ベースのゼロコンフィグ VRT ツール
 
