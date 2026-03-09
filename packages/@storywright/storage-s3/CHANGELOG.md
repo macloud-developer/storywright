@@ -1,5 +1,11 @@
 # @storywright/storage-s3
 
+## 1.1.6
+
+### Patch Changes
+
+- [`fdbacfa`](https://github.com/macloud-developer/storywright/commit/fdbacfa184846fc224cc3fd981a1b17c2da397e9) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Fix peerDependencies to use semver range (`^`) instead of exact version for `@storywright/cli` compatibility
+
 ## 1.1.5
 
 ### Patch Changes
