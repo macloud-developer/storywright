@@ -32,7 +32,7 @@
 		"typescript": "^5.6.0"
 	},
 	"peerDependencies": {
-		"@storywright/cli": "workspace:*"
+		"@storywright/cli": "workspace:^"
 	},
 	"engines": {
 		"node": ">=20.0.0"
