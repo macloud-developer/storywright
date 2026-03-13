@@ -28,14 +28,19 @@ export function createVirtualScroll(
 
 	let container: HTMLElement | undefined;
 	let scrollY = $state(0);
+	let scrollDir = $state<'up' | 'down'>('down');
 	let viewH = $state(0);
 
 	const totalHeight = $derived(getCount() > 0 ? getCount() * rowHeight - gap : 0);
 
-	const startIdx = $derived(Math.max(0, Math.floor(scrollY / rowHeight) - overscan));
+	// Apply more overscan to the trailing edge (opposite of scroll direction)
+	const overscanBefore = $derived(scrollDir === 'down' ? overscan * 2 : overscan);
+	const overscanAfter = $derived(scrollDir === 'up' ? overscan * 2 : overscan);
+
+	const startIdx = $derived(Math.max(0, Math.floor(scrollY / rowHeight) - overscanBefore));
 
 	const endIdx = $derived(
-		Math.min(getCount(), Math.ceil((scrollY + viewH) / rowHeight) + overscan),
+		Math.min(getCount(), Math.ceil((scrollY + viewH) / rowHeight) + overscanAfter),
 	);
 
 	const offsetY = $derived(startIdx * rowHeight);
@@ -67,7 +72,9 @@ export function createVirtualScroll(
 
 		onScroll() {
 			if (container) {
+				const prev = scrollY;
 				scrollY = container.scrollTop;
+				scrollDir = scrollY >= prev ? 'down' : 'up';
 			}
 		},
 
