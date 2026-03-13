@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { TestEntry } from '../lib/types.js';
 	import { entryKey } from '../lib/types.js';
+	import { createVirtualScroll } from '../lib/virtual-scroll.svelte.js';
 	import DiffCard from './DiffCard.svelte';
 
 	let {
@@ -17,89 +18,63 @@
 		scrollToKey?: string;
 	} = $props();
 
+	const vs = createVirtualScroll(() => entries.length, {
+		itemHeight: 58,
+		gap: 16,
+		overscan: 20,
+	});
+
 	let containerEl: HTMLDivElement | undefined = $state();
+	$effect(() => vs.bindContainer(containerEl));
+
+	// Scroll to entry on sidebar click
+	$effect(() => {
+		if (!scrollToKey) return;
+		const idx = entries.findIndex((e) => entryKey(e) === scrollToKey);
+		if (idx >= 0) vs.scrollToIndex(idx);
+	});
+
+	// Track active entry for sidebar highlight
+	$effect(() => {
+		const idx = vs.activeIndex();
+		if (idx >= 0) onVisibleChange?.(entryKey(entries[idx]));
+	});
 
 	function cardId(f: TestEntry) {
 		return `card-${entryKey(f).replace(/[^a-zA-Z0-9]/g, '-')}`;
 	}
-
-	// Fix #5: $effect で Observer をフィルター変更に追従
-	$effect(() => {
-		if (!containerEl) return;
-		// entries を依存に含めることで、フィルター変更時に再構築
-		const _deps = entries.length;
-		void _deps;
-
-		// DOM 更新を待ってから observe
-		const timer = setTimeout(() => {
-			const observer = new IntersectionObserver(
-				(ioEntries) => {
-					for (const ioEntry of ioEntries) {
-						if (ioEntry.isIntersecting) {
-							const el = ioEntry.target as HTMLElement;
-							const key = el.dataset.entryKey;
-							if (key) {
-								onVisibleChange?.(key);
-							}
-							break;
-						}
-					}
-				},
-				{
-					root: containerEl,
-					rootMargin: '-10% 0px -80% 0px',
-					threshold: 0,
-				},
-			);
-
-			// Fix #3: Array.from で NodeListOf を変換
-			const cards = Array.from(containerEl!.querySelectorAll('[data-entry-key]'));
-			for (const card of cards) {
-				observer.observe(card);
-			}
-
-			cleanup = () => observer.disconnect();
-		}, 0);
-
-		let cleanup: (() => void) | undefined;
-
-		return () => {
-			clearTimeout(timer);
-			cleanup?.();
-		};
-	});
-
-	// Scroll to card when scrollToKey changes
-	$effect(() => {
-		if (scrollToKey && containerEl) {
-			const el = containerEl.querySelector(`[data-entry-key="${CSS.escape(scrollToKey)}"]`);
-			if (el) {
-				el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-			}
-		}
-	});
 </script>
 
-<div class="card-list" bind:this={containerEl}>
-	{#each entries as entry, i (`${entryKey(entry)}::${i}`)}
-		{@const key = entryKey(entry)}
-		<div id={cardId(entry)} data-entry-key={key}>
-			<DiffCard
-				{entry}
-				viewed={viewedSet.has(key)}
-				onViewedChange={(v) => onViewedChange(key, v)}
-			/>
+<div class="card-list" bind:this={containerEl} onscroll={vs.onScroll}>
+	<div class="scroll-content" style="height:{vs.totalHeight}px">
+		<div class="visible-window" style="transform:translateY({vs.offsetY}px)">
+			{#each entries.slice(vs.startIdx, vs.endIdx) as entry, i (`${entryKey(entry)}::${vs.startIdx + i}`)}
+				{@const key = entryKey(entry)}
+				<div id={cardId(entry)} data-entry-key={key}>
+					<DiffCard
+						{entry}
+						viewed={viewedSet.has(key)}
+						onViewedChange={(v) => onViewedChange(key, v)}
+					/>
+				</div>
+			{/each}
 		</div>
-	{/each}
+	</div>
 </div>
 
 <style>
 	.card-list {
+		overflow-y: auto;
+		flex: 1;
+		min-height: 0;
+	}
+	.scroll-content {
+		position: relative;
+		padding: 16px 24px;
+	}
+	.visible-window {
 		display: flex;
 		flex-direction: column;
 		gap: 16px;
-		padding: 16px 24px;
-		overflow-y: auto;
-		flex: 1;
 	}
 </style>

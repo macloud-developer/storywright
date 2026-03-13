@@ -190,6 +190,8 @@
 		font-size: inherit;
 		color: var(--color-fg-default);
 		transition: background 0.1s;
+		content-visibility: auto;
+		contain-intrinsic-size: auto 45px;
 	}
 	.entry-item:last-child {
 		border-bottom: none;
