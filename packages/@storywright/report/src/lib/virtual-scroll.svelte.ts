@@ -30,19 +30,12 @@ export function createVirtualScroll(
 	let scrollY = $state(0);
 	let viewH = $state(0);
 
-	const totalHeight = $derived(
-		getCount() > 0 ? getCount() * rowHeight - gap : 0,
-	);
+	const totalHeight = $derived(getCount() > 0 ? getCount() * rowHeight - gap : 0);
 
-	const startIdx = $derived(
-		Math.max(0, Math.floor(scrollY / rowHeight) - overscan),
-	);
+	const startIdx = $derived(Math.max(0, Math.floor(scrollY / rowHeight) - overscan));
 
 	const endIdx = $derived(
-		Math.min(
-			getCount(),
-			Math.ceil((scrollY + viewH) / rowHeight) + overscan,
-		),
+		Math.min(getCount(), Math.ceil((scrollY + viewH) / rowHeight) + overscan),
 	);
 
 	const offsetY = $derived(startIdx * rowHeight);
@@ -51,7 +44,7 @@ export function createVirtualScroll(
 		if (!container) return;
 		viewH = container.clientHeight;
 		const ro = new ResizeObserver(() => {
-			viewH = container!.clientHeight;
+			viewH = container?.clientHeight ?? 0;
 		});
 		ro.observe(container);
 		return () => ro.disconnect();
@@ -87,13 +80,7 @@ export function createVirtualScroll(
 
 		activeIndex() {
 			if (getCount() === 0 || viewH === 0) return -1;
-			return Math.max(
-				0,
-				Math.min(
-					Math.floor((scrollY + viewH * 0.1) / rowHeight),
-					getCount() - 1,
-				),
-			);
+			return Math.max(0, Math.min(Math.floor((scrollY + viewH * 0.1) / rowHeight), getCount() - 1));
 		},
 
 		bindContainer(el: HTMLElement | undefined) {

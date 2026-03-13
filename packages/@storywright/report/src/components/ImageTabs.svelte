@@ -96,8 +96,6 @@
 		cursor: not-allowed;
 	}
 	.image-container {
-		overflow: auto;
-		max-height: 600px;
 		background: var(--color-bg-tertiary);
 	}
 	.image-panel.hidden {
