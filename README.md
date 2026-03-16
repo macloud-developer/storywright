@@ -48,50 +48,50 @@ npx storywright init
 Example:
 
 ```ts
-import { defineConfig } from '@storywright/cli';
+import { defineConfig } from "@storywright/cli";
 
 export default defineConfig({
   storybook: {
-    staticDir: 'storybook-static',
-    buildCommand: 'npx storybook build --stats-json',
-    compatibility: 'auto', // auto | v8
+    staticDir: "storybook-static",
+    buildCommand: "npx storybook build --stats-json",
+    compatibility: "auto", // auto | v8
   },
 
-  browsers: ['chromium', 'webkit'],
+  browsers: ["chromium", "webkit"],
 
   screenshot: {
     fullPage: true,
-    animations: 'disabled',
+    animations: "disabled",
     threshold: 0.02,
     maxDiffPixelRatio: 0.02,
-    freezeTime: '2024-01-01T00:00:00',
-    timezone: 'UTC',
-    locale: 'en-US',
+    freezeTime: "2024-01-01T00:00:00",
+    timezone: "UTC",
+    locale: "en-US",
     seed: 1,
   },
 
   diffDetection: {
     enabled: true,
-    baseBranch: 'main',
+    baseBranch: "main",
     baseBranchDiffDepth: 1, // commits to compare when running on base branch
   },
 
   storage: {
-    provider: 'local', // local | s3
+    provider: "local", // local | s3
     local: {
-      baselineDir: '.storywright/baselines',
+      baselineDir: ".storywright/baselines",
     },
   },
 
   report: {
-    outputDir: '.storywright/report',
+    outputDir: ".storywright/report",
   },
 
-  workers: 'auto', // number | 'auto'
+  workers: "auto", // number | 'auto'
   retries: 0, // retry count for flaky tests
 
-  include: ['**'],
-  exclude: ['**/Experimental/**'],
+  include: ["**"],
+  exclude: ["**/Experimental/**"],
 });
 ```
 
@@ -185,8 +185,8 @@ Use `include` / `exclude` glob patterns in `storywright.config.ts` to control wh
 
 ```ts
 export default defineConfig({
-  include: ['**'],                    // test all stories (default)
-  exclude: ['**/Experimental/**'],      // skip stories matching this pattern
+  include: ["**"], // test all stories (default)
+  exclude: ["**/Experimental/**"], // skip stories matching this pattern
 });
 ```
 
@@ -225,16 +225,16 @@ npm install -D @storywright/storage-s3
 Config example:
 
 ```ts
-import { defineConfig } from '@storywright/cli';
+import { defineConfig } from "@storywright/cli";
 
 export default defineConfig({
   storage: {
-    provider: 's3',
+    provider: "s3",
     s3: {
-      bucket: 'my-vrt-bucket',
-      prefix: 'storywright/baselines',
-      region: 'ap-northeast-1',
-      compression: 'zstd',
+      bucket: "my-vrt-bucket",
+      prefix: "storywright/baselines",
+      region: "ap-northeast-1",
+      compression: "zstd",
     },
   },
 });
@@ -243,10 +243,10 @@ export default defineConfig({
 ## Programmatic API
 
 ```ts
-import { createStorywright } from '@storywright/cli';
+import { createStorywright } from "@storywright/cli";
 
 const sw = await createStorywright({
-  browsers: ['chromium'],
+  browsers: ["chromium"],
 });
 
 const result = await sw.test({ diffOnly: true });
@@ -254,7 +254,7 @@ console.log(result.exitCode, result.summary, result.reportDir);
 
 await sw.update({ all: false });
 await sw.upload();
-await sw.download({ branch: 'main' });
+await sw.download({ branch: "main" });
 ```
 
 ## CI Guide

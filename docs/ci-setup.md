@@ -101,12 +101,12 @@ jobs:
 ### Faster PR checks with `--diff-only`
 
 ```yaml
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+- uses: actions/checkout@v4
+  with:
+    fetch-depth: 0
 
-      - name: Run Storywright (diff-only)
-        run: npx storywright test --diff-only
+- name: Run Storywright (diff-only)
+  run: npx storywright test --diff-only
 ```
 
 ### Sharding + merge report
@@ -255,9 +255,9 @@ workflows:
 ### `--diff-only` on CircleCI
 
 ```yaml
-      - checkout
-      - run: git fetch --prune --unshallow || true
-      - run: npx storywright test --diff-only
+- checkout
+- run: git fetch --prune --unshallow || true
+- run: npx storywright test --diff-only
 ```
 
 ### Sharding + merge report
@@ -332,8 +332,8 @@ Two options:
 Then run:
 
 ```yaml
-      - run: npx storywright download --branch main
-      - run: npx storywright test
+- run: npx storywright download --branch main
+- run: npx storywright test
 ```
 
 ---
@@ -420,34 +420,34 @@ workflows:
 
 ## Exit Codes
 
-| Code | Meaning | CI Interpretation |
-|------|---------|-------------------|
-| `0`  | Success (no diffs) | Pass |
-| `1`  | Success with visual diffs | Fail (review report) |
-| `2`  | Execution/runtime error | Fail (check logs) |
-| `130` | Interrupted (SIGINT/SIGTERM) | Fail/canceled |
+| Code  | Meaning                      | CI Interpretation    |
+| ----- | ---------------------------- | -------------------- |
+| `0`   | Success (no diffs)           | Pass                 |
+| `1`   | Success with visual diffs    | Fail (review report) |
+| `2`   | Execution/runtime error      | Fail (check logs)    |
+| `130` | Interrupted (SIGINT/SIGTERM) | Fail/canceled        |
 
 ## CI-oriented Config Example
 
 ```ts
-import { defineConfig } from '@storywright/cli';
+import { defineConfig } from "@storywright/cli";
 
 export default defineConfig({
-  browsers: ['chromium'],
+  browsers: ["chromium"],
   screenshot: {
     threshold: 0.02,
     maxDiffPixelRatio: 0.02,
-    animations: 'disabled',
-    freezeTime: '2024-01-01T00:00:00',
-    timezone: 'UTC',
-    locale: 'en-US',
+    animations: "disabled",
+    freezeTime: "2024-01-01T00:00:00",
+    timezone: "UTC",
+    locale: "en-US",
     seed: 1,
   },
   diffDetection: {
-    baseBranch: 'main',
+    baseBranch: "main",
     baseBranchDiffDepth: 1, // commits to compare when running on base branch
   },
-  workers: 'auto',
+  workers: "auto",
 });
 ```
 
@@ -472,7 +472,7 @@ export default defineConfig({
     ```ts
     export default defineConfig({
       diffDetection: {
-        baseBranch: 'master',
+        baseBranch: "master",
       },
     });
     ```

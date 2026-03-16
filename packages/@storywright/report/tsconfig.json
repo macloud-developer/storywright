@@ -1,9 +1,10 @@
 {
-	"extends": "../../../tsconfig.base.json",
-	"compilerOptions": {
-		"outDir": "dist",
-		"rootDir": "src",
-		"verbatimModuleSyntax": true
-	},
-	"include": ["src"]
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "verbatimModuleSyntax": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+  },
+  "include": ["src"]
 }

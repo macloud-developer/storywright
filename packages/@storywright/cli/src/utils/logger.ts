@@ -1,14 +1,14 @@
-import { createConsola } from 'consola';
+import { createConsola } from "consola";
 
 const isCI = !!(
-	process.env.CI ||
-	process.env.GITHUB_ACTIONS ||
-	process.env.CIRCLECI ||
-	process.env.GITLAB_CI
+  process.env.CI ||
+  process.env.GITHUB_ACTIONS ||
+  process.env.CIRCLECI ||
+  process.env.GITLAB_CI
 );
 
 export const logger = createConsola({
-	level: process.env.STORYWRIGHT_DEBUG ? 5 : 3,
+  level: process.env.STORYWRIGHT_DEBUG ? 5 : 3,
 });
 
 export { isCI };
