@@ -1,5 +1,11 @@
 # @storywright/report
 
+## 1.1.1
+
+### Patch Changes
+
+- [`13795f1`](https://github.com/macloud-developer/storywright/commit/13795f1cfd95b538adc954353bba6e88fe7a2ca5) Thanks [@kubotak-is](https://github.com/kubotak-is)! - 仮想スクロールの導入により大量の差分エントリ描画時の DOM 負荷を軽減。GitHub 風のフィルタードロップダウン（Type/Browser）を追加し、サイドバーにツールチップ表示・アイコンカラーを適用。スクロール方向に応じた非対称 overscan で上方向スクロール時の表示切れを防止。ImageTabs の二重スクロール問題を修正。
+
 ## 1.0.0
 
 ### Major Changes
