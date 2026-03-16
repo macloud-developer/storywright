@@ -2,17 +2,22 @@
 	import type { TestEntry, TypeFilter } from '../lib/types.js';
 	import { entryKey } from '../lib/types.js';
 	import { magnifyingGlass, checkCircle, xCircle, plusCircle } from '../lib/icons.js';
+	import FilterDropdown from './FilterDropdown.svelte';
 
 	let {
 		entries,
+		browsers = [],
 		search = $bindable(''),
 		typeFilter = $bindable<TypeFilter>('all'),
+		browserFilter = $bindable<Set<string>>(new Set()),
 		activeId = '',
 		onSelect,
 	}: {
 		entries: TestEntry[];
+		browsers: string[];
 		search: string;
 		typeFilter: TypeFilter;
+		browserFilter: Set<string>;
 		activeId?: string;
 		onSelect?: (entry: TestEntry, index: number) => void;
 	} = $props();
@@ -27,37 +32,7 @@
 			placeholder="Filter stories..."
 			bind:value={search}
 		/>
-	</div>
-	<div class="filter-buttons">
-		<button
-			class="filter-btn"
-			class:active={typeFilter === 'all'}
-			onclick={() => (typeFilter = 'all')}
-		>All</button>
-		<button
-			class="filter-btn filter-pass"
-			class:active={typeFilter === 'pass'}
-			onclick={() => (typeFilter = 'pass')}
-		>
-			{@html checkCircle}
-			Pass
-		</button>
-		<button
-			class="filter-btn filter-diff"
-			class:active={typeFilter === 'diff'}
-			onclick={() => (typeFilter = 'diff')}
-		>
-			{@html xCircle}
-			Diff
-		</button>
-		<button
-			class="filter-btn filter-new"
-			class:active={typeFilter === 'new'}
-			onclick={() => (typeFilter = 'new')}
-		>
-			{@html plusCircle}
-			New
-		</button>
+		<FilterDropdown {browsers} bind:typeFilter bind:browserFilter />
 	</div>
 	<nav class="entry-list" aria-label="Test entry list">
 		{#if entries.length === 0}
@@ -68,8 +43,9 @@
 					class="entry-item"
 					class:active={activeId === entryKey(entry)}
 					onclick={() => onSelect?.(entry, i)}
+					title="{entry.story}: {entry.variant} ({entry.browser})"
 				>
-					<span class="item-icon">
+					<span class="item-icon" class:icon-pass={entry.type === 'pass'} class:icon-diff={entry.type === 'diff'} class:icon-new={entry.type === 'new'}>
 						{#if entry.type === 'pass'}
 							{@html checkCircle}
 						{:else if entry.type === 'new'}
@@ -108,7 +84,7 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		padding: 12px;
+		padding: 8px 12px;
 		border-bottom: 1px solid var(--color-border-default);
 	}
 	.search-icon {
@@ -127,43 +103,6 @@
 	}
 	.search-input::placeholder {
 		color: var(--color-fg-muted);
-	}
-	.filter-buttons {
-		display: flex;
-		gap: 4px;
-		padding: 8px 12px;
-		border-bottom: 1px solid var(--color-border-default);
-	}
-	.filter-btn {
-		display: flex;
-		align-items: center;
-		gap: 4px;
-		padding: 4px 10px;
-		border: 1px solid var(--color-border-default);
-		border-radius: 20px;
-		background: var(--color-bg-primary);
-		color: var(--color-fg-muted);
-		font-size: 0.75rem;
-		font-family: inherit;
-		cursor: pointer;
-		transition: background 0.15s, color 0.15s, border-color 0.15s;
-	}
-	.filter-btn:hover {
-		background: var(--color-bg-tertiary);
-	}
-	.filter-btn.active {
-		background: var(--color-fg-default);
-		color: var(--color-bg-primary);
-		border-color: var(--color-fg-default);
-	}
-	.filter-pass {
-		color: var(--color-success);
-	}
-	.filter-diff {
-		color: var(--color-danger);
-	}
-	.filter-new {
-		color: var(--color-accent);
 	}
 	.entry-list {
 		flex: 1;
@@ -190,6 +129,8 @@
 		font-size: inherit;
 		color: var(--color-fg-default);
 		transition: background 0.1s;
+		content-visibility: auto;
+		contain-intrinsic-size: auto 45px;
 	}
 	.entry-item:last-child {
 		border-bottom: none;
@@ -207,8 +148,14 @@
 		flex-shrink: 0;
 		margin-top: 2px;
 	}
-	.entry-item:not(.active) .item-icon {
-		color: var(--color-fg-muted);
+	.icon-pass {
+		color: var(--color-success);
+	}
+	.icon-diff {
+		color: var(--color-danger);
+	}
+	.icon-new {
+		color: var(--color-accent);
 	}
 	.item-info {
 		display: flex;

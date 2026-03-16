@@ -10,6 +10,7 @@
 
 	let search = $state('');
 	let typeFilter: TypeFilter = $state('all');
+	let browserFilter: Set<string> = $state(new Set());
 	let activeKey = $state('');
 	let scrollToKey = $state('');
 	let viewedSet = $state(new Set<string>());
@@ -28,6 +29,10 @@
 
 		if (typeFilter !== 'all') {
 			results = results.filter((f) => f.type === typeFilter);
+		}
+
+		if (browserFilter.size > 0) {
+			results = results.filter((f) => browserFilter.has(f.browser));
 		}
 
 		return results;
@@ -62,8 +67,10 @@
 	<div class="layout">
 		<Sidebar
 			entries={filteredEntries}
+			browsers={summary.browsers}
 			bind:search
 			bind:typeFilter
+			bind:browserFilter
 			activeId={activeKey}
 			onSelect={handleSidebarSelect}
 		/>
