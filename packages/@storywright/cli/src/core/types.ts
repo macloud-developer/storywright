@@ -1,57 +1,57 @@
 export interface Story {
-	id: string;
-	title: string;
-	name: string;
-	importPath: string;
-	tags?: string[];
-	type: 'story' | 'docs';
+  id: string;
+  title: string;
+  name: string;
+  importPath: string;
+  tags?: string[];
+  type: "story" | "docs";
 }
 
 export interface StoryIndex {
-	v: number;
-	entries: Record<string, Story>;
+  v: number;
+  entries: Record<string, Story>;
 }
 
 export interface StatsModule {
-	id: string;
-	name: string;
-	reasons: { moduleName: string }[];
+  id: string;
+  name: string;
+  reasons: { moduleName: string }[];
 }
 
 export interface StatsIndex {
-	modules: StatsModule[];
+  modules: StatsModule[];
 }
 
 export interface TestResult {
-	story: Story;
-	browser: string;
-	status: 'passed' | 'failed' | 'skipped';
-	duration: number;
-	diffRatio?: number;
-	expectedPath?: string;
-	actualPath?: string;
-	diffPath?: string;
-	error?: string;
+  story: Story;
+  browser: string;
+  status: "passed" | "failed" | "skipped";
+  duration: number;
+  diffRatio?: number;
+  expectedPath?: string;
+  actualPath?: string;
+  diffPath?: string;
+  error?: string;
 }
 
 export interface TestSummary {
-	total: number;
-	passed: number;
-	failed: number;
-	skipped: number;
-	duration: number;
-	timestamp: string;
-	browsers: string[];
-	entries: TestEntry[];
+  total: number;
+  passed: number;
+  failed: number;
+  skipped: number;
+  duration: number;
+  timestamp: string;
+  browsers: string[];
+  entries: TestEntry[];
 }
 
 export interface TestEntry {
-	type: 'diff' | 'new' | 'pass';
-	story: string;
-	variant: string;
-	browser: string;
-	diffRatio: number;
-	expected: string;
-	actual: string;
-	diff: string;
+  type: "diff" | "new" | "pass";
+  story: string;
+  variant: string;
+  browser: string;
+  diffRatio: number;
+  expected: string;
+  actual: string;
+  diff: string;
 }

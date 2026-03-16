@@ -1,24 +1,24 @@
 /// <reference types="node" />
-import { readFileSync } from 'node:fs';
-import { defineConfig } from 'tsup';
+import { readFileSync } from "node:fs";
+import { defineConfig } from "tsup";
 
-const { version } = JSON.parse(readFileSync('./package.json', 'utf-8'));
+const { version } = JSON.parse(readFileSync("./package.json", "utf-8"));
 
 export default defineConfig({
-	entry: {
-		index: 'src/index.ts',
-		cli: 'src/cli/index.ts',
-		'playwright/reporter': 'src/playwright/reporter.ts',
-		'playwright/stabilize': 'src/playwright/stabilize.ts',
-	},
-	format: ['esm'],
-	dts: true,
-	clean: true,
-	target: 'node20',
-	splitting: true,
-	sourcemap: true,
-	external: ['@playwright/test', '@storywright/storage-s3'],
-	define: {
-		__PKG_VERSION__: JSON.stringify(version),
-	},
+  entry: {
+    index: "src/index.ts",
+    cli: "src/cli/index.ts",
+    "playwright/reporter": "src/playwright/reporter.ts",
+    "playwright/stabilize": "src/playwright/stabilize.ts",
+  },
+  format: ["esm"],
+  dts: true,
+  clean: true,
+  target: "node20",
+  splitting: true,
+  sourcemap: true,
+  external: ["@playwright/test", "@storywright/storage-s3"],
+  define: {
+    __PKG_VERSION__: JSON.stringify(version),
+  },
 });

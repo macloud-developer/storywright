@@ -1,27 +1,28 @@
 {
-	"name": "storywright-monorepo",
-	"private": true,
-	"type": "module",
-	"scripts": {
-		"build": "pnpm -r run build",
-		"test": "vitest run",
-		"test:watch": "vitest",
-		"lint": "biome check .",
-		"lint:fix": "biome check --write .",
-		"typecheck": "pnpm -r run typecheck",
-		"changeset": "changeset",
-		"version-packages": "changeset version && biome format --write .",
-		"ci:publish": "pnpm publish -r"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^1.9.0",
-		"@changesets/changelog-github": "^0.5.2",
-		"@changesets/cli": "^2.29.8",
-		"typescript": "^5.6.0",
-		"vitest": "^3.0.0"
-	},
-	"engines": {
-		"node": ">=20.0.0"
-	},
-	"packageManager": "pnpm@9.15.0"
+  "name": "storywright-monorepo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "test": "vp test run",
+    "test:watch": "vp test",
+    "lint": "vp check",
+    "lint:fix": "vp check --fix",
+    "typecheck": "pnpm -r run typecheck",
+    "changeset": "changeset",
+    "version-packages": "changeset version && vp fmt",
+    "ci:publish": "pnpm publish -r",
+    "prepare": "vp config"
+  },
+  "devDependencies": {
+    "@changesets/changelog-github": "^0.5.2",
+    "@changesets/cli": "^2.29.8",
+    "typescript": "^5.6.0",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
 }

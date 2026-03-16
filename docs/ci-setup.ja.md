@@ -101,12 +101,12 @@ jobs:
 ### `--diff-only` で PR を高速化
 
 ```yaml
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+- uses: actions/checkout@v4
+  with:
+    fetch-depth: 0
 
-      - name: Storywright (diff-only)
-        run: npx storywright test --diff-only
+- name: Storywright (diff-only)
+  run: npx storywright test --diff-only
 ```
 
 ### シャーディング + レポート統合
@@ -255,9 +255,9 @@ workflows:
 ### CircleCI で `--diff-only`
 
 ```yaml
-      - checkout
-      - run: git fetch --prune --unshallow || true
-      - run: npx storywright test --diff-only
+- checkout
+- run: git fetch --prune --unshallow || true
+- run: npx storywright test --diff-only
 ```
 
 ### シャーディング + レポート統合
@@ -332,8 +332,8 @@ workflows:
 その上で以下を実行:
 
 ```yaml
-      - run: npx storywright download --branch main
-      - run: npx storywright test
+- run: npx storywright download --branch main
+- run: npx storywright test
 ```
 
 ---
@@ -420,34 +420,34 @@ workflows:
 
 ## 終了コード
 
-| コード | 意味 | CI 判定 |
-|------|------|---------|
-| `0` | 成功（差分なし） | Pass |
-| `1` | 成功（差分あり） | Fail（レポート確認） |
-| `2` | 実行エラー | Fail（ログ確認） |
-| `130` | 中断（SIGINT/SIGTERM） | Fail / canceled |
+| コード | 意味                   | CI 判定              |
+| ------ | ---------------------- | -------------------- |
+| `0`    | 成功（差分なし）       | Pass                 |
+| `1`    | 成功（差分あり）       | Fail（レポート確認） |
+| `2`    | 実行エラー             | Fail（ログ確認）     |
+| `130`  | 中断（SIGINT/SIGTERM） | Fail / canceled      |
 
 ## CI 向け設定例
 
 ```ts
-import { defineConfig } from '@storywright/cli';
+import { defineConfig } from "@storywright/cli";
 
 export default defineConfig({
-  browsers: ['chromium'],
+  browsers: ["chromium"],
   screenshot: {
     threshold: 0.02,
     maxDiffPixelRatio: 0.02,
-    animations: 'disabled',
-    freezeTime: '2024-01-01T00:00:00',
-    timezone: 'UTC',
-    locale: 'en-US',
+    animations: "disabled",
+    freezeTime: "2024-01-01T00:00:00",
+    timezone: "UTC",
+    locale: "en-US",
     seed: 1,
   },
   diffDetection: {
-    baseBranch: 'main',
+    baseBranch: "main",
     baseBranchDiffDepth: 1, // ベースブランチ上で比較するコミット数
   },
-  workers: 'auto',
+  workers: "auto",
 });
 ```
 
@@ -472,7 +472,7 @@ export default defineConfig({
     ```ts
     export default defineConfig({
       diffDetection: {
-        baseBranch: 'master',
+        baseBranch: "master",
       },
     });
     ```
