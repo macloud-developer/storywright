@@ -22,8 +22,8 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm build
-      - run: pnpm typecheck
-      - run: pnpm test
+      - run: curl -fsSL https://vite.plus | bash
+      - run: vp install --frozen-lockfile
+      - run: vp check
+      - run: vp run build
+      - run: vp test

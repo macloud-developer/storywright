@@ -1,14 +1,14 @@
-import type { ScreenshotConfig } from '../config/types.js';
+import type { ScreenshotConfig } from "../config/types.js";
 
 export function generateTestFile(
-	config: ScreenshotConfig,
-	options: {
-		targetStoriesPath: string;
-	},
+  config: ScreenshotConfig,
+  options: {
+    targetStoriesPath: string;
+  },
 ): string {
-	const disableAnimations = config.animations === 'disabled';
+  const disableAnimations = config.animations === "disabled";
 
-	return `import { test, expect } from '@playwright/test';
+  return `import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { initPage, stabilizePage } from '@storywright/cli/playwright/stabilize';
 
@@ -55,5 +55,5 @@ test.describe.parallel('visual regression testing', () => {
 }
 
 function escapeBackslash(str: string): string {
-	return str.replace(/\\/g, '/');
+  return str.replace(/\\/g, "/");
 }

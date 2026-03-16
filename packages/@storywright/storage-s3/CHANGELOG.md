@@ -39,7 +39,6 @@
 ### Patch Changes
 
 - [`333db4d`](https://github.com/macloud-developer/storywright/commit/333db4d8615c52cc61bcd86af4e825c322d47e21) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Fix CI timeout during update and add S3 transfer progress logging
-
   - Skip unnecessary baseline download during `storywright update` (fixes CircleCI no-output timeout)
   - Add `onProgress` callback to `DownloadOptions` / `UploadOptions` for S3 transfer progress
   - S3 adapter now logs progress for archive download/extract, individual file transfers, and archive compression/upload
@@ -52,7 +51,6 @@
 ### Minor Changes
 
 - [`f46dcf3`](https://github.com/macloud-developer/storywright/commit/f46dcf33451a4699aa8d7443082f00269d5b82fa) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Implement tar.zst/tar.gz archive compression for S3 storage adapter
-
   - Upload: bundle files into a single tar archive, compress with zstd or gzip, multipart upload via `@aws-sdk/lib-storage`
   - Download: auto-detect compression from file extension, decompress and extract; falls back to individual file download for backward compatibility
   - Add `--shard` option to `upload` command for shard-aware archive naming

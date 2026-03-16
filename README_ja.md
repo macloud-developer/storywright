@@ -48,50 +48,50 @@ npx storywright init
 設定例:
 
 ```ts
-import { defineConfig } from '@storywright/cli';
+import { defineConfig } from "@storywright/cli";
 
 export default defineConfig({
   storybook: {
-    staticDir: 'storybook-static',
-    buildCommand: 'npx storybook build --stats-json',
-    compatibility: 'auto', // auto | v8
+    staticDir: "storybook-static",
+    buildCommand: "npx storybook build --stats-json",
+    compatibility: "auto", // auto | v8
   },
 
-  browsers: ['chromium', 'webkit'],
+  browsers: ["chromium", "webkit"],
 
   screenshot: {
     fullPage: true,
-    animations: 'disabled',
+    animations: "disabled",
     threshold: 0.02,
     maxDiffPixelRatio: 0.02,
-    freezeTime: '2024-01-01T00:00:00',
-    timezone: 'UTC',
-    locale: 'en-US',
+    freezeTime: "2024-01-01T00:00:00",
+    timezone: "UTC",
+    locale: "en-US",
     seed: 1,
   },
 
   diffDetection: {
     enabled: true,
-    baseBranch: 'main',
+    baseBranch: "main",
     baseBranchDiffDepth: 1, // ベースブランチ上で比較するコミット数
   },
 
   storage: {
-    provider: 'local',
+    provider: "local",
     local: {
-      baselineDir: '.storywright/baselines',
+      baselineDir: ".storywright/baselines",
     },
   },
 
   report: {
-    outputDir: '.storywright/report',
+    outputDir: ".storywright/report",
   },
 
-  workers: 'auto', // number | 'auto'
+  workers: "auto", // number | 'auto'
   retries: 0, // フレーキーテスト対策のリトライ回数
 
-  include: ['**'],
-  exclude: ['**/Experimental/**'],
+  include: ["**"],
+  exclude: ["**/Experimental/**"],
 });
 ```
 
@@ -183,8 +183,8 @@ npx storywright init
 
 ```ts
 export default defineConfig({
-  include: ['**'],                    // 全ストーリーを対象（デフォルト）
-  exclude: ['**/Experimental/**'],     // パターンに一致するストーリーを除外
+  include: ["**"], // 全ストーリーを対象（デフォルト）
+  exclude: ["**/Experimental/**"], // パターンに一致するストーリーを除外
 });
 ```
 
@@ -219,16 +219,16 @@ npm install -D @storywright/storage-s3
 ```
 
 ```ts
-import { defineConfig } from '@storywright/cli';
+import { defineConfig } from "@storywright/cli";
 
 export default defineConfig({
   storage: {
-    provider: 's3',
+    provider: "s3",
     s3: {
-      bucket: 'my-vrt-bucket',
-      prefix: 'storywright/baselines',
-      region: 'ap-northeast-1',
-      compression: 'zstd',
+      bucket: "my-vrt-bucket",
+      prefix: "storywright/baselines",
+      region: "ap-northeast-1",
+      compression: "zstd",
     },
   },
 });
@@ -237,10 +237,10 @@ export default defineConfig({
 ## プログラマブル API
 
 ```ts
-import { createStorywright } from '@storywright/cli';
+import { createStorywright } from "@storywright/cli";
 
 const sw = await createStorywright({
-  browsers: ['chromium'],
+  browsers: ["chromium"],
 });
 
 const result = await sw.test({ diffOnly: true });
@@ -248,7 +248,7 @@ console.log(result.exitCode, result.summary, result.reportDir);
 
 await sw.update({ all: false });
 await sw.upload();
-await sw.download({ branch: 'main' });
+await sw.download({ branch: "main" });
 ```
 
 ## CI ガイド
