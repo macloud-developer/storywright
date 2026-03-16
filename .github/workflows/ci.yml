@@ -22,7 +22,10 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
-      - run: curl -fsSL https://vite.plus | bash
+      - name: Install Vite+
+        run: |
+          curl -fsSL https://vite.plus | bash
+          echo "$HOME/.vite-plus/bin" >> "$GITHUB_PATH"
       - run: vp install --frozen-lockfile
       - run: vp check
       - run: vp run build
