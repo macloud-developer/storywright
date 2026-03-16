@@ -1,5 +1,11 @@
 # @storywright/report
 
+## 1.2.0
+
+### Minor Changes
+
+- [#36](https://github.com/macloud-developer/storywright/pull/36) [`5314888`](https://github.com/macloud-developer/storywright/commit/5314888c5308314e39f0a6bf250c74ada46ca1e0) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Migrate toolchain to Vite+ (vite-plus), replacing Vite 6 + Vitest 3 + Biome with a unified toolchain. Upgrade to Vite 8, Vitest 4.1, and @sveltejs/vite-plugin-svelte v7. Rewrite imports from vite/vitest to vite-plus. Replace Biome with oxlint/oxfmt via vp check.
+
 ## 1.1.1
 
 ### Patch Changes
