@@ -2,7 +2,13 @@
   <img src="./storywright.svg" alt="Storywright" width="400" />
 </p>
 
-> Storybook + Playwright ベースのゼロコンフィグ VRT ツール
+<p align="center">
+  <a href="https://www.npmjs.com/package/@storywright/cli"><img src="https://img.shields.io/npm/v/@storywright/cli.svg" alt="npm version"></a>
+  <a href="https://github.com/macloud-developer/storywright/actions/workflows/ci.yml"><img src="https://github.com/macloud-developer/storywright/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/macloud-developer/storywright/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@storywright/cli.svg" alt="license"></a>
+</p>
+
+> Storybook + Playwright ベースのセルフホスティング VRT ツール
 
 [English README](./README.md)
 
@@ -20,8 +26,8 @@ Storywright は Storybook のストーリーを自動で撮影し、ベースラ
 ## 動作要件
 
 - Node.js `>=20`
-- Storybook `>=8`
-- Playwright ブラウザのインストール
+- Storybook `>=8`（推奨）
+- Playwright `>=1.40`
 
 ## クイックスタート
 
@@ -59,6 +65,15 @@ export default defineConfig({
 
   browsers: ["chromium", "webkit"],
 
+  browserOptions: {
+    mobile: {
+      browserName: "chromium",
+      viewport: { width: 375, height: 812 },
+      isMobile: true,
+      exclude: ["**/DesktopOnly/**"],
+    },
+  },
+
   screenshot: {
     fullPage: true,
     animations: "disabled",
@@ -74,10 +89,11 @@ export default defineConfig({
     enabled: true,
     baseBranch: "main",
     baseBranchDiffDepth: 1, // ベースブランチ上で比較するコミット数
+    watchFiles: ["package.json", "package-lock.json", ".storybook/**/*"],
   },
 
   storage: {
-    provider: "local",
+    provider: "local", // local | s3
     local: {
       baselineDir: ".storywright/baselines",
     },
@@ -85,13 +101,29 @@ export default defineConfig({
 
   report: {
     outputDir: ".storywright/report",
+    title: "Storywright Report",
   },
 
   workers: "auto", // number | 'auto'
   retries: 0, // フレーキーテスト対策のリトライ回数
 
+  timeout: {
+    test: 30000, // テストごとのタイムアウト (ms)
+    navigation: 20000, // ページ遷移タイムアウト (ms)
+    expect: 10000, // アサーションタイムアウト (ms)
+  },
+
   include: ["**"],
   exclude: ["**/Experimental/**"],
+
+  hooks: {
+    beforeScreenshot: async (page, story) => {
+      // 例: Cookie バナーを閉じる
+    },
+    afterScreenshot: async (page, story) => {
+      // 例: クリーンアップ
+    },
+  },
 });
 ```
 
@@ -111,6 +143,7 @@ npx storywright test --filter "Components/**"
 npx storywright test --reporters default,html
 npx storywright test --output-dir .artifacts/storywright
 npx storywright test --storybook-url http://localhost:6006
+npx storywright test --full-page false
 npx storywright test --retries 2
 npx storywright test --base-branch-diff-depth 3
 ```
@@ -119,9 +152,10 @@ npx storywright test --base-branch-diff-depth 3
 
 - `--browsers`: ブラウザ指定（カンマ区切り）
 - `--diff-only`: 変更影響のあるストーリーのみ実行
+- `--full-page`: フルページスクリーンショット（`true` または `false`）
 - `--shard`: `index/total` 形式
 - `--workers`: 並列ワーカー数（`auto` または数値）
-- `--threshold`: 1ピクセル単位の閾値
+- `--threshold`: 1 ピクセル単位の閾値
 - `--max-diff-pixel-ratio`: 画像全体の差分許容率
 - `--filter`: ストーリー絞り込み glob
 - `--output-dir`: 出力ルート（指定時は `<output-dir>/report`）
@@ -244,7 +278,12 @@ const sw = await createStorywright({
 });
 
 const result = await sw.test({ diffOnly: true });
+// result: { exitCode, summary?, reportDir?, snapshotDir? }
 console.log(result.exitCode, result.summary, result.reportDir);
+
+// サマリーを人間が読める文字列にフォーマット
+const report = sw.generateReport(result);
+if (report) console.log(report);
 
 await sw.update({ all: false });
 await sw.upload();
