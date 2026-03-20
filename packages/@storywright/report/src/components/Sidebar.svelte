@@ -2,6 +2,7 @@
 	import type { TestEntry, TypeFilter } from '../lib/types.js';
 	import { entryKey } from '../lib/types.js';
 	import { magnifyingGlass, checkCircle, xCircle, plusCircle } from '../lib/icons.js';
+	import { createVirtualScroll } from '../lib/virtual-scroll.svelte.js';
 	import FilterDropdown from './FilterDropdown.svelte';
 
 	let {
@@ -21,6 +22,22 @@
 		activeId?: string;
 		onSelect?: (entry: TestEntry, index: number) => void;
 	} = $props();
+
+	const vs = createVirtualScroll(() => entries.length, {
+		itemHeight: 45,
+		gap: 0,
+		overscan: 20,
+	});
+
+	let listEl: HTMLElement | undefined = $state();
+	$effect(() => vs.bindContainer(listEl));
+
+	// Scroll active entry into view
+	$effect(() => {
+		if (!activeId) return;
+		const idx = entries.findIndex((e) => entryKey(e) === activeId);
+		if (idx >= 0) vs.scrollToIndex(idx);
+	});
 </script>
 
 <aside class="sidebar">
@@ -34,37 +51,41 @@
 		/>
 		<FilterDropdown {browsers} bind:typeFilter bind:browserFilter />
 	</div>
-	<nav class="entry-list" aria-label="Test entry list">
+	<nav class="entry-list" aria-label="Test entry list" bind:this={listEl} onscroll={vs.onScroll}>
 		{#if entries.length === 0}
 			<div class="empty">No matches</div>
 		{:else}
-			{#each entries as entry, i}
-				<button
-					class="entry-item"
-					class:active={activeId === entryKey(entry)}
-					onclick={() => onSelect?.(entry, i)}
-					title="{entry.story}: {entry.variant} ({entry.browser})"
-				>
-					<span class="item-icon" class:icon-pass={entry.type === 'pass'} class:icon-diff={entry.type === 'diff'} class:icon-new={entry.type === 'new'}>
-						{#if entry.type === 'pass'}
-							{@html checkCircle}
-						{:else if entry.type === 'new'}
-							{@html plusCircle}
-						{:else}
-							{@html xCircle}
-						{/if}
-					</span>
-					<div class="item-info">
-						<span class="item-title">{entry.story}</span>
-						<span class="item-meta">
-							{entry.variant} · {entry.browser}
-							{#if entry.type === 'diff' && entry.diffRatio > 0}
-								· {(entry.diffRatio * 100).toFixed(1)}%
-							{/if}
-						</span>
-					</div>
-				</button>
-			{/each}
+			<div class="scroll-content" style="height:{vs.totalHeight}px">
+				<div class="visible-window" style="transform:translateY({vs.offsetY}px)">
+					{#each entries.slice(vs.startIdx, vs.endIdx) as entry, i (`${entryKey(entry)}::${vs.startIdx + i}`)}
+						<button
+							class="entry-item"
+							class:active={activeId === entryKey(entry)}
+							onclick={() => onSelect?.(entry, vs.startIdx + i)}
+							title="{entry.story}: {entry.variant} ({entry.browser})"
+						>
+							<span class="item-icon" class:icon-pass={entry.type === 'pass'} class:icon-diff={entry.type === 'diff'} class:icon-new={entry.type === 'new'}>
+								{#if entry.type === 'pass'}
+									{@html checkCircle}
+								{:else if entry.type === 'new'}
+									{@html plusCircle}
+								{:else}
+									{@html xCircle}
+								{/if}
+							</span>
+							<div class="item-info">
+								<span class="item-title">{entry.story}</span>
+								<span class="item-meta">
+									{entry.variant} · {entry.browser}
+									{#if entry.type === 'diff' && entry.diffRatio > 0}
+										· {(entry.diffRatio * 100).toFixed(1)}%
+									{/if}
+								</span>
+							</div>
+						</button>
+					{/each}
+				</div>
+			</div>
 		{/if}
 	</nav>
 </aside>
@@ -114,6 +135,13 @@
 		color: var(--color-fg-muted);
 		font-size: 0.85rem;
 	}
+	.scroll-content {
+		position: relative;
+	}
+	.visible-window {
+		display: flex;
+		flex-direction: column;
+	}
 	.entry-item {
 		display: flex;
 		align-items: flex-start;
@@ -129,8 +157,6 @@
 		font-size: inherit;
 		color: var(--color-fg-default);
 		transition: background 0.1s;
-		content-visibility: auto;
-		contain-intrinsic-size: auto 45px;
 	}
 	.entry-item:last-child {
 		border-bottom: none;

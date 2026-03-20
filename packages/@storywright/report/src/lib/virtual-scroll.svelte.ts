@@ -33,9 +33,9 @@ export function createVirtualScroll(
 
   const totalHeight = $derived(getCount() > 0 ? getCount() * rowHeight - gap : 0);
 
-  // Apply more overscan to the trailing edge (opposite of scroll direction)
-  const overscanBefore = $derived(scrollDir === "down" ? overscan * 2 : overscan);
-  const overscanAfter = $derived(scrollDir === "up" ? overscan * 2 : overscan);
+  // Apply more overscan to the leading edge (direction of scroll)
+  const overscanBefore = $derived(scrollDir === "up" ? overscan * 2 : overscan);
+  const overscanAfter = $derived(scrollDir === "down" ? overscan * 2 : overscan);
 
   const startIdx = $derived(Math.max(0, Math.floor(scrollY / rowHeight) - overscanBefore));
 
