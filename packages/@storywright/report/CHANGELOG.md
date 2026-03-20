@@ -1,5 +1,14 @@
 # @storywright/report
 
+## 1.2.1
+
+### Patch Changes
+
+- [`b362d44`](https://github.com/macloud-developer/storywright/commit/b362d44b8f155ea5f73813b9117c1757c00d3357) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Fix virtual scroll overscan direction and add sidebar virtualization
+  - Fix overscan to apply more buffer in the scroll direction, preventing blank areas when scrolling down
+  - Add virtual scroll to Sidebar for large entry lists, reducing DOM nodes from N to ~50
+  - Adjust card list padding for consistent spacing
+
 ## 1.2.0
 
 ### Minor Changes
