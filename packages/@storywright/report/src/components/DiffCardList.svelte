@@ -67,10 +67,10 @@
 		overflow-y: auto;
 		flex: 1;
 		min-height: 0;
+		padding: 24px 24px 0;
 	}
 	.scroll-content {
 		position: relative;
-		padding: 16px 24px;
 	}
 	.visible-window {
 		display: flex;
