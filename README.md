@@ -2,7 +2,13 @@
   <img src="./storywright.svg" alt="Storywright" width="400" />
 </p>
 
-> Zero-config visual regression testing powered by Storybook + Playwright
+<p align="center">
+  <a href="https://www.npmjs.com/package/@storywright/cli"><img src="https://img.shields.io/npm/v/@storywright/cli.svg" alt="npm version"></a>
+  <a href="https://github.com/macloud-developer/storywright/actions/workflows/ci.yml"><img src="https://github.com/macloud-developer/storywright/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/macloud-developer/storywright/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@storywright/cli.svg" alt="license"></a>
+</p>
+
+> Self-hosted visual regression testing powered by Storybook + Playwright
 
 [日本語版 README](./README_ja.md)
 
@@ -10,7 +16,7 @@ Storywright captures screenshots from Storybook stories, compares them with base
 
 ## Features
 
-- Zero-config start with `npx @storywright/cli test`
+- Quick start with `npx @storywright/cli test`
 - Diff-only test selection from git changes
 - Multi-browser execution (Chromium, Firefox, WebKit)
 - HTML report generation (`summary.json` + `index.html`)
@@ -20,8 +26,8 @@ Storywright captures screenshots from Storybook stories, compares them with base
 ## Requirements
 
 - Node.js `>=20`
-- Storybook `>=8`
-- Playwright browsers installed
+- Storybook `>=8` (recommended)
+- Playwright `>=1.40`
 
 ## Quick Start
 
@@ -59,6 +65,15 @@ export default defineConfig({
 
   browsers: ["chromium", "webkit"],
 
+  browserOptions: {
+    mobile: {
+      browserName: "chromium",
+      viewport: { width: 375, height: 812 },
+      isMobile: true,
+      exclude: ["**/DesktopOnly/**"],
+    },
+  },
+
   screenshot: {
     fullPage: true,
     animations: "disabled",
@@ -74,6 +89,7 @@ export default defineConfig({
     enabled: true,
     baseBranch: "main",
     baseBranchDiffDepth: 1, // commits to compare when running on base branch
+    watchFiles: ["package.json", "package-lock.json", ".storybook/**/*"],
   },
 
   storage: {
@@ -85,13 +101,29 @@ export default defineConfig({
 
   report: {
     outputDir: ".storywright/report",
+    title: "Storywright Report",
   },
 
   workers: "auto", // number | 'auto'
   retries: 0, // retry count for flaky tests
 
+  timeout: {
+    test: 30000, // per-test timeout (ms)
+    navigation: 20000, // page navigation timeout (ms)
+    expect: 10000, // assertion timeout (ms)
+  },
+
   include: ["**"],
   exclude: ["**/Experimental/**"],
+
+  hooks: {
+    beforeScreenshot: async (page, story) => {
+      // e.g. dismiss cookie banners
+    },
+    afterScreenshot: async (page, story) => {
+      // e.g. cleanup
+    },
+  },
 });
 ```
 
@@ -113,6 +145,7 @@ npx storywright test --filter "Components/**"
 npx storywright test --reporters default,html
 npx storywright test --output-dir .artifacts/storywright
 npx storywright test --storybook-url http://localhost:6006
+npx storywright test --full-page false
 npx storywright test --retries 2
 npx storywright test --base-branch-diff-depth 3
 ```
@@ -121,6 +154,7 @@ Main options:
 
 - `--browsers`: comma-separated browser projects
 - `--diff-only`: run only affected stories from git diff
+- `--full-page`: take full page screenshots (`true` or `false`)
 - `--shard`: shard format `index/total`
 - `--workers`: number of parallel workers (`auto` or number)
 - `--threshold`: per-pixel color threshold
@@ -250,7 +284,12 @@ const sw = await createStorywright({
 });
 
 const result = await sw.test({ diffOnly: true });
+// result: { exitCode, summary?, reportDir?, snapshotDir? }
 console.log(result.exitCode, result.summary, result.reportDir);
+
+// Format summary as a human-readable string
+const report = sw.generateReport(result);
+if (report) console.log(report);
 
 await sw.update({ all: false });
 await sw.upload();
