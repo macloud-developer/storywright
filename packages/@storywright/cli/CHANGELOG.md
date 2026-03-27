@@ -1,5 +1,11 @@
 # @storywright/cli
 
+## 1.3.1
+
+### Patch Changes
+
+- [`f427233`](https://github.com/macloud-developer/storywright/commit/f427233e1c562fae1f32c1d09593570c1124f6c2) Thanks [@kubotak-is](https://github.com/kubotak-is)! - fix(deps): bump simple-git minimum version to ^3.32.3 for CVE fix (GHSA-9p95-fxvg-qgq2)
+
 ## 1.3.0
 
 ### Minor Changes
