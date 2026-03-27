@@ -54,7 +54,7 @@ export async function createStorywright(
     async upload(options = {}) {
       const storage = await createStorageAdapter(config.storage);
       await storage.upload({
-        branch: "current",
+        branch: config.storage.branch,
         sourceDir: path.resolve(cwd, config.storage.local.baselineDir),
         shard: options.shard,
       });

@@ -79,7 +79,7 @@ export async function runTests(
   if (!options.updateSnapshots) {
     const storage = await createStorageAdapter(config.storage);
     baselinePromise = storage
-      .download({ branch: "current", destDir: snapshotDir, onProgress: (msg) => logger.info(msg) })
+      .download({ branch: config.storage.branch, destDir: snapshotDir, onProgress: (msg) => logger.info(msg) })
       .catch(() => {
         logger.info("No existing baselines found");
       });
@@ -285,7 +285,7 @@ export async function updateBaselines(
     const storage = await createStorageAdapter(config.storage);
     const baselineDir = path.resolve(cwd, config.storage.local.baselineDir);
     await storage.upload({
-      branch: "current",
+      branch: config.storage.branch,
       sourceDir: baselineDir,
       shard: options.shard,
       onProgress: (msg) => logger.info(msg),

@@ -31,6 +31,7 @@ export const DEFAULT_CONFIG: StorywrightConfig = {
 
   storage: {
     provider: "local",
+    branch: "main",
     local: {
       baselineDir: ".storywright/baselines",
     },

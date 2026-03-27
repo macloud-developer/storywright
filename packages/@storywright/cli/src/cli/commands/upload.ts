@@ -22,7 +22,7 @@ export const uploadCommand = defineCommand({
 
     logger.start("Uploading baselines...");
     await storage.upload({
-      branch: "current",
+      branch: config.storage.branch,
       sourceDir: snapshotDir,
       shard: args.shard,
     });

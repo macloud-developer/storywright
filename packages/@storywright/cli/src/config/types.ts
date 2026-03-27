@@ -63,6 +63,7 @@ export interface DiffDetectionConfig {
 
 export interface StorageConfig {
   provider: "local" | "s3";
+  branch: string;
   local: LocalStorageConfig;
   s3: S3StorageConfig;
 }
