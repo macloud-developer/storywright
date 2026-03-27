@@ -99,10 +99,10 @@ class StorywrightReporter implements Reporter {
       const imageAttachments = testResult.attachments.filter(
         (a) => a.path && a.contentType.startsWith("image/"),
       );
-      const hasDiff = imageAttachments.some((a) => a.name.includes("diff"));
+      const hasExpected = imageAttachments.some((a) => a.name.includes("expected"));
 
       const entry: TestEntry = {
-        type: hasDiff ? "diff" : "new",
+        type: hasExpected ? "diff" : "new",
         story: storyTitle,
         variant,
         browser: testResult.project,
