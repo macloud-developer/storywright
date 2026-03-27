@@ -47,7 +47,7 @@
     "citty": "^0.1.6",
     "consola": "^3.2.3",
     "picomatch": "^4.0.2",
-    "simple-git": "^3.27.0",
+    "simple-git": "^3.32.3",
     "sirv": "^3.0.0",
     "unconfig": "^0.6.0"
   },
