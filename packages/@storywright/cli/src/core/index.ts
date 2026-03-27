@@ -63,7 +63,7 @@ export async function createStorywright(
     async download(options = {}) {
       const storage = await createStorageAdapter(config.storage);
       const destDir = path.resolve(cwd, config.storage.local.baselineDir);
-      const branch = options.branch ?? "main";
+      const branch = options.branch ?? config.storage.branch;
 
       if (storage instanceof LocalStorageAdapter) {
         await storage.downloadFromGit(branch, destDir, cwd);

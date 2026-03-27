@@ -190,7 +190,10 @@ ${cssContent ? `<style>${cssContent}</style>` : ""}
 </head>
 <body>
 <div id="app"></div>
-<script>window.__STORYWRIGHT_SUMMARY__ = ${JSON.stringify(summary).replace(/</g, "\\u003c")};</script>
+<script>window.__STORYWRIGHT_SUMMARY__ = ${JSON.stringify(summary).replace(
+    /</g,
+    "\\u003c",
+  )};</script>
 <script>${bundleJs}</script>
 </body>
 </html>`;

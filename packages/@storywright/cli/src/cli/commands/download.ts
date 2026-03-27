@@ -14,14 +14,13 @@ export const downloadCommand = defineCommand({
     branch: {
       type: "string",
       description: "Branch to download baselines from",
-      default: "main",
     },
   },
   async run({ args }) {
     const config = await loadConfig();
     const storage = await createStorageAdapter(config.storage);
     const destDir = path.resolve(config.storage.local.baselineDir);
-    const branch = args.branch ?? "main";
+    const branch = args.branch ?? config.storage.branch;
 
     if (storage instanceof LocalStorageAdapter) {
       logger.start(`Extracting baselines from git branch '${branch}'...`);

@@ -79,7 +79,11 @@ export async function runTests(
   if (!options.updateSnapshots) {
     const storage = await createStorageAdapter(config.storage);
     baselinePromise = storage
-      .download({ branch: config.storage.branch, destDir: snapshotDir, onProgress: (msg) => logger.info(msg) })
+      .download({
+        branch: config.storage.branch,
+        destDir: snapshotDir,
+        onProgress: (msg) => logger.info(msg),
+      })
       .catch(() => {
         logger.info("No existing baselines found");
       });
@@ -149,7 +153,10 @@ export async function runTests(
           : `storywright-${browser}-*.spec.ts`;
 
       for (let i = 0; i < browserChunks.length; i++) {
-        const chunkIndex: StoryIndex = { ...browserStories, entries: browserChunks[i] };
+        const chunkIndex: StoryIndex = {
+          ...browserStories,
+          entries: browserChunks[i],
+        };
         const chunkPath = path.join(tmpDir, `target-stories-${browser}-${i}.json`);
         await fs.writeFile(chunkPath, JSON.stringify(chunkIndex));
 
@@ -160,7 +167,9 @@ export async function runTests(
       }
 
       logger.info(
-        `${browser}: ${Object.keys(browserStories.entries).length} stories, ${browserChunks.length} test file(s)`,
+        `${browser}: ${Object.keys(browserStories.entries).length} stories, ${
+          browserChunks.length
+        } test file(s)`,
       );
     }
 
@@ -254,7 +263,12 @@ export async function runTests(
 
 export async function updateBaselines(
   config: StorywrightConfig,
-  options: { all?: boolean; upload?: boolean; shard?: string; filter?: string } = {},
+  options: {
+    all?: boolean;
+    upload?: boolean;
+    shard?: string;
+    filter?: string;
+  } = {},
   cwd: string = process.cwd(),
 ): Promise<TestRunResult> {
   const result = await runTests(
