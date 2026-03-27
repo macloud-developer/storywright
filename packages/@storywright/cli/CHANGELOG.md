@@ -1,5 +1,30 @@
 # @storywright/cli
 
+## 1.3.0
+
+### Minor Changes
+
+- [`2d3aab9`](https://github.com/macloud-developer/storywright/commit/2d3aab9bdd07f02d2031e737f559219421bf320d) Thanks [@kubotak-is](https://github.com/kubotak-is)! - feat(storage): make baseline storage branch configurable via `storage.branch`
+
+  The S3 storage branch prefix was previously hardcoded to `"current"`, causing a
+  mismatch with CI workflows that download baselines from `"main"`. This led to
+  diff-only updates overwriting shard archives without existing baselines, resulting
+  in baseline loss and false "new" detections.
+
+  Added `storage.branch` config option (default: `"main"`) that controls the S3
+  prefix used for baseline upload and download. All hardcoded branch references in
+  engine, API, and CLI upload command now use this config value.
+
+### Patch Changes
+
+- [`4b8fc17`](https://github.com/macloud-developer/storywright/commit/4b8fc179f9e0b017e89a40ca6d789a55d5a3df29) Thanks [@kubotak-is](https://github.com/kubotak-is)! - fix(reporter): use expected attachment instead of diff to determine new vs diff status
+
+  Previously, the reporter checked for the presence of a "diff" image attachment to
+  distinguish between "new" and "diff" test entries. This caused tests with existing
+  baselines to be incorrectly classified as "new" when the diff image was not generated
+  (e.g., test failure before screenshot comparison). Now checks for "expected" attachment
+  instead, which reliably indicates that a baseline exists.
+
 ## 1.2.1
 
 ### Patch Changes
