@@ -1,5 +1,16 @@
 # @storywright/report
 
+## 1.4.0
+
+### Minor Changes
+
+- [`1b66943`](https://github.com/macloud-developer/storywright/commit/1b669430c9d21020c9afec15ced30c2782c5a99a) Thanks [@kubotak-is](https://github.com/kubotak-is)! - feat(report): replace custom virtual scroll with @tanstack/virtual-core
+  - Migrate from hand-rolled virtual scroll to @tanstack/virtual-core for reliable scroll positioning
+  - Enable dynamic height measurement so expanded diff cards are fully visible
+  - Fix sidebar scroll-to-index accuracy and active item tracking
+  - Remove IntersectionObserver lazy loading (redundant with virtual scroll)
+  - Add dev-only Vite plugin to serve placeholder images for /assets/\* requests
+
 ## 1.2.1
 
 ### Patch Changes
