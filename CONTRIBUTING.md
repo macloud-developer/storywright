@@ -7,15 +7,18 @@
 git clone https://github.com/macloud-developer/storywright.git
 cd storywright
 
-# 依存関係のインストール (pnpm 9.x 必須)
-corepack enable
-pnpm install
+# Vite+ CLI のインストール (初回のみ)
+curl -fsSL https://viteplus.dev/install.sh | bash
+
+# 依存関係のインストール
+vp install
 ```
 
 ### 要件
 
-- Node.js >= 20
-- pnpm 9.x (`packageManager` フィールドで固定)
+- [Vite+](https://viteplus.dev/) (Node.js とパッケージマネージャを内包)
+
+> **注:** 内部的には pnpm を使用しています (`packageManager` フィールドで固定)。pnpm を直接使う必要はありません。
 
 ## プロジェクト構成
 
@@ -31,7 +34,7 @@ packages/
 ### ビルド
 
 ```bash
-pnpm build          # 全パッケージをビルド
+vp run build          # 全パッケージをビルド
 ```
 
 ### Push 前の確認事項
@@ -39,32 +42,26 @@ pnpm build          # 全パッケージをビルド
 **CI と同じチェックがローカルで通ることを必ず確認してください。**
 
 ```bash
-pnpm lint            # Biome による lint / format チェック
-pnpm build           # 全パッケージのビルド (typecheck の前に必要)
-pnpm typecheck       # TypeScript 型チェック
-pnpm test            # Vitest によるユニットテスト
+vp fmt --check       # フォーマットチェック (oxfmt)
+vp run build         # 全パッケージのビルド
+vp test              # Vitest によるユニットテスト
 ```
 
-> **重要:** `typecheck` は `build` の生成物 (`.d.ts`) に依存するため、必ず `build` の後に実行してください。
-
-lint エラーがある場合は自動修正できます:
+フォーマットエラーがある場合は自動修正できます:
 
 ```bash
-pnpm lint:fix        # Biome で自動修正
+vp fmt               # oxfmt で自動整形
 ```
 
-### まとめて実行
+### Pre-commit フック
 
-```bash
-pnpm lint && pnpm build && pnpm typecheck && pnpm test
-```
+コミット時に `vp fmt --check` が自動実行されます。フォーマット違反がある場合はコミットがブロックされます。`vp fmt` で修正してから再度コミットしてください。
 
 ## コーディング規約
 
-- フォーマッター/リンター: [Biome](https://biomejs.dev/)
-- `pnpm lint:fix` で自動整形されるため、手動で調整する必要はほぼありません
-- インデント: タブ
-- 引用符: シングルクォート
+- フォーマッター: [oxfmt](https://oxc.rs/) (Vite+ 内蔵)
+- リンター: [oxlint](https://oxc.rs/) (Vite+ 内蔵)
+- `vp fmt` で自動整形されるため、手動で調整する必要はほぼありません
 
 ## リリース
 
@@ -75,7 +72,7 @@ pnpm lint && pnpm build && pnpm typecheck && pnpm test
 変更を加えたら、changeset ファイルを作成してコミットに含めます:
 
 ```bash
-pnpm changeset
+vp dlx changeset
 ```
 
 対話的に以下を選択します:
