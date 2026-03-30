@@ -22,8 +22,7 @@ jobs:
         with:
           node-version: "22"
           cache: true
-      - run: vp install --frozen-lockfile
-      - run: git checkout -- . # reset vp config side-effects for clean publish
+      - run: vp install --frozen-lockfile --ignore-scripts
       - run: vp run build
       - name: Create Release Pull Request or Publish
         uses: changesets/action@v1
