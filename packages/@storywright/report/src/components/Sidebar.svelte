@@ -23,20 +23,21 @@
 		onSelect?: (entry: TestEntry, index: number) => void;
 	} = $props();
 
-	const vs = createVirtualScroll(() => entries.length, {
-		itemHeight: 45,
-		gap: 0,
-		overscan: 20,
-	});
-
 	let listEl: HTMLElement | undefined = $state();
-	$effect(() => vs.bindContainer(listEl));
+
+	const vs = createVirtualScroll({
+		getCount: () => entries.length,
+		getScrollElement: () => listEl ?? null,
+		estimateSize: () => 45,
+		overscan: 20,
+		gap: 0,
+	});
 
 	// Scroll active entry into view
 	$effect(() => {
 		if (!activeId) return;
 		const idx = entries.findIndex((e) => entryKey(e) === activeId);
-		if (idx >= 0) vs.scrollToIndex(idx);
+		if (idx >= 0) vs.scrollToIndex(idx, { align: 'start', behavior: 'smooth' });
 	});
 </script>
 
@@ -51,40 +52,40 @@
 		/>
 		<FilterDropdown {browsers} bind:typeFilter bind:browserFilter />
 	</div>
-	<nav class="entry-list" aria-label="Test entry list" bind:this={listEl} onscroll={vs.onScroll}>
+	<nav class="entry-list" aria-label="Test entry list" bind:this={listEl}>
 		{#if entries.length === 0}
 			<div class="empty">No matches</div>
 		{:else}
-			<div class="scroll-content" style="height:{vs.totalHeight}px">
-				<div class="visible-window" style="transform:translateY({vs.offsetY}px)">
-					{#each entries.slice(vs.startIdx, vs.endIdx) as entry, i (`${entryKey(entry)}::${vs.startIdx + i}`)}
-						<button
-							class="entry-item"
-							class:active={activeId === entryKey(entry)}
-							onclick={() => onSelect?.(entry, vs.startIdx + i)}
-							title="{entry.story}: {entry.variant} ({entry.browser})"
-						>
-							<span class="item-icon" class:icon-pass={entry.type === 'pass'} class:icon-diff={entry.type === 'diff'} class:icon-new={entry.type === 'new'}>
-								{#if entry.type === 'pass'}
-									{@html checkCircle}
-								{:else if entry.type === 'new'}
-									{@html plusCircle}
-								{:else}
-									{@html xCircle}
+			<div class="scroll-content" style="height:{vs.totalSize}px">
+				{#each vs.items as virtualItem (virtualItem.key)}
+					{@const entry = entries[virtualItem.index]}
+					<button
+						class="entry-item"
+						class:active={activeId === entryKey(entry)}
+						onclick={() => onSelect?.(entry, virtualItem.index)}
+						title="{entry.story}: {entry.variant} ({entry.browser})"
+						style="height:{virtualItem.size}px;transform:translateY({virtualItem.start}px)"
+					>
+						<span class="item-icon" class:icon-pass={entry.type === 'pass'} class:icon-diff={entry.type === 'diff'} class:icon-new={entry.type === 'new'}>
+							{#if entry.type === 'pass'}
+								{@html checkCircle}
+							{:else if entry.type === 'new'}
+								{@html plusCircle}
+							{:else}
+								{@html xCircle}
+							{/if}
+						</span>
+						<div class="item-info">
+							<span class="item-title">{entry.story}</span>
+							<span class="item-meta">
+								{entry.variant} · {entry.browser}
+								{#if entry.type === 'diff' && entry.diffRatio > 0}
+									· {(entry.diffRatio * 100).toFixed(1)}%
 								{/if}
 							</span>
-							<div class="item-info">
-								<span class="item-title">{entry.story}</span>
-								<span class="item-meta">
-									{entry.variant} · {entry.browser}
-									{#if entry.type === 'diff' && entry.diffRatio > 0}
-										· {(entry.diffRatio * 100).toFixed(1)}%
-									{/if}
-								</span>
-							</div>
-						</button>
-					{/each}
-				</div>
+						</div>
+					</button>
+				{/each}
 			</div>
 		{/if}
 	</nav>
@@ -137,16 +138,16 @@
 	}
 	.scroll-content {
 		position: relative;
-	}
-	.visible-window {
-		display: flex;
-		flex-direction: column;
+		width: 100%;
 	}
 	.entry-item {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
 		display: flex;
 		align-items: flex-start;
 		gap: 8px;
-		width: 100%;
 		padding: 8px 12px;
 		border: none;
 		border-bottom: 1px solid var(--color-border-default);
@@ -157,9 +158,7 @@
 		font-size: inherit;
 		color: var(--color-fg-default);
 		transition: background 0.1s;
-	}
-	.entry-item:last-child {
-		border-bottom: none;
+		overflow: hidden;
 	}
 	.entry-item:hover {
 		background: var(--color-bg-secondary);

@@ -18,47 +18,87 @@
 		scrollToKey?: string;
 	} = $props();
 
-	const vs = createVirtualScroll(() => entries.length, {
-		itemHeight: 58,
+	let containerEl: HTMLDivElement | undefined = $state();
+
+	const vs = createVirtualScroll({
+		getCount: () => entries.length,
+		getScrollElement: () => containerEl ?? null,
+		estimateSize: () => 58,
+		overscan: 10,
+		paddingStart: 24,
 		gap: 16,
-		overscan: 20,
+		dynamic: true,
 	});
 
-	let containerEl: HTMLDivElement | undefined = $state();
-	$effect(() => vs.bindContainer(containerEl));
+	// After each render, measure all visible elements so TanStack knows actual heights.
+	// TanStack's onChange only fires when range actually changes, so this won't loop.
+	$effect(() => {
+		// Track vs.items to run after items change
+		const items = vs.items;
+		if (!containerEl || items.length === 0) return;
+		queueMicrotask(() => {
+			if (!containerEl) return;
+			containerEl
+				.querySelectorAll<HTMLElement>('[data-index]')
+				.forEach((el) => vs.measureElement(el));
+		});
+	});
+
+	// Reset scroll position when entries change (e.g. filtering)
+	let prevEntriesRef: TestEntry[] | undefined;
+	$effect(() => {
+		const cur = entries;
+		if (prevEntriesRef !== undefined && prevEntriesRef !== cur) {
+			vs.resetScroll();
+		}
+		prevEntriesRef = cur;
+	});
+
+	// Suppress activeIndex tracking during programmatic scroll
+	let isScrollingTo = false;
+	let handledScrollKey = '';
 
 	// Scroll to entry on sidebar click
 	$effect(() => {
-		if (!scrollToKey) return;
-		const idx = entries.findIndex((e) => entryKey(e) === scrollToKey);
-		if (idx >= 0) vs.scrollToIndex(idx);
+		if (!scrollToKey || scrollToKey === handledScrollKey) return;
+		const key = scrollToKey;
+		handledScrollKey = key;
+		const idx = entries.findIndex((e) => entryKey(e) === key);
+		if (idx < 0) return;
+
+		isScrollingTo = true;
+		vs.scrollToIndex(idx, { align: 'start', behavior: 'smooth' });
+		setTimeout(() => {
+			isScrollingTo = false;
+		}, 500);
 	});
 
 	// Track active entry for sidebar highlight
 	$effect(() => {
+		if (isScrollingTo) return;
 		const idx = vs.activeIndex();
-		if (idx >= 0) onVisibleChange?.(entryKey(entries[idx]));
+		if (idx >= 0 && idx < entries.length) onVisibleChange?.(entryKey(entries[idx]));
 	});
-
-	function cardId(f: TestEntry) {
-		return `card-${entryKey(f).replace(/[^a-zA-Z0-9]/g, '-')}`;
-	}
 </script>
 
-<div class="card-list" bind:this={containerEl} onscroll={vs.onScroll}>
-	<div class="scroll-content" style="height:{vs.totalHeight}px">
-		<div class="visible-window" style="transform:translateY({vs.offsetY}px)">
-			{#each entries.slice(vs.startIdx, vs.endIdx) as entry, i (`${entryKey(entry)}::${vs.startIdx + i}`)}
-				{@const key = entryKey(entry)}
-				<div id={cardId(entry)} data-entry-key={key}>
-					<DiffCard
-						{entry}
-						viewed={viewedSet.has(key)}
-						onViewedChange={(v) => onViewedChange(key, v)}
-					/>
-				</div>
-			{/each}
-		</div>
+<div class="card-list" bind:this={containerEl}>
+	<div class="scroll-content" style="height:{vs.totalSize}px">
+		{#each vs.items as virtualItem (virtualItem.key)}
+			{@const entry = entries[virtualItem.index]}
+			{@const key = entryKey(entry)}
+			<div
+				data-index={virtualItem.index}
+				data-entry-key={key}
+				class="card-slot"
+				style="transform:translateY({virtualItem.start}px)"
+			>
+				<DiffCard
+					{entry}
+					viewed={viewedSet.has(key)}
+					onViewedChange={(v) => onViewedChange(key, v)}
+				/>
+			</div>
+		{/each}
 	</div>
 </div>
 
@@ -67,14 +107,15 @@
 		overflow-y: auto;
 		flex: 1;
 		min-height: 0;
-		padding: 24px 24px 0;
 	}
 	.scroll-content {
 		position: relative;
+		width: 100%;
 	}
-	.visible-window {
-		display: flex;
-		flex-direction: column;
-		gap: 16px;
+	.card-slot {
+		position: absolute;
+		top: 0;
+		left: 24px;
+		right: 24px;
 	}
 </style>

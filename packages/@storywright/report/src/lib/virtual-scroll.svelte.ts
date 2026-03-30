@@ -1,97 +1,110 @@
+import {
+  Virtualizer,
+  observeElementRect,
+  observeElementOffset,
+  elementScroll,
+  measureElement,
+  type VirtualItem,
+} from "@tanstack/virtual-core";
+
+export type { VirtualItem };
+
 export interface VirtualScrollOptions {
-  /** Estimated item height in px */
-  itemHeight: number;
-  /** Gap between items in px */
-  gap: number;
-  /** Number of extra items rendered above/below viewport */
+  getCount: () => number;
+  getScrollElement: () => HTMLElement | null;
+  estimateSize: (index: number) => number;
   overscan?: number;
+  paddingStart?: number;
+  gap?: number;
+  /** Enable dynamic height measurement via ResizeObserver */
+  dynamic?: boolean;
 }
 
 export interface VirtualScrollState {
-  readonly totalHeight: number;
-  readonly startIdx: number;
-  readonly endIdx: number;
-  readonly offsetY: number;
-  readonly rowHeight: number;
-  onScroll: () => void;
-  scrollToIndex: (index: number) => void;
+  readonly items: VirtualItem[];
+  readonly totalSize: number;
+  scrollToIndex: (
+    index: number,
+    opts?: { align?: "start" | "center" | "end"; behavior?: ScrollBehavior },
+  ) => void;
+  resetScroll: () => void;
   activeIndex: () => number;
-  bindContainer: (el: HTMLElement | undefined) => void;
+  /**
+   * Measure a DOM element for dynamic sizing.
+   * The element must have a `data-index` attribute.
+   */
+  measureElement: (el: Element) => void;
 }
 
-export function createVirtualScroll(
-  getCount: () => number,
-  options: VirtualScrollOptions,
-): VirtualScrollState {
-  const { itemHeight, gap, overscan = 20 } = options;
-  const rowHeight = itemHeight + gap;
-
-  let container: HTMLElement | undefined;
-  let scrollY = $state(0);
-  let scrollDir = $state<"up" | "down">("down");
-  let viewH = $state(0);
-
-  const totalHeight = $derived(getCount() > 0 ? getCount() * rowHeight - gap : 0);
-
-  // Apply more overscan to the leading edge (direction of scroll)
-  const overscanBefore = $derived(scrollDir === "up" ? overscan * 2 : overscan);
-  const overscanAfter = $derived(scrollDir === "down" ? overscan * 2 : overscan);
-
-  const startIdx = $derived(Math.max(0, Math.floor(scrollY / rowHeight) - overscanBefore));
-
-  const endIdx = $derived(
-    Math.min(getCount(), Math.ceil((scrollY + viewH) / rowHeight) + overscanAfter),
-  );
-
-  const offsetY = $derived(startIdx * rowHeight);
+export function createVirtualScroll(options: VirtualScrollOptions): VirtualScrollState {
+  let _items = $state<VirtualItem[]>([]);
+  let _totalSize = $state(0);
+  let _virtualizer: Virtualizer<HTMLElement, Element> | undefined;
 
   $effect(() => {
-    if (!container) return;
-    viewH = container.clientHeight;
-    const ro = new ResizeObserver(() => {
-      viewH = container?.clientHeight ?? 0;
+    const count = options.getCount();
+    const scrollElement = options.getScrollElement();
+    if (!scrollElement) return;
+
+    const v = new Virtualizer<HTMLElement, Element>({
+      count,
+      getScrollElement: () => scrollElement,
+      estimateSize: options.estimateSize,
+      overscan: options.overscan ?? 20,
+      paddingStart: options.paddingStart ?? 0,
+      gap: options.gap ?? 0,
+      observeElementRect,
+      observeElementOffset,
+      scrollToFn: elementScroll,
+      measureElement: options.dynamic ? measureElement : undefined,
+      onChange: (instance) => {
+        _items = instance.getVirtualItems();
+        _totalSize = instance.getTotalSize();
+      },
     });
-    ro.observe(container);
-    return () => ro.disconnect();
+
+    _virtualizer = v;
+    v._willUpdate();
+    const cleanup = v._didMount();
+    _items = v.getVirtualItems();
+    _totalSize = v.getTotalSize();
+
+    return () => {
+      cleanup();
+      _virtualizer = undefined;
+    };
   });
 
   return {
-    get totalHeight() {
-      return totalHeight;
+    get items() {
+      return _items;
     },
-    get startIdx() {
-      return startIdx;
-    },
-    get endIdx() {
-      return endIdx;
-    },
-    get offsetY() {
-      return offsetY;
-    },
-    rowHeight,
-
-    onScroll() {
-      if (container) {
-        const prev = scrollY;
-        scrollY = container.scrollTop;
-        scrollDir = scrollY >= prev ? "down" : "up";
-      }
+    get totalSize() {
+      return _totalSize;
     },
 
-    scrollToIndex(index: number) {
-      container?.scrollTo({
-        top: index * rowHeight,
-        behavior: "smooth",
+    scrollToIndex(index, opts) {
+      _virtualizer?.scrollToIndex(index, {
+        align: opts?.align ?? "start",
+        behavior: opts?.behavior ?? "auto",
       });
     },
 
-    activeIndex() {
-      if (getCount() === 0 || viewH === 0) return -1;
-      return Math.max(0, Math.min(Math.floor((scrollY + viewH * 0.1) / rowHeight), getCount() - 1));
+    resetScroll() {
+      _virtualizer?.scrollToOffset(0, { behavior: "auto" });
     },
 
-    bindContainer(el: HTMLElement | undefined) {
-      container = el;
+    activeIndex() {
+      if (_items.length === 0 || !_virtualizer) return -1;
+      const scrollOffset = _virtualizer.scrollOffset ?? 0;
+      for (const item of _items) {
+        if (item.start + item.size > scrollOffset) return item.index;
+      }
+      return _items[0].index;
+    },
+
+    measureElement(el) {
+      _virtualizer?.measureElement(el);
     },
   };
 }

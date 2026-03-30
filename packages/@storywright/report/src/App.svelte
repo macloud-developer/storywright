@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import type { TestEntry, ReportSummary, TypeFilter } from './lib/types.js';
 	import { entryKey } from './lib/types.js';
 	import Header from './components/Header.svelte';
@@ -40,10 +41,12 @@
 
 	function handleSidebarSelect(entry: TestEntry, _index: number) {
 		const key = entryKey(entry);
-		scrollToKey = key;
-		activeKey = key;
-		// Reset after scroll triggers
-		setTimeout(() => (scrollToKey = ''), 100);
+		// Reset first so re-clicking the same entry still triggers scroll
+		scrollToKey = '';
+		tick().then(() => {
+			scrollToKey = key;
+			activeKey = key;
+		});
 	}
 
 	function handleVisibleChange(key: string) {
