@@ -11,7 +11,7 @@
     "typecheck": "pnpm -r run typecheck",
     "changeset": "changeset",
     "version-packages": "changeset version && vp fmt",
-    "ci:publish": "pnpm publish -r",
+    "ci:publish": "pnpm publish -r --no-git-checks",
     "prepare": "vp config"
   },
   "devDependencies": {
