@@ -11,6 +11,11 @@
     "vrt"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/macloud-developer/storywright.git",
+    "directory": "packages/@storywright/cli"
+  },
   "bin": {
     "storywright": "./bin/storywright.mjs"
   },

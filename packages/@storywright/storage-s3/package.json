@@ -3,6 +3,11 @@
   "version": "1.2.1",
   "description": "S3 storage adapter for Storywright",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/macloud-developer/storywright.git",
+    "directory": "packages/@storywright/storage-s3"
+  },
   "files": [
     "dist"
   ],
