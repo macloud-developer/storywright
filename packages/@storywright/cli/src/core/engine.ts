@@ -220,6 +220,7 @@ export async function runTests(
     testMatchByBrowser,
     shard: options.shard,
     reporters: options.reporters,
+    updateSnapshots: options.updateSnapshots,
   });
 
   const configPath = path.join(tmpDir, "playwright.config.ts");

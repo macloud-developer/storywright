@@ -12,6 +12,7 @@ export function generatePlaywrightConfig(
     testMatchByBrowser?: Record<string, string>;
     shard?: string;
     reporters?: string[];
+    updateSnapshots?: boolean;
   },
 ): string {
   const projects = config.browsers.map((browser) => {
@@ -57,6 +58,7 @@ export default defineConfig({
 ${testMatchLine}\tsnapshotDir: '${escapeBackslash(options.snapshotDir)}',
 \tsnapshotPathTemplate: '{snapshotDir}/{arg}-{projectName}{ext}',
 \ttimeout: ${config.timeout.test},
+\tupdateSnapshots: '${options.updateSnapshots ? "all" : "none"}',
 \texpect: {
 \t\ttoHaveScreenshot: {
 \t\t\tmaxDiffPixelRatio: ${config.screenshot.maxDiffPixelRatio},
