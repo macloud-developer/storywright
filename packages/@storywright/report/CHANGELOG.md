@@ -1,5 +1,11 @@
 # @storywright/report
 
+## 1.4.1
+
+### Patch Changes
+
+- [`f89eb0b`](https://github.com/macloud-developer/storywright/commit/f89eb0bb811fc3cd67b94b48f6bd541858e6160f) Thanks [@kubotak-is](https://github.com/kubotak-is)! - docs: add package READMEs for npm publish pages
+
 ## 1.4.0
 
 ### Minor Changes
