@@ -1,6 +1,6 @@
 {
   "name": "@storywright/storage-s3",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "S3 storage adapter for Storywright",
   "license": "MIT",
   "files": [

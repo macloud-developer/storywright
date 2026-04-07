@@ -1,5 +1,18 @@
 # @storywright/cli
 
+## 1.4.1
+
+### Patch Changes
+
+- [`f89eb0b`](https://github.com/macloud-developer/storywright/commit/f89eb0bb811fc3cd67b94b48f6bd541858e6160f) Thanks [@kubotak-is](https://github.com/kubotak-is)! - docs: add package READMEs for npm publish pages
+
+- [`f89eb0b`](https://github.com/macloud-developer/storywright/commit/f89eb0bb811fc3cd67b94b48f6bd541858e6160f) Thanks [@kubotak-is](https://github.com/kubotak-is)! - fix(cli): set `updateSnapshots` explicitly to prevent false diff classification
+
+  Playwright defaults to `updateSnapshots: 'missing'`, which auto-creates snapshot files for new stories. These persist in `snapshotDir` across runs, causing subsequent runs to classify new stories as "diff" instead of "new". Now explicitly sets `updateSnapshots: 'none'` during test mode and `'all'` during update mode.
+
+- Updated dependencies [[`f89eb0b`](https://github.com/macloud-developer/storywright/commit/f89eb0bb811fc3cd67b94b48f6bd541858e6160f)]:
+  - @storywright/report@1.4.1
+
 ## 1.4.0
 
 ### Patch Changes
