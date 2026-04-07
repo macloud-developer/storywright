@@ -24,7 +24,13 @@ jobs:
           node-version: "22"
           cache: true
       - name: Upgrade npm for OIDC trusted publishing
-        run: npm install -g npm@latest
+        run: |
+          NPM_ROOT=$(npm root -g)
+          curl -fsSL "$(npm view npm@latest dist.tarball)" -o /tmp/npm.tgz
+          rm -rf "$NPM_ROOT/npm"
+          mkdir -p "$NPM_ROOT/npm"
+          tar xzf /tmp/npm.tgz --strip-components=1 -C "$NPM_ROOT/npm"
+          npm --version
       - run: vp install --frozen-lockfile --ignore-scripts
       - run: vp run build
       - name: Create Release Pull Request or Publish
