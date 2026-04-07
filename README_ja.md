@@ -14,6 +14,16 @@
 
 Storywright は Storybook のストーリーを自動で撮影し、ベースライン画像と比較して UI の視覚的差分を検出します。
 
+![Storywright Report](packages/@storywright/report/screenshot.png)
+
+## パッケージ
+
+| パッケージ                                                    | 説明                                  |
+| ------------------------------------------------------------- | ------------------------------------- |
+| [@storywright/cli](./packages/@storywright/cli)               | コア CLI およびプログラマティック API |
+| [@storywright/report](./packages/@storywright/report)         | Svelte HTML レポートビューア          |
+| [@storywright/storage-s3](./packages/@storywright/storage-s3) | AWS S3 ストレージアダプタ             |
+
 ## 特徴
 
 - `npx @storywright/cli test` ですぐ開始
@@ -94,6 +104,7 @@ export default defineConfig({
 
   storage: {
     provider: "local", // local | s3
+    branch: "main", // ベースラインのブランチ名
     local: {
       baselineDir: ".storywright/baselines",
     },

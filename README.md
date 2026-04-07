@@ -14,6 +14,16 @@
 
 Storywright captures screenshots from Storybook stories, compares them with baselines, and reports visual regressions.
 
+![Storywright Report](packages/@storywright/report/screenshot.png)
+
+## Packages
+
+| Package                                                       | Description                   |
+| ------------------------------------------------------------- | ----------------------------- |
+| [@storywright/cli](./packages/@storywright/cli)               | Core CLI and programmatic API |
+| [@storywright/report](./packages/@storywright/report)         | Svelte HTML report viewer     |
+| [@storywright/storage-s3](./packages/@storywright/storage-s3) | AWS S3 storage adapter        |
+
 ## Features
 
 - Quick start with `npx @storywright/cli test`
@@ -94,6 +104,7 @@ export default defineConfig({
 
   storage: {
     provider: "local", // local | s3
+    branch: "main", // branch name for baseline storage
     local: {
       baselineDir: ".storywright/baselines",
     },
