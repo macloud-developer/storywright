@@ -1,6 +1,6 @@
 {
   "name": "@storywright/cli",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Zero-config visual regression testing powered by Storybook + Playwright",
   "keywords": [
     "playwright",

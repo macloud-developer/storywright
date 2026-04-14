@@ -1,5 +1,16 @@
 # @storywright/cli
 
+## 1.5.0
+
+### Minor Changes
+
+- Add Slide tab for side-by-side image comparison with draggable divider, preserve image tab selection across virtual scroll, and add seed report generator for development.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @storywright/report@1.5.0
+
 ## 1.4.1
 
 ### Patch Changes
