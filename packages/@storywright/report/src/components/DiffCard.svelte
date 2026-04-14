@@ -1,9 +1,7 @@
 <script lang="ts">
-	import type { TestEntry } from '../lib/types.js';
+	import type { TestEntry, ImageTab } from '../lib/types.js';
 	import { checkCircle, xCircle, plusCircle, eye, chevronDown, chevronUp } from '../lib/icons.js';
 	import ImageTabs from './ImageTabs.svelte';
-
-	type Tab = 'expected' | 'actual' | 'diff';
 
 	let {
 		entry,
@@ -14,9 +12,9 @@
 	}: {
 		entry: TestEntry;
 		viewed?: boolean;
-		activeTab?: Tab;
+		activeTab?: ImageTab;
 		onViewedChange?: (viewed: boolean) => void;
-		onTabChange?: (tab: Tab) => void;
+		onTabChange?: (tab: ImageTab) => void;
 	} = $props();
 
 	let collapsed = $derived(entry.type === 'pass' || viewed);

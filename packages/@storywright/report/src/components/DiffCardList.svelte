@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { TestEntry } from '../lib/types.js';
+	import type { TestEntry, ImageTab } from '../lib/types.js';
 	import { entryKey } from '../lib/types.js';
 	import { createVirtualScroll } from '../lib/virtual-scroll.svelte.js';
 	import DiffCard from './DiffCard.svelte';
@@ -15,9 +15,9 @@
 	}: {
 		entries: TestEntry[];
 		viewedSet: Set<string>;
-		tabMap: Map<string, 'expected' | 'actual' | 'diff'>;
+		tabMap: Map<string, ImageTab>;
 		onViewedChange: (key: string, viewed: boolean) => void;
-		onTabChange: (key: string, tab: 'expected' | 'actual' | 'diff') => void;
+		onTabChange: (key: string, tab: ImageTab) => void;
 		onVisibleChange?: (key: string) => void;
 		scrollToKey?: string;
 	} = $props();

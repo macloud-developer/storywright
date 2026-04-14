@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { tick } from 'svelte';
-	import type { TestEntry, ReportSummary, TypeFilter } from './lib/types.js';
+	import type { TestEntry, ReportSummary, TypeFilter, ImageTab } from './lib/types.js';
 	import { entryKey } from './lib/types.js';
 	import Header from './components/Header.svelte';
 	import Dashboard from './components/Dashboard.svelte';
@@ -15,7 +15,7 @@
 	let activeKey = $state('');
 	let scrollToKey = $state('');
 	let viewedSet = $state(new Set<string>());
-	let tabMap = $state(new Map<string, 'expected' | 'actual' | 'diff'>());
+	let tabMap = $state(new Map<string, ImageTab>());
 
 	const filteredEntries = $derived.by(() => {
 		let results = summary.entries;
@@ -64,7 +64,7 @@
 		viewedSet = next;
 	}
 
-	function handleTabChange(key: string, tab: 'expected' | 'actual' | 'diff') {
+	function handleTabChange(key: string, tab: ImageTab) {
 		const next = new Map(tabMap);
 		next.set(key, tab);
 		tabMap = next;

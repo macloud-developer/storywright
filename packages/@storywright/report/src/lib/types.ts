@@ -22,6 +22,8 @@ export interface TestEntry {
 
 export type TypeFilter = "all" | "diff" | "new" | "pass";
 
+export type ImageTab = "expected" | "actual" | "diff" | "slide";
+
 export function entryKey(f: TestEntry): string {
   return `${f.story}::${f.variant}::${f.browser}`;
 }

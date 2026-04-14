@@ -1,8 +1,6 @@
 <script lang="ts">
-	import type { TestEntry } from '../lib/types.js';
-	import { photo } from '../lib/icons.js';
-
-	type Tab = 'expected' | 'actual' | 'diff';
+	import type { TestEntry, ImageTab } from '../lib/types.js';
+	import { photo, sliderArrows } from '../lib/icons.js';
 
 	let {
 		entry,
@@ -10,31 +8,36 @@
 		onTabChange,
 	}: {
 		entry: TestEntry;
-		activeTab?: Tab;
-		onTabChange?: (tab: Tab) => void;
+		activeTab?: ImageTab;
+		onTabChange?: (tab: ImageTab) => void;
 	} = $props();
 
-	const defaultTab: Tab = $derived(entry.type === 'new' ? 'actual' : 'diff');
-	const currentTab: Tab = $derived(externalTab ?? defaultTab);
+	const defaultTab: ImageTab = $derived(entry.type === 'new' ? 'actual' : 'diff');
+	const currentTab: ImageTab = $derived(externalTab ?? defaultTab);
 
-	const tabs: { key: Tab; label: string }[] = [
+	const imageTabs: { key: ImageTab; label: string }[] = [
 		{ key: 'expected', label: 'Expected' },
 		{ key: 'actual', label: 'Actual' },
 		{ key: 'diff', label: 'Diff' },
+		{ key: 'slide', label: 'Slide' },
 	];
 
-	function isDisabled(tab: Tab): boolean {
+	let sliderValue = $state(50);
+
+	function isDisabled(tab: ImageTab): boolean {
 		if (entry.type === 'new') {
-			return tab === 'expected' || tab === 'diff';
+			return tab !== 'actual';
+		}
+		if (tab === 'slide') {
+			return !entry.expected || !entry.actual;
 		}
 		return false;
 	}
-
 </script>
 
 <div class="image-tabs">
 	<div class="tabs" role="tablist">
-		{#each tabs as tab}
+		{#each imageTabs as tab}
 			<button
 				class="tab"
 				class:active={currentTab === tab.key}
@@ -48,26 +51,58 @@
 		{/each}
 	</div>
 	<div class="image-container">
-		{#each tabs as tab (tab.key)}
-			{@const src = entry[tab.key] || ''}
+		{#each imageTabs as tab (tab.key)}
 			{@const isActive = currentTab === tab.key}
 			{@const isNewPlaceholder = entry.type === 'new' && tab.key !== 'actual'}
-			<div class="image-panel" class:hidden={!isActive}>
-				{#if isNewPlaceholder}
-					<div class="no-image">
-						{@html photo}
-						<p>New story — no baseline exists yet.</p>
-						<p class="hint">Run with <code>--update-snapshots</code> to create baseline</p>
-					</div>
-				{:else if src}
-					<img src={src} alt={tab.label} />
-				{:else}
-					<div class="no-image">
-						{@html photo}
-						<p>No image available</p>
+			{#if tab.key === 'slide'}
+				{#if isActive}
+					<div class="image-panel">
+						{#if entry.expected && entry.actual}
+							<div class="slider-compare">
+								<img class="slider-img-bottom" src={entry.actual} alt="Actual" />
+								<div class="slider-img-top" style="clip-path:inset(0 {100 - sliderValue}% 0 0)">
+									<img src={entry.expected} alt="Expected" />
+								</div>
+								<div class="slider-divider" style="left:{sliderValue}%">
+									<span class="slider-arrow">{@html sliderArrows}</span>
+								</div>
+								<input
+									class="slider-range"
+									type="range"
+									min="0"
+									max="100"
+									bind:value={sliderValue}
+									aria-label="Slide to compare"
+								/>
+								<span class="slider-label slider-label-left">Expected</span>
+								<span class="slider-label slider-label-right">Actual</span>
+							</div>
+						{:else}
+							<div class="no-image">
+								{@html photo}
+								<p>No images to compare</p>
+							</div>
+						{/if}
 					</div>
 				{/if}
-			</div>
+			{:else}
+				<div class="image-panel" class:hidden={!isActive}>
+					{#if isNewPlaceholder}
+						<div class="no-image">
+							{@html photo}
+							<p>New story — no baseline exists yet.</p>
+							<p class="hint">Run with <code>--update-snapshots</code> to create baseline</p>
+						</div>
+					{:else if entry[tab.key] || ''}
+						<img src={entry[tab.key]} alt={tab.label} />
+					{:else}
+						<div class="no-image">
+							{@html photo}
+							<p>No image available</p>
+						</div>
+					{/if}
+				</div>
+			{/if}
 		{/each}
 	</div>
 </div>
@@ -111,6 +146,81 @@
 		display: block;
 		max-width: 100%;
 	}
+
+	/* Slide compare */
+	.slider-compare {
+		position: relative;
+		display: inline-block;
+		overflow: hidden;
+		line-height: 0;
+		user-select: none;
+		max-width: 100%;
+	}
+	.slider-img-bottom {
+		display: block;
+		max-width: 100%;
+	}
+	.slider-img-top {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+	}
+	.slider-img-top img {
+		display: block;
+		width: 100%;
+		height: 100%;
+	}
+	.slider-divider {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		width: 2px;
+		background: var(--color-accent);
+		transform: translateX(-50%);
+		pointer-events: none;
+		z-index: 2;
+	}
+	.slider-arrow {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		color: var(--color-accent);
+	}
+	.slider-range {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		opacity: 0;
+		cursor: ew-resize;
+		z-index: 3;
+	}
+	.slider-label {
+		position: absolute;
+		top: 8px;
+		padding: 3px 10px;
+		border-radius: 4px;
+		font-size: 0.75rem;
+		font-weight: 600;
+		line-height: 1.4;
+		pointer-events: none;
+		z-index: 4;
+		background: rgba(0, 0, 0, 0.6);
+		color: #fff;
+		white-space: nowrap;
+	}
+	.slider-label-left {
+		left: 8px;
+	}
+	.slider-label-right {
+		right: 8px;
+	}
+
 	.no-image {
 		display: flex;
 		flex-direction: column;

@@ -23,10 +23,11 @@ function placeholderImages(): Plugin {
         const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
   <defs>
     <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="${color}" stroke-width="0.5" opacity="0.15"/>
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="${color}" stroke-width="0.5" opacity="0.3"/>
     </pattern>
   </defs>
-  <rect width="800" height="600" fill="${color}" opacity="0.06"/>
+  <rect width="800" height="600" fill="#fff"/>
+  <rect width="800" height="600" fill="${color}" opacity="0.12"/>
   <rect width="800" height="600" fill="url(#grid)"/>
   <rect x="4" y="4" width="792" height="592" fill="none" stroke="${color}" stroke-width="2" rx="8" opacity="0.3"/>
   <text x="400" y="270" text-anchor="middle" font-family="system-ui,sans-serif" font-size="48" font-weight="bold" fill="${color}" opacity="0.4">${label}</text>

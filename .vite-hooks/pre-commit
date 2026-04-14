@@ -1,3 +1,4 @@
 #!/bin/sh
 export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--experimental-strip-types --no-warnings"
 vp fmt --check || { echo "Format check failed. Run 'vp fmt' to fix."; exit 1; }
+vp staged
