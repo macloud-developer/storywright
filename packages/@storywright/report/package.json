@@ -27,13 +27,13 @@
   },
   "dependencies": {
     "@tanstack/virtual-core": "^3.13.23",
-    "svelte": "^5.0.0"
+    "svelte": "^5.55.3"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.0.0",
-    "@types/node": "^22.0.0",
-    "svelte-check": "^4.0.0",
-    "typescript": "^5.6.0",
+    "@types/node": "^22.19.17",
+    "svelte-check": "^4.4.6",
+    "typescript": "^5.9.3",
     "vite": "catalog:",
     "vite-plus": "catalog:"
   },

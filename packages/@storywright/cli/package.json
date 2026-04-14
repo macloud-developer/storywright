@@ -50,18 +50,18 @@
   "dependencies": {
     "@storywright/report": "workspace:*",
     "citty": "^0.1.6",
-    "consola": "^3.2.3",
-    "picomatch": "^4.0.2",
-    "simple-git": "^3.32.3",
-    "sirv": "^3.0.0",
-    "unconfig": "^0.6.0"
+    "consola": "^3.4.2",
+    "picomatch": "^4.0.4",
+    "simple-git": "^3.36.0",
+    "sirv": "^3.0.2",
+    "unconfig": "^0.6.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.50.0",
-    "@types/node": "^22.0.0",
-    "@types/picomatch": "^3.0.1",
-    "tsup": "^8.3.0",
-    "typescript": "^5.6.0"
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^22.19.17",
+    "@types/picomatch": "^3.0.2",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
   },
   "peerDependencies": {
     "@playwright/test": ">=1.40.0"
