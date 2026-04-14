@@ -21,6 +21,7 @@
   "scripts": {
     "build": "vp build",
     "dev": "vp dev",
+    "seed-report": "tsx scripts/generate-seed-report.ts",
     "typecheck": "svelte-check --tsconfig ./tsconfig.json",
     "prepublishOnly": "pnpm run build"
   },

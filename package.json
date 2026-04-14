@@ -12,7 +12,9 @@
     "changeset": "changeset",
     "version-packages": "changeset version && vp fmt",
     "ci:publish": "pnpm publish -r --no-git-checks",
-    "prepare": "vp config"
+    "prepare": "vp config",
+    "seed-report": "pnpm --filter @storywright/report seed-report",
+    "dev:report": "pnpm --filter @storywright/report dev"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.2",
