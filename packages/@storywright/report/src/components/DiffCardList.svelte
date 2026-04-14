@@ -7,13 +7,17 @@
 	let {
 		entries,
 		viewedSet,
+		tabMap,
 		onViewedChange,
+		onTabChange,
 		onVisibleChange,
 		scrollToKey = '',
 	}: {
 		entries: TestEntry[];
 		viewedSet: Set<string>;
+		tabMap: Map<string, 'expected' | 'actual' | 'diff'>;
 		onViewedChange: (key: string, viewed: boolean) => void;
+		onTabChange: (key: string, tab: 'expected' | 'actual' | 'diff') => void;
 		onVisibleChange?: (key: string) => void;
 		scrollToKey?: string;
 	} = $props();
@@ -95,7 +99,9 @@
 				<DiffCard
 					{entry}
 					viewed={viewedSet.has(key)}
+					activeTab={tabMap.get(key)}
 					onViewedChange={(v) => onViewedChange(key, v)}
+					onTabChange={(tab) => onTabChange(key, tab)}
 				/>
 			</div>
 		{/each}

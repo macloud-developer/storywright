@@ -2,14 +2,20 @@
 	import type { TestEntry } from '../lib/types.js';
 	import { photo } from '../lib/icons.js';
 
-	let { entry }: { entry: TestEntry } = $props();
-
 	type Tab = 'expected' | 'actual' | 'diff';
+
+	let {
+		entry,
+		activeTab: externalTab,
+		onTabChange,
+	}: {
+		entry: TestEntry;
+		activeTab?: Tab;
+		onTabChange?: (tab: Tab) => void;
+	} = $props();
+
 	const defaultTab: Tab = $derived(entry.type === 'new' ? 'actual' : 'diff');
-	let activeTab: Tab = $state('diff');
-	$effect(() => {
-		activeTab = defaultTab;
-	});
+	const currentTab: Tab = $derived(externalTab ?? defaultTab);
 
 	const tabs: { key: Tab; label: string }[] = [
 		{ key: 'expected', label: 'Expected' },
@@ -31,11 +37,11 @@
 		{#each tabs as tab}
 			<button
 				class="tab"
-				class:active={activeTab === tab.key}
+				class:active={currentTab === tab.key}
 				disabled={isDisabled(tab.key)}
-				onclick={() => (activeTab = tab.key)}
+				onclick={() => onTabChange?.(tab.key)}
 				role="tab"
-				aria-selected={activeTab === tab.key}
+				aria-selected={currentTab === tab.key}
 			>
 				{tab.label}
 			</button>
@@ -44,7 +50,7 @@
 	<div class="image-container">
 		{#each tabs as tab (tab.key)}
 			{@const src = entry[tab.key] || ''}
-			{@const isActive = activeTab === tab.key}
+			{@const isActive = currentTab === tab.key}
 			{@const isNewPlaceholder = entry.type === 'new' && tab.key !== 'actual'}
 			<div class="image-panel" class:hidden={!isActive}>
 				{#if isNewPlaceholder}

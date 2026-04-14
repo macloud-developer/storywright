@@ -15,6 +15,7 @@
 	let activeKey = $state('');
 	let scrollToKey = $state('');
 	let viewedSet = $state(new Set<string>());
+	let tabMap = $state(new Map<string, 'expected' | 'actual' | 'diff'>());
 
 	const filteredEntries = $derived.by(() => {
 		let results = summary.entries;
@@ -62,6 +63,12 @@
 		}
 		viewedSet = next;
 	}
+
+	function handleTabChange(key: string, tab: 'expected' | 'actual' | 'diff') {
+		const next = new Map(tabMap);
+		next.set(key, tab);
+		tabMap = next;
+	}
 </script>
 
 <div class="app">
@@ -90,8 +97,10 @@
 				<DiffCardList
 					entries={filteredEntries}
 					{viewedSet}
+					{tabMap}
 					{scrollToKey}
 					onViewedChange={handleViewedChange}
+					onTabChange={handleTabChange}
 					onVisibleChange={handleVisibleChange}
 				/>
 			{/if}

@@ -3,14 +3,20 @@
 	import { checkCircle, xCircle, plusCircle, eye, chevronDown, chevronUp } from '../lib/icons.js';
 	import ImageTabs from './ImageTabs.svelte';
 
+	type Tab = 'expected' | 'actual' | 'diff';
+
 	let {
 		entry,
 		viewed = false,
+		activeTab,
 		onViewedChange,
+		onTabChange,
 	}: {
 		entry: TestEntry;
 		viewed?: boolean;
+		activeTab?: Tab;
 		onViewedChange?: (viewed: boolean) => void;
+		onTabChange?: (tab: Tab) => void;
 	} = $props();
 
 	let collapsed = $derived(entry.type === 'pass' || viewed);
@@ -90,7 +96,7 @@
 	</div>
 	{#if !collapsed && entry.type !== 'pass'}
 		<div class="card-body">
-			<ImageTabs {entry} />
+			<ImageTabs {entry} {activeTab} {onTabChange} />
 		</div>
 	{/if}
 </div>
