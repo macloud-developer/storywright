@@ -121,7 +121,8 @@ describe("detectCIContext", () => {
     expect(ctx.provider).toBe("local");
     expect(ctx.prNumber).toBeUndefined();
     expect(ctx.sha).toBeTruthy();
-    expect(ctx.branch).toBeTruthy();
+    // branch may be empty on detached HEAD (e.g. GitHub Actions checkout)
+    expect(typeof ctx.branch).toBe("string");
   });
 
   it("should apply overrides over detected values", () => {
