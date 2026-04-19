@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import type { Notifier } from "../notifier/types.js";
 
 export interface StorywrightConfig {
   storybook: StorybookConfig;
@@ -14,6 +15,7 @@ export interface StorywrightConfig {
   include: string[];
   exclude: string[];
   hooks: HooksConfig;
+  notifiers: Notifier[];
 }
 
 export type BrowserName = "chromium" | "firefox" | "webkit" | (string & {});
@@ -82,6 +84,7 @@ export interface S3StorageConfig {
 export interface ReportConfig {
   outputDir: string;
   title: string;
+  url?: string;
 }
 
 export interface TimeoutConfig {

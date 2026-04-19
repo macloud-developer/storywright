@@ -61,4 +61,6 @@ export const DEFAULT_CONFIG: StorywrightConfig = {
   exclude: [],
 
   hooks: {},
+
+  notifiers: [],
 };

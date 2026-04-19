@@ -64,7 +64,13 @@
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
-    "@playwright/test": ">=1.40.0"
+    "@playwright/test": ">=1.40.0",
+    "@storywright/notifier-github": "workspace:^"
+  },
+  "peerDependenciesMeta": {
+    "@storywright/notifier-github": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=20.0.0"

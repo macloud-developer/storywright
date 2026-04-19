@@ -37,8 +37,10 @@
 ## 推奨フロー
 
 ```text
-Storybook ビルド -> Storywright 実行 -> レポート保存
+Storybook ビルド -> Storywright 実行 -> レポート保存 -> PR 通知（オプション）
 ```
+
+> **PR 通知:** `npx storywright notify github` で VRT 結果を GitHub PR コメントとして投稿できます。詳しくは[通知設定ガイド](./notifications.ja.md)を参照してください。
 
 > S3 ストレージの場合は、Storywright 実行の前に「ベースライン取得」ステップを追加してください。
 

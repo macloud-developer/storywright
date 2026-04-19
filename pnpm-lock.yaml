@@ -76,6 +76,21 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  packages/@storywright/notifier-github:
+    devDependencies:
+      '@storywright/cli':
+        specifier: workspace:*
+        version: link:../cli
+      '@types/node':
+        specifier: ^22.19.17
+        version: 22.19.17
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(jiti@2.6.1)(postcss@8.5.8)(tsx@4.21.0)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   packages/@storywright/report:
     dependencies:
       '@tanstack/virtual-core':
