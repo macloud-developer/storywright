@@ -29,12 +29,14 @@ describe("runNotifiers", () => {
       name: "a",
       notify: vi.fn(async () => {
         order.push("a");
+        return { posted: true };
       }),
     };
     const b: Notifier = {
       name: "b",
       notify: vi.fn(async () => {
         order.push("b");
+        return { posted: true };
       }),
     };
 
@@ -53,7 +55,7 @@ describe("runNotifiers", () => {
     };
     const passing: Notifier = {
       name: "passing",
-      notify: vi.fn(async () => {}),
+      notify: vi.fn(async () => ({ posted: true })),
     };
 
     await runNotifiers([failing, passing], mockContext);
@@ -74,5 +76,20 @@ describe("runNotifiers", () => {
 
   it("should handle empty notifiers array", async () => {
     await expect(runNotifiers([], mockContext)).resolves.toBeUndefined();
+  });
+
+  it("should handle context without summary (on-error case)", async () => {
+    const errorContext: NotificationContext = {
+      exitCode: 2,
+      reportDir: ".storywright/report",
+      config: {} as StorywrightConfig,
+    };
+    const notifier: Notifier = {
+      name: "test",
+      notify: vi.fn(async () => ({ posted: true })),
+    };
+
+    await runNotifiers([notifier], errorContext);
+    expect(notifier.notify).toHaveBeenCalledWith(errorContext);
   });
 });

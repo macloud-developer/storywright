@@ -8,6 +8,6 @@ export type { StorywrightConfig, DeepPartial, PlaywrightBrowserName } from "./co
 export type { Story, StoryIndex, TestResult, TestSummary, TestEntry } from "./core/types.js";
 export type { StorageAdapter, DownloadOptions, UploadOptions } from "./storage/types.js";
 export type { ReportData } from "./reporter/types.js";
-export type { Notifier, NotificationContext } from "./notifier/types.js";
+export type { Notifier, NotificationContext, NotifyResult } from "./notifier/types.js";
 export type { ReportUrlContext } from "./notifier/report-url.js";
 export type { CIContext, CIContextOverrides } from "./notifier/ci-context.js";

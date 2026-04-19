@@ -91,6 +91,19 @@ function buildFull(summary: TestSummary, options: CommentOptions, maxEntries: nu
   return md;
 }
 
+export function buildErrorMarkdown(exitCode: number, reportUrl?: string): string {
+  let md = "## Storywright Visual Regression Report\n\n";
+  md += `**Status:** Execution error (exit code ${exitCode})\n\n`;
+  md += "> Test execution failed before results could be collected.\n\n";
+
+  if (reportUrl) {
+    md += `[レポートを開く](${reportUrl})\n\n`;
+  }
+
+  md += `${MARKER}\n`;
+  return md;
+}
+
 function formatDuration(ms: number): string {
   const seconds = Math.floor(ms / 1000);
   if (seconds < 60) return `${seconds}s`;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 import type { TestSummary } from "@storywright/cli";
-import { buildCommentMarkdown, MARKER } from "../src/markdown.js";
+import { buildCommentMarkdown, buildErrorMarkdown, MARKER } from "../src/markdown.js";
 
 const baseSummary: TestSummary = {
   total: 10,
@@ -179,5 +179,29 @@ describe("buildCommentMarkdown", () => {
     const md = buildCommentMarkdown(summary, defaultOptions);
     expect(md).toContain("| New | 1 |");
     expect(md).toContain("1件のビジュアル差分を検出");
+  });
+});
+
+describe("buildErrorMarkdown", () => {
+  it("should show execution error with exit code", () => {
+    const md = buildErrorMarkdown(2);
+    expect(md).toContain("Execution error (exit code 2)");
+    expect(md).toContain("Test execution failed");
+    expect(md).toContain(MARKER);
+  });
+
+  it("should include report URL when provided", () => {
+    const md = buildErrorMarkdown(2, "https://example.com/report");
+    expect(md).toContain("[レポートを開く](https://example.com/report)");
+  });
+
+  it("should not include report URL when not provided", () => {
+    const md = buildErrorMarkdown(2);
+    expect(md).not.toContain("レポートを開く");
+  });
+
+  it("should always include marker", () => {
+    const md = buildErrorMarkdown(130);
+    expect(md.trimEnd().endsWith(MARKER)).toBe(true);
   });
 });

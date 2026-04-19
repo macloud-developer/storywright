@@ -1,4 +1,4 @@
-import { consola } from "consola";
+import { logger } from "../utils/logger.js";
 import type { NotificationContext, Notifier } from "./types.js";
 
 export async function runNotifiers(
@@ -7,10 +7,14 @@ export async function runNotifiers(
 ): Promise<void> {
   for (const notifier of notifiers) {
     try {
-      await notifier.notify(context);
-      consola.success(`Notification sent: ${notifier.name}`);
+      const result = await notifier.notify(context);
+      if (result.posted) {
+        logger.success(`Notification sent: ${notifier.name}`);
+      } else if (result.skipped) {
+        logger.info(`Notification skipped: ${notifier.name} (${result.skipped})`);
+      }
     } catch (error) {
-      consola.warn(
+      logger.warn(
         `Notification failed: ${notifier.name}`,
         error instanceof Error ? error.message : error,
       );

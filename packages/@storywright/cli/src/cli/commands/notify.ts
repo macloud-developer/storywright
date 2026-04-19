@@ -62,14 +62,13 @@ export const notifyCommand = defineCommand({
       },
       async run({ args }) {
         const summaryPath = path.resolve(args.from);
-        let summary: TestSummary;
+        let summary: TestSummary | undefined;
         try {
           const content = await fs.readFile(summaryPath, "utf-8");
           summary = JSON.parse(content);
         } catch {
-          logger.error(`Failed to read summary: ${summaryPath}`);
-          process.exitCode = 2;
-          return;
+          // summary.json is not available — still proceed for on-error notifications
+          logger.warn(`Could not read summary: ${summaryPath}`);
         }
 
         // Resolve report URL
@@ -106,15 +105,30 @@ export const notifyCommand = defineCommand({
         const maxEntries = Number(args["max-entries"]) || 10;
 
         if (args["dry-run"]) {
-          const md = githubModule.buildCommentMarkdown(summary, {
-            maxEntries,
-            collapseOnPass: true,
-            deleteOnPass: false,
-            reportUrl,
-          });
-          process.stdout.write(md);
+          if (summary) {
+            const md = githubModule.buildCommentMarkdown(summary, {
+              maxEntries,
+              collapseOnPass: true,
+              deleteOnPass: false,
+              reportUrl,
+            });
+            process.stdout.write(md);
+          } else {
+            const exitCode = args["exit-code"] != null ? Number(args["exit-code"]) : 2;
+            const md = githubModule.buildErrorMarkdown(exitCode, reportUrl);
+            process.stdout.write(md);
+          }
           return;
         }
+
+        const exitCode =
+          args["exit-code"] != null
+            ? Number(args["exit-code"])
+            : summary
+              ? summary.failed > 0
+                ? 1
+                : 0
+              : 2;
 
         const notifier = githubModule.githubNotifier({
           token: args.token,
@@ -125,10 +139,7 @@ export const notifyCommand = defineCommand({
           reportUrl,
         });
 
-        const exitCode =
-          args["exit-code"] != null ? Number(args["exit-code"]) : summary.failed > 0 ? 1 : 0;
-
-        await notifier.notify({
+        const result = await notifier.notify({
           summary,
           exitCode,
           reportDir: path.dirname(summaryPath),
@@ -136,7 +147,11 @@ export const notifyCommand = defineCommand({
           config: {} as never,
         });
 
-        logger.success("GitHub PR comment posted");
+        if (result.posted) {
+          logger.success("GitHub PR comment posted");
+        } else if (result.skipped) {
+          logger.info(`GitHub PR comment skipped: ${result.skipped}`);
+        }
       },
     }),
   },

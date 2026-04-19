@@ -133,7 +133,7 @@ export const testCommand = defineCommand({
       console.log(formatSummary(result.summary, { reportPath }));
     }
 
-    if (config.notifiers.length > 0 && result.summary) {
+    if (config.notifiers.length > 0) {
       let reportUrl: string | undefined;
       if (config.report.url) {
         const ciCtx = detectCIContext();

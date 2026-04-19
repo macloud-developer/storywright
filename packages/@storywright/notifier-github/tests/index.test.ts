@@ -52,7 +52,7 @@ const failedSummary: TestSummary = {
   ],
 };
 
-function makeContext(summary: TestSummary, exitCode = 0): NotificationContext {
+function makeContext(summary: TestSummary | undefined, exitCode = 0): NotificationContext {
   return {
     summary,
     exitCode,
@@ -60,6 +60,12 @@ function makeContext(summary: TestSummary, exitCode = 0): NotificationContext {
     config: {} as StorywrightConfig,
   };
 }
+
+const ghOptions = {
+  token: "ghp_test",
+  repository: "owner/repo",
+  prNumber: 1,
+};
 
 describe("githubNotifier", () => {
   const originalEnv = process.env;
@@ -88,61 +94,106 @@ describe("githubNotifier", () => {
     vi.restoreAllMocks();
   });
 
-  it('should skip when "on-diff" and no diffs', async () => {
+  it('should return skipped when "on-diff" and no diffs', async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
 
-    const notifier = githubNotifier({
-      when: "on-diff",
-      token: "ghp_test",
-      repository: "owner/repo",
-      prNumber: 1,
-    });
+    const notifier = githubNotifier({ when: "on-diff", ...ghOptions });
+    const result = await notifier.notify(makeContext(passedSummary));
 
-    await notifier.notify(makeContext(passedSummary));
+    expect(result.posted).toBe(false);
+    expect(result.skipped).toContain("no diffs");
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('should skip when "on-error" and exitCode < 2', async () => {
+  it('should return skipped when "on-diff" and no summary', async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
 
-    const notifier = githubNotifier({
-      when: "on-error",
-      token: "ghp_test",
-      repository: "owner/repo",
-      prNumber: 1,
-    });
+    const notifier = githubNotifier({ when: "on-diff", ...ghOptions });
+    const result = await notifier.notify(makeContext(undefined, 0));
 
-    await notifier.notify(makeContext(failedSummary, 1));
+    expect(result.posted).toBe(false);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("should skip when environment cannot be detected", async () => {
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+  it('should return skipped when "on-error" and exitCode < 2', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const notifier = githubNotifier({ when: "on-error", ...ghOptions });
+    const result = await notifier.notify(makeContext(failedSummary, 1));
+
+    expect(result.posted).toBe(false);
+    expect(result.skipped).toContain("no execution error");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('should post when "on-error" and exitCode >= 2', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => [],
+    });
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 201,
+      json: async () => ({ id: 1 }),
+    });
+
+    const notifier = githubNotifier({ when: "on-error", ...ghOptions });
+    const result = await notifier.notify(makeContext(undefined, 2));
+
+    expect(result.posted).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('should post when "on-diff" and diffs exist', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => [],
+    });
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 201,
+      json: async () => ({ id: 1 }),
+    });
+
+    const notifier = githubNotifier({ when: "on-diff", ...ghOptions });
+    const result = await notifier.notify(makeContext(failedSummary, 1));
+
+    expect(result.posted).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("should return skipped when environment cannot be detected", async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
 
     const notifier = githubNotifier();
-    await notifier.notify(makeContext(failedSummary));
+    const result = await notifier.notify(makeContext(failedSummary));
 
+    expect(result.posted).toBe(false);
+    expect(result.skipped).toContain("GitHub environment not detected");
     expect(fetchMock).not.toHaveBeenCalled();
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining("GitHub environment not detected"),
-    );
   });
 
   it("should post comment when conditions are met", async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
 
-    // GET comments
     fetchMock.mockResolvedValueOnce({
       ok: true,
       status: 200,
       json: async () => [],
     });
-    // POST comment
     fetchMock.mockResolvedValueOnce({
       ok: true,
       status: 201,
@@ -150,12 +201,38 @@ describe("githubNotifier", () => {
     });
 
     const notifier = githubNotifier({
-      token: "ghp_test",
-      repository: "owner/repo",
+      ...ghOptions,
       prNumber: 42,
     });
 
-    await notifier.notify(makeContext(failedSummary, 1));
+    const result = await notifier.notify(makeContext(failedSummary, 1));
+    expect(result.posted).toBe(true);
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("should post error markdown when summary is missing and exitCode >= 2", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => [],
+    });
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 201,
+      json: async () => ({ id: 1 }),
+    });
+
+    const notifier = githubNotifier(ghOptions);
+    const result = await notifier.notify(makeContext(undefined, 2));
+
+    expect(result.posted).toBe(true);
+    // Verify the POST body contains error markdown
+    const postCall = fetchMock.mock.calls[1];
+    const body = JSON.parse(postCall[1].body);
+    expect(body.body).toContain("Execution error");
+    expect(body.body).toContain("exit code 2");
   });
 });
