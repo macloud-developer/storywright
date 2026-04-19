@@ -2,6 +2,9 @@ import { defineCommand } from "citty";
 import { loadConfig } from "../../config/index.js";
 import type { DeepPartial, StorywrightConfig } from "../../config/types.js";
 import { runTests } from "../../core/engine.js";
+import { detectCIContext } from "../../notifier/ci-context.js";
+import { resolveReportUrl } from "../../notifier/report-url.js";
+import { runNotifiers } from "../../notifier/runner.js";
 import { formatSummary } from "../../reporter/cli-reporter.js";
 
 export const testCommand = defineCommand({
@@ -128,6 +131,21 @@ export const testCommand = defineCommand({
     if (result.summary) {
       const reportPath = result.reportDir ? `${result.reportDir}/index.html` : undefined;
       console.log(formatSummary(result.summary, { reportPath }));
+    }
+
+    if (config.notifiers.length > 0 && result.summary) {
+      let reportUrl: string | undefined;
+      if (config.report.url) {
+        const ciCtx = detectCIContext();
+        reportUrl = resolveReportUrl(config.report.url, ciCtx);
+      }
+      await runNotifiers(config.notifiers, {
+        summary: result.summary,
+        exitCode: result.exitCode,
+        reportDir: result.reportDir ?? config.report.outputDir,
+        reportUrl,
+        config,
+      });
     }
 
     process.exit(result.exitCode);

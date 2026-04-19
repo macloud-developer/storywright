@@ -125,6 +125,40 @@ describe("buildCommentMarkdown", () => {
     expect(md3).toContain("2m");
   });
 
+  it("should collapse details when collapseOnPass is true and all passed", () => {
+    const md = buildCommentMarkdown(baseSummary, { ...defaultOptions, collapseOnPass: true });
+    expect(md).toContain("<details>");
+    expect(md).toContain("<summary>Details</summary>");
+    expect(md).toContain("</details>");
+  });
+
+  it("should not collapse when collapseOnPass is true but there are diffs", () => {
+    const summary: TestSummary = {
+      ...baseSummary,
+      failed: 1,
+      passed: 9,
+      entries: [
+        {
+          type: "diff",
+          story: "Button",
+          variant: "Primary",
+          browser: "chromium",
+          diffRatio: 0.01,
+          expected: "",
+          actual: "",
+          diff: "",
+        },
+      ],
+    };
+    const md = buildCommentMarkdown(summary, { ...defaultOptions, collapseOnPass: true });
+    expect(md).not.toContain("<summary>Details</summary>");
+  });
+
+  it("should not collapse when collapseOnPass is false", () => {
+    const md = buildCommentMarkdown(baseSummary, { ...defaultOptions, collapseOnPass: false });
+    expect(md).not.toContain("<summary>Details</summary>");
+  });
+
   it("should show new entries count", () => {
     const summary: TestSummary = {
       ...baseSummary,

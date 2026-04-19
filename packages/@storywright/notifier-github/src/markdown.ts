@@ -36,8 +36,14 @@ function buildFull(summary: TestSummary, options: CommentOptions, maxEntries: nu
     ? `${diffEntries.length + newEntries.length}件のビジュアル差分を検出`
     : "All passed";
 
+  const collapse = options.collapseOnPass && !hasDiff;
+
   let md = "## Storywright Visual Regression Report\n\n";
   md += `**Status:** ${status}\n\n`;
+
+  if (collapse) {
+    md += `<details>\n<summary>Details</summary>\n\n`;
+  }
 
   md += "| 項目 | 件数 |\n|------|------|\n";
   md += `| Total | ${total} |\n`;
@@ -75,6 +81,10 @@ function buildFull(summary: TestSummary, options: CommentOptions, maxEntries: nu
 
   if (options.reportUrl) {
     md += `[レポートを開く](${options.reportUrl})\n\n`;
+  }
+
+  if (collapse) {
+    md += "</details>\n\n";
   }
 
   md += `${MARKER}\n`;

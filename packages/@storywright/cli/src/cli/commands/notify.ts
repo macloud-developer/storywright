@@ -55,6 +55,10 @@ export const notifyCommand = defineCommand({
           description: "Condition: always|on-diff|on-error",
           default: "always",
         },
+        "exit-code": {
+          type: "string",
+          description: "Exit code from test run (0=pass, 1=diff, 2=error)",
+        },
       },
       async run({ args }) {
         const summaryPath = path.resolve(args.from);
@@ -121,9 +125,12 @@ export const notifyCommand = defineCommand({
           reportUrl,
         });
 
+        const exitCode =
+          args["exit-code"] != null ? Number(args["exit-code"]) : summary.failed > 0 ? 1 : 0;
+
         await notifier.notify({
           summary,
-          exitCode: summary.failed > 0 ? 1 : 0,
+          exitCode,
           reportDir: path.dirname(summaryPath),
           reportUrl,
           config: {} as never,
