@@ -61,14 +61,31 @@ export const notifyCommand = defineCommand({
         },
       },
       async run({ args }) {
+        // Read summary.json — distinguish file-not-found (proceed for on-error) from parse errors (fail)
         const summaryPath = path.resolve(args.from);
         let summary: TestSummary | undefined;
         try {
           const content = await fs.readFile(summaryPath, "utf-8");
-          summary = JSON.parse(content);
-        } catch {
-          // summary.json is not available — still proceed for on-error notifications
-          logger.warn(`Could not read summary: ${summaryPath}`);
+          try {
+            summary = JSON.parse(content);
+          } catch (parseError) {
+            logger.error(
+              `Failed to parse summary JSON: ${summaryPath}\n${parseError instanceof Error ? parseError.message : parseError}`,
+            );
+            process.exitCode = 2;
+            return;
+          }
+        } catch (readError) {
+          const code = (readError as NodeJS.ErrnoException).code;
+          if (code === "ENOENT") {
+            logger.warn(`Summary not found: ${summaryPath} — proceeding without results`);
+          } else {
+            logger.error(
+              `Failed to read summary: ${summaryPath}\n${readError instanceof Error ? readError.message : readError}`,
+            );
+            process.exitCode = 2;
+            return;
+          }
         }
 
         // Resolve report URL
@@ -89,7 +106,7 @@ export const notifyCommand = defineCommand({
           }
         }
 
-        // Dynamically import notifier-github
+        // @storywright/notifier-github is an optional peer — use dynamic import to handle missing package
         let githubModule: typeof import("@storywright/notifier-github");
         try {
           githubModule = await import("@storywright/notifier-github");
@@ -139,18 +156,24 @@ export const notifyCommand = defineCommand({
           reportUrl,
         });
 
-        const result = await notifier.notify({
-          summary,
-          exitCode,
-          reportDir: path.dirname(summaryPath),
-          reportUrl,
-          config: {} as never,
-        });
+        try {
+          const result = await notifier.notify({
+            summary,
+            exitCode,
+            reportDir: path.dirname(summaryPath),
+            reportUrl,
+            config: {} as never,
+          });
 
-        if (result.posted) {
-          logger.success("GitHub PR comment posted");
-        } else if (result.skipped) {
-          logger.info(`GitHub PR comment skipped: ${result.skipped}`);
+          if (result.posted) {
+            logger.success("GitHub PR comment posted");
+          } else if (result.skipped) {
+            logger.info(`GitHub PR comment skipped: ${result.skipped}`);
+          }
+        } catch (error) {
+          const msg = error instanceof Error ? error.message : String(error);
+          logger.error(`Failed to post GitHub PR comment: ${msg}`);
+          process.exitCode = 2;
         }
       },
     }),
