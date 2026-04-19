@@ -38,6 +38,9 @@ importers:
 
   packages/@storywright/cli:
     dependencies:
+      '@storywright/notifier-github':
+        specifier: workspace:^
+        version: link:../notifier-github
       '@storywright/report':
         specifier: workspace:*
         version: link:../report
