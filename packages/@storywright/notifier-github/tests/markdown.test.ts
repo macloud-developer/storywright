@@ -22,11 +22,11 @@ const defaultOptions = {
 describe("buildCommentMarkdown", () => {
   it("should show 'All passed' for zero failures", () => {
     const md = buildCommentMarkdown(baseSummary, defaultOptions);
-    expect(md).toContain("**Status:** All passed");
-    expect(md).toContain("| Total | 10 |");
-    expect(md).toContain("| Passed | 10 |");
-    expect(md).not.toContain("| Failed");
-    expect(md).not.toContain("差分一覧");
+    expect(md).toContain("✅ **Status:** All passed");
+    expect(md).toContain("| 📋 Total | 10 |");
+    expect(md).toContain("| ✅ Passed | 10 |");
+    expect(md).not.toContain("Failed");
+    expect(md).not.toContain("Differences");
   });
 
   it("should show diff count for failures", () => {
@@ -68,9 +68,9 @@ describe("buildCommentMarkdown", () => {
       ],
     };
     const md = buildCommentMarkdown(summary, defaultOptions);
-    expect(md).toContain("3件のビジュアル差分を検出");
-    expect(md).toContain("| Failed | 3 |");
-    expect(md).toContain("### 差分一覧");
+    expect(md).toContain("🔴 **Status:** 3 visual diffs detected");
+    expect(md).toContain("| ❌ Failed | 3 |");
+    expect(md).toContain("### 🔍 Differences");
     expect(md).toContain("Button: Primary");
     expect(md).toContain("2.5%");
     expect(md).toContain("Modal: Open");
@@ -91,7 +91,7 @@ describe("buildCommentMarkdown", () => {
     const summary: TestSummary = { ...baseSummary, failed: 15, passed: 0, total: 15, entries };
     const md = buildCommentMarkdown(summary, { ...defaultOptions, maxEntries: 5 });
     expect(md).toContain("<details>");
-    expect(md).toContain("他10件");
+    expect(md).toContain("10 more");
     expect(md).toContain("</details>");
   });
 
@@ -100,12 +100,12 @@ describe("buildCommentMarkdown", () => {
       ...defaultOptions,
       reportUrl: "https://cdn.example.com/report/index.html",
     });
-    expect(md).toContain("[レポートを開く](https://cdn.example.com/report/index.html)");
+    expect(md).toContain("🔗 [Open report](https://cdn.example.com/report/index.html)");
   });
 
   it("should not include report URL when not provided", () => {
     const md = buildCommentMarkdown(baseSummary, defaultOptions);
-    expect(md).not.toContain("レポートを開く");
+    expect(md).not.toContain("Open report");
   });
 
   it("should always include marker at the end", () => {
@@ -177,27 +177,27 @@ describe("buildCommentMarkdown", () => {
       ],
     };
     const md = buildCommentMarkdown(summary, defaultOptions);
-    expect(md).toContain("| New | 1 |");
-    expect(md).toContain("1件のビジュアル差分を検出");
+    expect(md).toContain("| ✨ New | 1 |");
+    expect(md).toContain("🔴 **Status:** 1 visual diff detected");
   });
 });
 
 describe("buildErrorMarkdown", () => {
   it("should show execution error with exit code", () => {
     const md = buildErrorMarkdown(2);
-    expect(md).toContain("Execution error (exit code 2)");
+    expect(md).toContain("💥 **Status:** Execution error (exit code 2)");
     expect(md).toContain("Test execution failed");
     expect(md).toContain(MARKER);
   });
 
   it("should include report URL when provided", () => {
     const md = buildErrorMarkdown(2, "https://example.com/report");
-    expect(md).toContain("[レポートを開く](https://example.com/report)");
+    expect(md).toContain("🔗 [Open report](https://example.com/report)");
   });
 
   it("should not include report URL when not provided", () => {
     const md = buildErrorMarkdown(2);
-    expect(md).not.toContain("レポートを開く");
+    expect(md).not.toContain("Open report");
   });
 
   it("should always include marker", () => {
