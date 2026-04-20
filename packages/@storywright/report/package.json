@@ -1,6 +1,6 @@
 {
   "name": "@storywright/report",
-  "version": "1.5.0",
+  "version": "1.6.1",
   "description": "Svelte HTML reporter for Storywright",
   "license": "MIT",
   "repository": {
