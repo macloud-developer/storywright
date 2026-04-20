@@ -33,6 +33,18 @@
 		gap: 0,
 	});
 
+	// Reset scroll position when entries change (e.g. filtering).
+	// Prevents stale scroll offset from leaving the list blank after a large
+	// count drop (e.g. 728 -> 1 entry).
+	let prevEntriesRef: TestEntry[] | undefined;
+	$effect(() => {
+		const cur = entries;
+		if (prevEntriesRef !== undefined && prevEntriesRef !== cur) {
+			vs.resetScroll();
+		}
+		prevEntriesRef = cur;
+	});
+
 	// Scroll active entry into view
 	$effect(() => {
 		if (!activeId) return;
@@ -59,6 +71,7 @@
 			<div class="scroll-content" style="height:{vs.totalSize}px">
 				{#each vs.items as virtualItem (virtualItem.key)}
 					{@const entry = entries[virtualItem.index]}
+					{#if entry}
 					<button
 						class="entry-item"
 						class:active={activeId === entryKey(entry)}
@@ -85,6 +98,7 @@
 							</span>
 						</div>
 					</button>
+					{/if}
 				{/each}
 			</div>
 		{/if}

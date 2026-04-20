@@ -89,21 +89,23 @@
 	<div class="scroll-content" style="height:{vs.totalSize}px">
 		{#each vs.items as virtualItem (virtualItem.key)}
 			{@const entry = entries[virtualItem.index]}
-			{@const key = entryKey(entry)}
-			<div
-				data-index={virtualItem.index}
-				data-entry-key={key}
-				class="card-slot"
-				style="transform:translateY({virtualItem.start}px)"
-			>
-				<DiffCard
-					{entry}
-					viewed={viewedSet.has(key)}
-					activeTab={tabMap.get(key)}
-					onViewedChange={(v) => onViewedChange(key, v)}
-					onTabChange={(tab) => onTabChange(key, tab)}
-				/>
-			</div>
+			{#if entry}
+				{@const key = entryKey(entry)}
+				<div
+					data-index={virtualItem.index}
+					data-entry-key={key}
+					class="card-slot"
+					style="transform:translateY({virtualItem.start}px)"
+				>
+					<DiffCard
+						{entry}
+						viewed={viewedSet.has(key)}
+						activeTab={tabMap.get(key)}
+						onViewedChange={(v) => onViewedChange(key, v)}
+						onTabChange={(tab) => onTabChange(key, tab)}
+					/>
+				</div>
+			{/if}
 		{/each}
 	</div>
 </div>
