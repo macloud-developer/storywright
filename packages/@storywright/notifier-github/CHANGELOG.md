@@ -1,5 +1,16 @@
 # @storywright/notifier-github
 
+## 1.1.1
+
+### Patch Changes
+
+- [`9f9f7b1`](https://github.com/macloud-developer/storywright/commit/9f9f7b15e470754091899c468b3933b6fdeafc7c) Thanks [@kubotak-is](https://github.com/kubotak-is)! - feat(notifier-github): translate PR comment to English and add emoji accents
+
+  The GitHub PR comment is now fully English (previously mixed Japanese and English) and uses emoji accents for better visual hierarchy: 📸 for the report title, ✅/🔴/💥 for status, 📋/✅/✨/❌/⏭️ for the counts table, 🌐/⏱️ for browser/duration, 🔍 for the diff list, and 🔗 for the report link.
+
+- Updated dependencies []:
+  - @storywright/cli@1.6.1
+
 ## 1.1.0
 
 ### Minor Changes
