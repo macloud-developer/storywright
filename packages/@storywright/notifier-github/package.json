@@ -1,0 +1,42 @@
+{
+  "name": "@storywright/notifier-github",
+  "version": "1.0.0",
+  "description": "GitHub PR comment notifier for Storywright",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/macloud-developer/storywright.git",
+    "directory": "packages/@storywright/notifier-github"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@storywright/cli": "workspace:*",
+    "@types/node": "^22.19.17",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "@storywright/cli": "workspace:^"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

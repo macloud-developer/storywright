@@ -37,8 +37,10 @@ For large projects or when committing baselines to git is impractical, use the S
 ## Recommended Flow
 
 ```text
-Build Storybook -> Run Storywright -> Upload report artifacts
+Build Storybook -> Run Storywright -> Upload report artifacts -> Notify PR (optional)
 ```
+
+> **PR notifications:** Post VRT results as a GitHub PR comment with `npx storywright notify github`. See the [Notifications guide](./notifications.md) for setup details.
 
 > For S3 storage, add a "Download baselines" step before running Storywright.
 

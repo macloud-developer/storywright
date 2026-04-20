@@ -1,6 +1,7 @@
 import { defineCommand, runMain } from "citty";
 import { downloadCommand } from "./commands/download.js";
 import { initCommand } from "./commands/init.js";
+import { notifyCommand } from "./commands/notify.js";
 import { reportCommand } from "./commands/report.js";
 import { testCommand } from "./commands/test.js";
 import { updateCommand } from "./commands/update.js";
@@ -19,6 +20,7 @@ const main = defineCommand({
     download: downloadCommand,
     report: reportCommand,
     init: initCommand,
+    notify: notifyCommand,
   },
 });
 
