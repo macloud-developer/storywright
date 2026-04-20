@@ -1,6 +1,6 @@
 {
   "name": "@storywright/notifier-github",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "GitHub PR comment notifier for Storywright",
   "license": "MIT",
   "repository": {
