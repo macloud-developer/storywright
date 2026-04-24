@@ -1,5 +1,13 @@
 # @storywright/report
 
+## 1.6.1
+
+### Patch Changes
+
+- [`3e1124a`](https://github.com/macloud-developer/storywright/commit/3e1124a7a348429a80b88d0aabd9420dbea1a119) Thanks [@kubotak-is](https://github.com/kubotak-is)! - fix(report): prevent crash and stale content when filter drastically reduces entry count
+
+  When switching filters (e.g. Pass → Diff) on reports where the entry counts differ significantly, the virtual scroll's cached items would reference indices beyond the new entries array. This caused `TypeError: Cannot read properties of undefined (reading 'type')` during render and left the old list visible. Template now guards with `{#if entry}`, and the sidebar resets its scroll position on entries change (matching the main card list).
+
 ## 1.5.0
 
 ### Minor Changes
