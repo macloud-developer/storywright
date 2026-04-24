@@ -72,9 +72,8 @@ describe("buildCommentMarkdown", () => {
     expect(md).toContain("| ❌ Failed | 3 |");
     expect(md).toContain("### 🔍 Differences");
     expect(md).toContain("Button: Primary");
-    expect(md).toContain("2.5%");
     expect(md).toContain("Modal: Open");
-    expect(md).toContain("8.0%");
+    expect(md).not.toContain("%");
   });
 
   it("should collapse entries beyond maxEntries", () => {

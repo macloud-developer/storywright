@@ -46,7 +46,7 @@ describe("formatSummary", () => {
     const output = formatSummary(summary);
     expect(output).toContain("Failed: 2");
     expect(output).toContain("Components/Button: Primary (chromium)");
-    expect(output).toContain("3.2%");
+    expect(output).not.toContain("%");
     expect(output).toContain("2m");
   });
 

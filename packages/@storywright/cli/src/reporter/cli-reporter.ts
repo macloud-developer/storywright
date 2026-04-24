@@ -31,10 +31,6 @@ export function formatSummary(summary: TestSummary, options?: { reportPath?: str
     lines.push("  Failed:");
     for (const failure of diffFailures) {
       lines.push(`  \u2717 ${failure.story}: ${failure.variant} (${failure.browser})`);
-      if (failure.diffRatio > 0) {
-        const pct = (failure.diffRatio * 100).toFixed(1);
-        lines.push(`    \u2192 Diff: ${pct}% pixels changed`);
-      }
     }
   }
 

@@ -92,9 +92,6 @@
 							<span class="item-title">{entry.story}</span>
 							<span class="item-meta">
 								{entry.variant} · {entry.browser}
-								{#if entry.type === 'diff' && entry.diffRatio > 0}
-									· {(entry.diffRatio * 100).toFixed(1)}%
-								{/if}
 							</span>
 						</div>
 					</button>

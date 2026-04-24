@@ -40,9 +40,6 @@
 		}
 	}
 
-	const diffPercent = $derived(
-		entry.type === 'diff' ? `${(entry.diffRatio * 100).toFixed(1)}%` : null,
-	);
 </script>
 
 <div class="diff-card" class:collapsed class:is-new={entry.type === 'new'} class:is-pass={entry.type === 'pass'}>
@@ -59,9 +56,6 @@
 			</span>
 			<span class="story-name">{entry.story}: {entry.variant}</span>
 			<span class="browser-badge">{entry.browser}</span>
-			{#if diffPercent}
-				<span class="diff-badge">{diffPercent}</span>
-			{/if}
 			{#if entry.type === 'new'}
 				<span class="new-badge">NEW</span>
 			{/if}
@@ -171,15 +165,6 @@
 		border-radius: 12px;
 		font-size: 0.7rem;
 		color: var(--color-fg-muted);
-	}
-	.diff-badge {
-		flex-shrink: 0;
-		padding: 1px 8px;
-		background: var(--color-danger-subtle);
-		color: var(--color-danger);
-		border-radius: 12px;
-		font-size: 0.7rem;
-		font-weight: 600;
 	}
 	.new-badge {
 		flex-shrink: 0;

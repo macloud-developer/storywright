@@ -62,16 +62,16 @@ function buildFull(summary: TestSummary, options: CommentOptions, maxEntries: nu
     const rest = diffEntries.slice(maxEntries);
 
     md += "### 🔍 Differences\n\n";
-    md += "| Story | Browser | Diff |\n|-------|---------|------|\n";
+    md += "| Story | Browser |\n|-------|---------|\n";
     for (const e of visible) {
-      md += `| ${e.story}: ${e.variant} | ${e.browser} | ${(e.diffRatio * 100).toFixed(1)}% |\n`;
+      md += `| ${e.story}: ${e.variant} | ${e.browser} |\n`;
     }
 
     if (rest.length > 0) {
       md += `\n<details>\n<summary>${rest.length} more</summary>\n\n`;
-      md += "| Story | Browser | Diff |\n|-------|---------|------|\n";
+      md += "| Story | Browser |\n|-------|---------|\n";
       for (const e of rest) {
-        md += `| ${e.story}: ${e.variant} | ${e.browser} | ${(e.diffRatio * 100).toFixed(1)}% |\n`;
+        md += `| ${e.story}: ${e.variant} | ${e.browser} |\n`;
       }
       md += "\n</details>\n";
     }
