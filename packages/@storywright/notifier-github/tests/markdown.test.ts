@@ -179,6 +179,84 @@ describe("buildCommentMarkdown", () => {
     expect(md).toContain("| ✨ New | 1 |");
     expect(md).toContain("🔴 **Status:** 1 visual diff detected");
   });
+
+  it("should not show Failed row when there are only new entries", () => {
+    const summary: TestSummary = {
+      ...baseSummary,
+      passed: 8,
+      failed: 2,
+      entries: [
+        {
+          type: "new",
+          story: "NewA",
+          variant: "Default",
+          browser: "chromium",
+          diffRatio: 0,
+          expected: "",
+          actual: "",
+          diff: "",
+        },
+        {
+          type: "new",
+          story: "NewB",
+          variant: "Default",
+          browser: "chromium",
+          diffRatio: 0,
+          expected: "",
+          actual: "",
+          diff: "",
+        },
+      ],
+    };
+    const md = buildCommentMarkdown(summary, defaultOptions);
+    expect(md).toContain("| ✨ New | 2 |");
+    expect(md).not.toContain("❌ Failed");
+  });
+
+  it("should show Failed row with diff-only count when both new and diff entries exist", () => {
+    const summary: TestSummary = {
+      ...baseSummary,
+      passed: 5,
+      failed: 5,
+      entries: [
+        {
+          type: "new",
+          story: "NewStory",
+          variant: "Default",
+          browser: "chromium",
+          diffRatio: 0,
+          expected: "",
+          actual: "",
+          diff: "",
+        },
+        {
+          type: "diff",
+          story: "Button",
+          variant: "Primary",
+          browser: "chromium",
+          diffRatio: 0,
+          expected: "",
+          actual: "",
+          diff: "",
+        },
+        {
+          type: "diff",
+          story: "Button",
+          variant: "Secondary",
+          browser: "chromium",
+          diffRatio: 0,
+          expected: "",
+          actual: "",
+          diff: "",
+        },
+      ],
+    };
+    const md = buildCommentMarkdown(summary, defaultOptions);
+    expect(md).toContain("| ✨ New | 1 |");
+    // Failed shows only the 2 diff entries, not the 5 in summary.failed
+    expect(md).toContain("| ❌ Failed | 2 |");
+    expect(md).not.toContain("| ❌ Failed | 5 |");
+  });
 });
 
 describe("buildErrorMarkdown", () => {
