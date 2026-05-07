@@ -94,45 +94,7 @@ class StorywrightReporter implements Reporter {
         continue;
       }
 
-      const sanitizedName = testResult.title.replace(/[^a-zA-Z0-9-_]/g, "-").toLowerCase();
-
-      const imageAttachments = testResult.attachments.filter(
-        (a) => a.path && a.contentType.startsWith("image/"),
-      );
-      const hasExpected = imageAttachments.some((a) => a.name.includes("expected"));
-
-      const entry: TestEntry = {
-        type: hasExpected ? "diff" : "new",
-        story: storyTitle,
-        variant,
-        browser: testResult.project,
-        diffRatio: 0,
-        expected: "",
-        actual: "",
-        diff: "",
-      };
-
-      for (const attachment of testResult.attachments) {
-        if (!attachment.path) continue;
-        const ext = path.extname(attachment.path);
-        const destName = `${sanitizedName}-${testResult.project}${ext}`;
-
-        if (attachment.name.includes("expected")) {
-          const dest = path.join(assetsDir, "expected", destName);
-          copyFileIfExists(attachment.path, dest);
-          entry.expected = `assets/expected/${destName}`;
-        } else if (attachment.name.includes("actual")) {
-          const dest = path.join(assetsDir, "actual", destName);
-          copyFileIfExists(attachment.path, dest);
-          entry.actual = `assets/actual/${destName}`;
-        } else if (attachment.name.includes("diff")) {
-          const dest = path.join(assetsDir, "diff", destName);
-          copyFileIfExists(attachment.path, dest);
-          entry.diff = `assets/diff/${destName}`;
-        }
-      }
-
-      entries.push(entry);
+      entries.push(buildEntry(testResult, assetsDir));
     }
 
     const summary: TestSummary = {
@@ -153,6 +115,61 @@ class StorywrightReporter implements Reporter {
     const html = generateHtmlReport(summary);
     fs.writeFileSync(path.join(this.outputDir, "index.html"), html);
   }
+}
+
+export interface RawTestResult {
+  title: string;
+  project: string;
+  attachments: { name: string; path?: string; contentType: string }[];
+}
+
+export function buildEntry(
+  result: RawTestResult,
+  assetsDir: string,
+  copier: (src: string, dest: string) => void = copyFileIfExists,
+): TestEntry {
+  const titleParts = result.title.split(": ");
+  const storyTitle = titleParts[0] ?? result.title;
+  const variant = titleParts.slice(1).join(": ") || "default";
+  const sanitizedName = result.title.replace(/[^a-zA-Z0-9-_]/g, "-").toLowerCase();
+
+  const imageAttachments = result.attachments.filter(
+    (a) => a.path && a.contentType.startsWith("image/"),
+  );
+  const hasExpected = imageAttachments.some((a) => a.name.includes("expected"));
+
+  const entry: TestEntry = {
+    type: hasExpected ? "diff" : "new",
+    story: storyTitle,
+    variant,
+    browser: result.project,
+    diffRatio: 0,
+    expected: "",
+    actual: "",
+    diff: "",
+  };
+
+  for (const attachment of result.attachments) {
+    if (!attachment.path) continue;
+    const ext = path.extname(attachment.path);
+    const destName = `${sanitizedName}-${result.project}${ext}`;
+
+    if (attachment.name.includes("expected")) {
+      const dest = path.join(assetsDir, "expected", destName);
+      copier(attachment.path, dest);
+      entry.expected = `assets/expected/${destName}`;
+    } else if (attachment.name.includes("actual")) {
+      const dest = path.join(assetsDir, "actual", destName);
+      copier(attachment.path, dest);
+      entry.actual = `assets/actual/${destName}`;
+    } else if (attachment.name.includes("diff")) {
+      const dest = path.join(assetsDir, "diff", destName);
+      copier(attachment.path, dest);
+      entry.diff = `assets/diff/${destName}`;
+    }
+  }
+
+  return entry;
 }
 
 function copyFileIfExists(src: string, dest: string): void {
