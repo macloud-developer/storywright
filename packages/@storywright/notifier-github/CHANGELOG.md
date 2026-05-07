@@ -1,5 +1,24 @@
 # @storywright/notifier-github
 
+## 1.1.2
+
+### Patch Changes
+
+- [`cbe66d3`](https://github.com/macloud-developer/storywright/commit/cbe66d30921eed9883adb263a859d50730a6b86e) Thanks [@kubotak-is](https://github.com/kubotak-is)! - fix: show actual screenshot for new stories; fix Failed count in GitHub notification
+  - New stories (no baseline) now show the actual screenshot in the HTML report.
+    Playwright skips screenshot capture when the baseline is missing, so the test
+    now explicitly captures and attaches one on failure.
+  - GitHub PR comment no longer double-counts new stories as Failed.
+    The ❌ Failed row now uses the diff-entry count (type === 'diff') instead of
+    summary.failed, which included baseline-missing failures.
+
+- [`b1ec4b9`](https://github.com/macloud-developer/storywright/commit/b1ec4b9bb15b2688efb0ad28c5f9425539793500) Thanks [@kubotak-is](https://github.com/kubotak-is)! - fix: remove diff ratio percentage display (was always 0.0%)
+
+  The Playwright reporter hardcoded `diffRatio: 0` for every entry, so every diff was shown as `0.0%` across the HTML report (card badge, sidebar meta line), CLI reporter, and GitHub PR comment table. Remove the percentage display and the Diff column in the PR comment until we actually compute the ratio.
+
+- Updated dependencies [[`cbe66d3`](https://github.com/macloud-developer/storywright/commit/cbe66d30921eed9883adb263a859d50730a6b86e), [`b1ec4b9`](https://github.com/macloud-developer/storywright/commit/b1ec4b9bb15b2688efb0ad28c5f9425539793500)]:
+  - @storywright/cli@1.6.2
+
 ## 1.1.1
 
 ### Patch Changes
