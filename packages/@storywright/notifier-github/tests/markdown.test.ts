@@ -69,7 +69,7 @@ describe("buildCommentMarkdown", () => {
     };
     const md = buildCommentMarkdown(summary, defaultOptions);
     expect(md).toContain("🔴 **Status:** 3 visual diffs detected");
-    expect(md).toContain("| ❌ Failed | 3 |");
+    expect(md).toContain("| ❌ Failed | 2 |");
     expect(md).toContain("### 🔍 Differences");
     expect(md).toContain("Button: Primary");
     expect(md).toContain("Modal: Open");

@@ -30,7 +30,7 @@ test.describe.parallel('visual regression testing', () => {
 \t}
 
 \tfor (const story of Object.values(targetList.entries)) {
-\t\ttest(\`\${story.title}: \${story.name}\`, async ({ page }) => {
+\t\ttest(\`\${story.title}: \${story.name}\`, async ({ page }, testInfo) => {
 \t\t\tawait initPage(page, stabilizeOptions);
 
 \t\t\tawait page.goto(\`/iframe.html?id=\${story.id}\`, {
@@ -39,15 +39,29 @@ test.describe.parallel('visual regression testing', () => {
 
 \t\t\tawait stabilizePage(page, stabilizeOptions);
 
-\t\t\tawait expect(page).toHaveScreenshot(
-\t\t\t\t[story.title, \`\${story.id}.png\`],
-\t\t\t\t{
-\t\t\t\t\tanimations: '${config.animations}',
-\t\t\t\t\tfullPage: ${config.fullPage},
-\t\t\t\t\tthreshold: ${config.threshold},
-\t\t\t\t\tmaxDiffPixelRatio: ${config.maxDiffPixelRatio},
-\t\t\t\t},
-\t\t\t);
+\t\t\ttry {
+\t\t\t\tawait expect(page).toHaveScreenshot(
+\t\t\t\t\t[story.title, \`\${story.id}.png\`],
+\t\t\t\t\t{
+\t\t\t\t\t\tanimations: '${config.animations}',
+\t\t\t\t\t\tfullPage: ${config.fullPage},
+\t\t\t\t\t\tthreshold: ${config.threshold},
+\t\t\t\t\t\tmaxDiffPixelRatio: ${config.maxDiffPixelRatio},
+\t\t\t\t\t},
+\t\t\t\t);
+\t\t\t} catch (error) {
+\t\t\t\t// When baseline is missing, Playwright skips screenshot capture entirely.
+\t\t\t\t// Capture one here so the report can show what the new story looks like.
+\t\t\t\tif (!testInfo.attachments.some(a => a.name.includes('-actual'))) {
+\t\t\t\t\ttry {
+\t\t\t\t\t\tconst screenshot = await page.screenshot({ fullPage: ${config.fullPage} });
+\t\t\t\t\t\tawait testInfo.attach(\`\${story.id}-actual\`, { body: screenshot, contentType: 'image/png' });
+\t\t\t\t\t} catch {
+\t\t\t\t\t\t// ignore — best effort
+\t\t\t\t\t}
+\t\t\t\t}
+\t\t\t\tthrow error;
+\t\t\t}
 \t\t});
 \t}
 });

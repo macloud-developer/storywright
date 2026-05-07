@@ -50,7 +50,7 @@ function buildFull(summary: TestSummary, options: CommentOptions, maxEntries: nu
   md += `| 📋 Total | ${total} |\n`;
   md += `| ✅ Passed | ${passed} |\n`;
   if (newEntries.length > 0) md += `| ✨ New | ${newEntries.length} |\n`;
-  if (failed > 0) md += `| ❌ Failed | ${failed} |\n`;
+  if (diffEntries.length > 0) md += `| ❌ Failed | ${diffEntries.length} |\n`;
   if (skipped > 0) md += `| ⏭️ Skipped | ${skipped} |\n`;
   md += "\n";
 
