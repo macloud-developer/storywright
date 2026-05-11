@@ -18,11 +18,12 @@ Storywright captures screenshots from Storybook stories, compares them with base
 
 ## Packages
 
-| Package                                                       | Description                   |
-| ------------------------------------------------------------- | ----------------------------- |
-| [@storywright/cli](./packages/@storywright/cli)               | Core CLI and programmatic API |
-| [@storywright/report](./packages/@storywright/report)         | Svelte HTML report viewer     |
-| [@storywright/storage-s3](./packages/@storywright/storage-s3) | AWS S3 storage adapter        |
+| Package                                                                 | Description                   |
+| ----------------------------------------------------------------------- | ----------------------------- |
+| [@storywright/cli](./packages/@storywright/cli)                         | Core CLI and programmatic API |
+| [@storywright/report](./packages/@storywright/report)                   | Svelte HTML report viewer     |
+| [@storywright/storage-s3](./packages/@storywright/storage-s3)           | AWS S3 storage adapter        |
+| [@storywright/notifier-github](./packages/@storywright/notifier-github) | GitHub PR comment notifier    |
 
 ## Features
 

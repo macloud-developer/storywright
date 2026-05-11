@@ -18,11 +18,12 @@ Storywright は Storybook のストーリーを自動で撮影し、ベースラ
 
 ## パッケージ
 
-| パッケージ                                                    | 説明                                  |
-| ------------------------------------------------------------- | ------------------------------------- |
-| [@storywright/cli](./packages/@storywright/cli)               | コア CLI およびプログラマティック API |
-| [@storywright/report](./packages/@storywright/report)         | Svelte HTML レポートビューア          |
-| [@storywright/storage-s3](./packages/@storywright/storage-s3) | AWS S3 ストレージアダプタ             |
+| パッケージ                                                              | 説明                                  |
+| ----------------------------------------------------------------------- | ------------------------------------- |
+| [@storywright/cli](./packages/@storywright/cli)                         | コア CLI およびプログラマティック API |
+| [@storywright/report](./packages/@storywright/report)                   | Svelte HTML レポートビューア          |
+| [@storywright/storage-s3](./packages/@storywright/storage-s3)           | AWS S3 ストレージアダプタ             |
+| [@storywright/notifier-github](./packages/@storywright/notifier-github) | GitHub PR コメント通知                |
 
 ## 特徴
 
