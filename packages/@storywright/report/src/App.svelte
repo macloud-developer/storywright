@@ -6,9 +6,11 @@
 	import Dashboard from './components/Dashboard.svelte';
 	import Sidebar from './components/Sidebar.svelte';
 	import DiffCardList from './components/DiffCardList.svelte';
+	import DebugPanel from './components/DebugPanel.svelte';
 
 	let { summary }: { summary: ReportSummary } = $props();
 
+	let debugOpen = $state(false);
 	let search = $state('');
 	let typeFilter: TypeFilter = $state('all');
 	let browserFilter: Set<string> = $state(new Set());
@@ -72,8 +74,11 @@
 </script>
 
 <div class="app">
-	<Header timestamp={summary.timestamp} />
+	<Header timestamp={summary.timestamp} onDebug={() => (debugOpen = true)} />
 	<Dashboard {summary} />
+	{#if debugOpen}
+		<DebugPanel {summary} onClose={() => (debugOpen = false)} />
+	{/if}
 	<div class="layout">
 		<Sidebar
 			entries={filteredEntries}

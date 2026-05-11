@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ThemeToggle from './ThemeToggle.svelte';
 
-	let { timestamp }: { timestamp: string } = $props();
+	let { timestamp, onDebug }: { timestamp: string; onDebug: () => void } = $props();
 
 	const formatted = $derived(new Date(timestamp).toLocaleString());
 </script>
@@ -34,6 +34,7 @@
 	</h1>
 	<div class="header-right">
 		<span class="timestamp">{formatted}</span>
+		<button class="debug-btn" onclick={onDebug}>Debug</button>
 		<ThemeToggle />
 	</div>
 </header>
@@ -80,5 +81,20 @@
 	.timestamp {
 		font-size: 0.8rem;
 		color: var(--color-fg-muted);
+	}
+	.debug-btn {
+		font-size: 0.72rem;
+		padding: 3px 8px;
+		border: 1px solid var(--color-border-default);
+		border-radius: 6px;
+		background: none;
+		color: var(--color-fg-muted);
+		cursor: pointer;
+		font-family: 'SFMono-Regular', Consolas, monospace;
+		letter-spacing: 0.02em;
+	}
+	.debug-btn:hover {
+		color: var(--color-fg-default);
+		border-color: var(--color-fg-muted);
 	}
 </style>

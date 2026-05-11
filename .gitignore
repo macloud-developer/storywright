@@ -9,3 +9,4 @@ storybook-static/
 .env.*
 .secret
 .claude
+.playwright-cli
