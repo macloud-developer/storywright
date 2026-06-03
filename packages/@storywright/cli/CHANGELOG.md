@@ -1,5 +1,26 @@
 # @storywright/cli
 
+## 1.7.1
+
+### Patch Changes
+
+- [`ae50c86`](https://github.com/macloud-developer/storywright/commit/ae50c86e7d1bc3bc4e1266aa6cb25a5d5d433525) Thanks [@kubotak-is](https://github.com/kubotak-is)! - fix(core): preserve baselines outside the diff during diff-only `update`
+
+  `storywright update` (diff-only, the default without `--all`) previously
+  skipped downloading existing baselines, so only the changed stories were
+  written to `baselineDir` and uploaded. With archive storage this replaced the
+  stored baseline with diff-only content (or, when uploaded per-shard, let
+  shard archives overwrite each other), so updates were effectively lost.
+
+  Now a diff-only `update` downloads the existing baseline first. Playwright's
+  `--update-snapshots` only rewrites the stories that ran, so stories outside
+  the diff are preserved and re-uploaded intact. Full updates (`--all`) still
+  skip the download and regenerate every story from scratch.
+
+  Also warns when running `update --upload --shard` in diff-only mode, since
+  per-shard archive uploads can overwrite other shards' baselines (prefer a
+  single aggregated upload or `compression: 'none'`).
+
 ## 1.7.0
 
 ### Patch Changes
