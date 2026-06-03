@@ -418,6 +418,22 @@ workflows:
               only: main
 ```
 
+### Updating with parallel shards (recommended flow)
+
+When updating with parallel shards, **do not run `update --upload` in each shard**. With archive compression (zstd/gzip), each shard overwrites its own archive as a whole, and on download same-named files are last-write-wins, so updates are lost (the baseline does not shrink, but updates do not appear). Capture in parallel, but aggregate the upload.
+
+Each shard runs `update --diff-only --shard N/T` (no `--upload`); a final aggregation job runs `download` → merges all shard diffs → uploads a single archive.
+
+```mermaid
+flowchart TB
+    C1["shard1: capture diff A<br/>(no upload)"] --> M["aggregation job"]
+    C2["shard2: capture diff B<br/>(no upload)"] --> M
+    M --> F["download full set → merge diffs<br/>→ upload single archive"]
+    F --> WIN["full set stays up to date"]
+```
+
+> With `compression: 'none'` (individual files), per-shard `--upload` is an append-only PutObject and does not conflict, so aggregation is unnecessary.
+
 ---
 
 ## Exit Codes

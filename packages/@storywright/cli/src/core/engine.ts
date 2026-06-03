@@ -73,10 +73,16 @@ export async function runTests(
   // Prepare directories early for parallel operations
   await fs.mkdir(snapshotDir, { recursive: true });
 
-  // Start baseline download in parallel with Storybook build
-  // Skip download when updating snapshots (update command) — baselines are regenerated
+  // Resolve diff-only early so the baseline download can depend on it.
+  const effectiveDiffOnly = options.diffOnly ?? !!process.env.CI;
+
+  // Start baseline download in parallel with Storybook build.
+  //   - test runs: need the baseline to compare against.
+  //   - diff-only updates: need the existing baseline so stories OUTSIDE the
+  //     diff are preserved (only changed stories are re-captured & overwritten).
+  //   - full updates (--all): skip — every story is regenerated from scratch.
   let baselinePromise: Promise<void> | undefined;
-  if (!options.updateSnapshots) {
+  if (!options.updateSnapshots || effectiveDiffOnly) {
     const storage = await createStorageAdapter(config.storage);
     baselinePromise = storage
       .download({
@@ -105,7 +111,6 @@ export async function runTests(
   logger.info(`${Object.keys(targetStories.entries).length} stories found`);
 
   // 3. Diff-only: resolve affected stories (default in CI)
-  const effectiveDiffOnly = options.diffOnly ?? !!process.env.CI;
   if (effectiveDiffOnly && config.diffDetection.enabled) {
     logger.start("Resolving dependencies...");
     const diffResult = await resolveAffectedStories(
@@ -297,6 +302,13 @@ export async function updateBaselines(
 
   // --upload: upload to remote storage (S3 etc.) only when explicitly requested
   if (options.upload) {
+    if (options.shard && !options.all) {
+      logger.warn(
+        "Per-shard --upload in diff-only mode can overwrite other shards' baselines " +
+          "when using archive compression (zstd/gzip). Prefer a single aggregated upload " +
+          "or compression: 'none'. See docs/ci-setup.",
+      );
+    }
     const storage = await createStorageAdapter(config.storage);
     const baselineDir = path.resolve(cwd, config.storage.local.baselineDir);
     await storage.upload({
