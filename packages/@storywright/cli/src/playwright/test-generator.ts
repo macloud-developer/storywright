@@ -52,10 +52,15 @@ test.describe.parallel('visual regression testing', () => {
 \t\t\t} catch (error) {
 \t\t\t\t// When baseline is missing, Playwright skips screenshot capture entirely.
 \t\t\t\t// Capture one here so the report can show what the new story looks like.
+\t\t\t\t// Attach via a file path, not a body buffer: Playwright keeps body-only
+\t\t\t\t// attachments in memory without a \`path\`, and the reporter only copies
+\t\t\t\t// attachments that expose a \`path\`. Writing to disk first guarantees the
+\t\t\t\t// new-story actual image reaches the report.
 \t\t\t\tif (!testInfo.attachments.some(a => a.name.includes('-actual'))) {
 \t\t\t\t\ttry {
-\t\t\t\t\t\tconst screenshot = await page.screenshot({ fullPage: ${config.fullPage} });
-\t\t\t\t\t\tawait testInfo.attach(\`\${story.id}-actual\`, { body: screenshot, contentType: 'image/png' });
+\t\t\t\t\t\tconst actualPath = testInfo.outputPath(\`\${story.id}-actual.png\`);
+\t\t\t\t\t\tawait page.screenshot({ path: actualPath, fullPage: ${config.fullPage} });
+\t\t\t\t\t\tawait testInfo.attach(\`\${story.id}-actual\`, { path: actualPath, contentType: 'image/png' });
 \t\t\t\t\t} catch {
 \t\t\t\t\t\t// ignore — best effort
 \t\t\t\t\t}

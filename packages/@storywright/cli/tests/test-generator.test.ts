@@ -25,6 +25,17 @@ describe("generateTestFile", () => {
     expect(result).toContain("testInfo.attach(");
   });
 
+  it("should attach the fallback screenshot by file path, not an in-memory body", () => {
+    // Playwright keeps body-only attachments in memory without a `path`, and the
+    // reporter only copies attachments that expose a `path`. The fallback must
+    // write to disk and attach via `path` so new-story images reach the report.
+    const result = generateTestFile(DEFAULT_CONFIG.screenshot, baseOptions);
+    expect(result).toContain("testInfo.outputPath(`${story.id}-actual.png`)");
+    expect(result).toContain("page.screenshot({ path: actualPath");
+    expect(result).toContain("testInfo.attach(`${story.id}-actual`, { path: actualPath");
+    expect(result).not.toContain("body: screenshot");
+  });
+
   it("should rethrow the original error", () => {
     const result = generateTestFile(DEFAULT_CONFIG.screenshot, baseOptions);
     expect(result).toContain("throw error;");
