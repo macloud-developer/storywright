@@ -70,27 +70,40 @@ export async function stabilizePage(page: Page, options: StabilizeOptions): Prom
       }),
   );
 
-  // Force lazy-loaded images to eager and wait for load
-  await page.evaluate(async () => {
-    const lazyImages = document.querySelectorAll('img[loading="lazy"]');
-    for (const img of lazyImages) {
-      (img as HTMLImageElement).loading = "eager";
-    }
+  // Wait for in-flight resource loads to settle first. This covers resources
+  // document.images cannot see (CSS background images, video posters,
+  // SVG <image>) and images not yet in the DOM (async fetches, Suspense,
+  // delayed renders), which the poll below would miss if it ran while
+  // document.images was still empty.
+  await page.waitForLoadState("networkidle", { timeout: 3000 }).catch(() => {});
 
-    const images = Array.from(document.images).filter((img) => !img.complete);
-    await Promise.all(
-      images.map(
-        (img) =>
-          new Promise<void>((resolve) => {
-            const timeout = setTimeout(resolve, 5000);
-            img.onload = img.onerror = () => {
-              clearTimeout(timeout);
-              resolve();
-            };
-          }),
-      ),
-    );
-  });
+  // Wait for every image to finish loading. Polling re-reads document.images
+  // each time, so images added to the DOM after stabilization started are
+  // also awaited. Lazy images are forced to eager on every poll for the same
+  // reason.
+  await page
+    .waitForFunction(
+      () => {
+        const images = Array.from(document.images);
+        for (const img of images) {
+          if (img.loading === "lazy") img.loading = "eager";
+        }
+        return images.every((img) => img.complete);
+      },
+      { polling: 100, timeout: 10000 },
+    )
+    .catch(() => {
+      console.warn(
+        "[storywright] some images did not finish loading within 10s; screenshot may be incomplete",
+      );
+    });
+
+  // A loaded image may still be undecoded and capture as a blank area
+  await page.evaluate(() =>
+    Promise.allSettled(Array.from(document.images).map((img) => img.decode())).then(
+      () => undefined,
+    ),
+  );
 
   if (options.disableAnimations) {
     await page.evaluate(() => {
