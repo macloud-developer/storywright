@@ -26,14 +26,14 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@tanstack/virtual-core": "^3.13.23",
-    "svelte": "^5.55.3"
+    "@tanstack/virtual-core": "^3.17.3",
+    "svelte": "^5.56.4"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^7.0.0",
-    "@types/node": "^22.19.17",
-    "svelte-check": "^4.4.6",
-    "typescript": "^5.9.3",
+    "@sveltejs/vite-plugin-svelte": "^7.1.4",
+    "@types/node": "^26.1.0",
+    "svelte-check": "^4.7.1",
+    "typescript": "^6.0.3",
     "vite": "catalog:",
     "vite-plus": "catalog:"
   },

@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    // tsup injects baseUrl into the dts build, which TS 6 reports as deprecated
+    "ignoreDeprecations": "6.0",
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -13,6 +15,7 @@
     "sourceMap": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
-    "lib": ["ES2022"]
+    "lib": ["ES2022"],
+    "types": ["node"]
   }
 }
