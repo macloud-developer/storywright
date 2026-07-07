@@ -1,5 +1,11 @@
 # @storywright/report
 
+## 1.8.0
+
+### Patch Changes
+
+- [`36f6558`](https://github.com/macloud-developer/storywright/commit/36f65585ceecef4655c5a7b34f4a12f8f72afec3) Thanks [@kubotak-is](https://github.com/kubotak-is)! - chore(deps): update runtime dependencies (svelte to 5.56.4, @tanstack/virtual-core to 3.17.3)
+
 ## 1.7.0
 
 ### Minor Changes
@@ -8,6 +14,7 @@
 
   A "Debug" button in the report header opens a full-screen panel that
   displays the underlying summary.json in two views:
+
   - **Table view** (default): lists every entry with its type (colour-coded),
     story, variant, browser, and the expected / actual / diff file paths.
     Empty paths are shown as `—` for quick scanning.

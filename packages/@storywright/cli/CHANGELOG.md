@@ -1,5 +1,29 @@
 # @storywright/cli
 
+## 1.8.0
+
+### Minor Changes
+
+- [`57f1c05`](https://github.com/macloud-developer/storywright/commit/57f1c05314c84fb10c6911257ac2c71704df089d) Thanks [@kubotak-is](https://github.com/kubotak-is)! - fix(cli): wait for late-added and undecoded images before screenshots
+
+  The image wait in `stabilizePage` ran only once, so images added to the DOM
+  after the check (async fetches, Suspense, delayed renders) were missed and
+  screenshots could be captured before they loaded.
+
+  Stabilization now waits for network activity to settle (3s cap) to cover
+  images not yet in the DOM and resources `document.images` cannot see (CSS
+  backgrounds, video posters, SVG `<image>`), polls `document.images` until
+  every image is complete (flipping lazy images to eager on each poll), and
+  awaits `img.decode()` so loaded-but-undecoded images do not capture as blank
+  areas. Timeouts now log a warning instead of silently proceeding.
+
+### Patch Changes
+
+- [`36f6558`](https://github.com/macloud-developer/storywright/commit/36f65585ceecef4655c5a7b34f4a12f8f72afec3) Thanks [@kubotak-is](https://github.com/kubotak-is)! - chore(deps): update runtime dependencies (citty to 0.2.2, unconfig to 7.5.0, picomatch to 4.0.5)
+
+- Updated dependencies [[`36f6558`](https://github.com/macloud-developer/storywright/commit/36f65585ceecef4655c5a7b34f4a12f8f72afec3)]:
+  - @storywright/report@1.8.0
+
 ## 1.7.2
 
 ### Patch Changes
@@ -50,6 +74,7 @@
 ### Patch Changes
 
 - [`cbe66d3`](https://github.com/macloud-developer/storywright/commit/cbe66d30921eed9883adb263a859d50730a6b86e) Thanks [@kubotak-is](https://github.com/kubotak-is)! - fix: show actual screenshot for new stories; fix Failed count in GitHub notification
+
   - New stories (no baseline) now show the actual screenshot in the HTML report.
     Playwright skips screenshot capture when the baseline is missing, so the test
     now explicitly captures and attaches one on failure.
@@ -78,6 +103,7 @@
 - [`3517955`](https://github.com/macloud-developer/storywright/commit/3517955c6eab3079d09a0c44969ba03ab2185029) Thanks [@kubotak-is](https://github.com/kubotak-is)! - feat: add GitHub PR comment notification for VRT results
 
   Add `@storywright/notifier-github` package and notification infrastructure to post VRT results as GitHub PR comments. Supports GitHub Actions, CircleCI, and generic CI environments.
+
   - `storywright notify github` CLI subcommand with dry-run support
   - Automatic notification after `storywright test` via `config.notifiers`
   - Report URL template resolution with `${prNumber}`, `${branch}`, `${sha}` variables
@@ -194,6 +220,7 @@
 ### Patch Changes
 
 - [`46475bb`](https://github.com/macloud-developer/storywright/commit/46475bba85e209f901d65f1cacdf9e208d878cd7) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Show all test results (including Pass) in the HTML report
+
   - Rename `FailureEntry` to `TestEntry` with new `'pass'` type
   - Rename `failures` to `entries` across CLI and report packages
   - Add Pass filter button in report sidebar
@@ -242,6 +269,7 @@
 ### Patch Changes
 
 - [`2160b8c`](https://github.com/macloud-developer/storywright/commit/2160b8c941150ef9b737b6765e6db5e7f89e1263) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Fix report merge to copy shard assets directories
+
   - `storywright report --merge` now copies `assets/` directories from each shard report into the merged report directory
   - Fixes broken image links (expected/actual/diff) in merged HTML reports
 
@@ -291,6 +319,7 @@
 ### Patch Changes
 
 - [`b7f9450`](https://github.com/macloud-developer/storywright/commit/b7f9450cb8bbff1357e02de679a19bde1165d322) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Fix report crash when retries produce duplicate failure entries
+
   - Reporter now keeps only the final retry result per test (Map instead of array)
   - DiffCardList uses unique keys to prevent Svelte duplicate key errors
 

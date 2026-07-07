@@ -1,5 +1,11 @@
 # @storywright/storage-s3
 
+## 1.2.2
+
+### Patch Changes
+
+- [`36f6558`](https://github.com/macloud-developer/storywright/commit/36f65585ceecef4655c5a7b34f4a12f8f72afec3) Thanks [@kubotak-is](https://github.com/kubotak-is)! - chore(deps): update runtime dependencies (@aws-sdk/client-s3 and @aws-sdk/lib-storage to 3.1080.0, tar to 7.5.19)
+
 ## 1.2.1
 
 ### Patch Changes
@@ -59,6 +65,7 @@
 ### Patch Changes
 
 - [`333db4d`](https://github.com/macloud-developer/storywright/commit/333db4d8615c52cc61bcd86af4e825c322d47e21) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Fix CI timeout during update and add S3 transfer progress logging
+
   - Skip unnecessary baseline download during `storywright update` (fixes CircleCI no-output timeout)
   - Add `onProgress` callback to `DownloadOptions` / `UploadOptions` for S3 transfer progress
   - S3 adapter now logs progress for archive download/extract, individual file transfers, and archive compression/upload
