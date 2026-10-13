@@ -1,5 +1,16 @@
 # @storywright/cli
 
+## 1.9.0
+
+### Minor Changes
+
+- [#56](https://github.com/macloud-developer/storywright/pull/56) [`3aac0e9`](https://github.com/macloud-developer/storywright/commit/3aac0e9196f7a587dfef26d8f5324deff27f985f) Thanks [@kubotak-is](https://github.com/kubotak-is)! - chore(deps): update runtime dependencies (simple-git to 4.0.2, picomatch to 4.0.7)
+
+### Patch Changes
+
+- Updated dependencies [[`3aac0e9`](https://github.com/macloud-developer/storywright/commit/3aac0e9196f7a587dfef26d8f5324deff27f985f)]:
+  - @storywright/report@1.9.0
+
 ## 1.8.0
 
 ### Minor Changes
