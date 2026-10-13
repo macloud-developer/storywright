@@ -1,5 +1,11 @@
 # @storywright/report
 
+## 1.9.0
+
+### Minor Changes
+
+- [#56](https://github.com/macloud-developer/storywright/pull/56) [`3aac0e9`](https://github.com/macloud-developer/storywright/commit/3aac0e9196f7a587dfef26d8f5324deff27f985f) Thanks [@kubotak-is](https://github.com/kubotak-is)! - chore(deps): update runtime dependencies (svelte to 5.57.2, @tanstack/virtual-core to 3.19.2)
+
 ## 1.8.0
 
 ### Patch Changes

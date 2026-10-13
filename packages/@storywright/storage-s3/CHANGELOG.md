@@ -1,5 +1,11 @@
 # @storywright/storage-s3
 
+## 1.3.0
+
+### Minor Changes
+
+- [#56](https://github.com/macloud-developer/storywright/pull/56) [`3aac0e9`](https://github.com/macloud-developer/storywright/commit/3aac0e9196f7a587dfef26d8f5324deff27f985f) Thanks [@kubotak-is](https://github.com/kubotak-is)! - chore(deps): update runtime dependencies (@aws-sdk/client-s3 and @aws-sdk/lib-storage to 3.1150.0, tar to 7.5.22, zstd-napi to 0.0.13)
+
 ## 1.2.2
 
 ### Patch Changes
