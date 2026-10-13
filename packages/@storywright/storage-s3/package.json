@@ -27,14 +27,14 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1080.0",
-    "@aws-sdk/lib-storage": "^3.1080.0",
-    "tar": "^7.5.19",
-    "zstd-napi": "^0.0.12"
+    "@aws-sdk/client-s3": "^3.1150.0",
+    "@aws-sdk/lib-storage": "^3.1150.0",
+    "tar": "^7.5.22",
+    "zstd-napi": "^0.0.13"
   },
   "devDependencies": {
     "@storywright/cli": "workspace:*",
-    "@types/node": "^26.1.0",
+    "@types/node": "^26.6.5",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3"
   },

@@ -1,6 +1,6 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vite-plus";
-import type { Plugin } from "vite";
+import type { Plugin } from "vite-plus";
 
 /** Dev-only plugin: serves placeholder SVG images for /assets/* requests */
 function placeholderImages(): Plugin {
