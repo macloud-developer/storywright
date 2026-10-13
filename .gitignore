@@ -10,3 +10,4 @@ storybook-static/
 .secret
 .claude
 .playwright-cli
+.vitest/

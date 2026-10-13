@@ -51,14 +51,14 @@
     "@storywright/report": "workspace:*",
     "citty": "^0.2.2",
     "consola": "^3.4.2",
-    "picomatch": "^4.0.5",
-    "simple-git": "^3.36.0",
+    "picomatch": "^4.0.7",
+    "simple-git": "^4.0.2",
     "sirv": "^3.0.2",
     "unconfig": "^7.5.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.61.1",
-    "@types/node": "^26.1.0",
+    "@playwright/test": "^1.64.0",
+    "@types/node": "^26.6.5",
     "@types/picomatch": "^4.0.3",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3"

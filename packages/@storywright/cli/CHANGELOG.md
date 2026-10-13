@@ -32,7 +32,7 @@
 
   New stories (no baseline) were reported with an empty `actual`, so the report
   showed nothing for them. When a baseline is missing under `updateSnapshots:
-'none'`, Playwright skips screenshot capture, so the generated test attaches a
+  'none'`, Playwright skips screenshot capture, so the generated test attaches a
   fallback screenshot itself. That fallback used `testInfo.attach({ body })`,
   which Playwright keeps in memory without a `path` — and the reporter only
   copies attachments that expose a `path`, so the image was dropped.
