@@ -29,7 +29,7 @@
   "devDependencies": {
     "@storywright/cli": "workspace:*",
     "@types/node": "^26.6.5",
-    "tsup": "^8.5.1",
+    "tsup": "^9.0.0",
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
