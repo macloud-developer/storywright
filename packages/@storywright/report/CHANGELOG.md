@@ -1,5 +1,11 @@
 # @storywright/report
 
+## 1.9.2
+
+### Patch Changes
+
+- [#60](https://github.com/macloud-developer/storywright/pull/60) [`65dbde7`](https://github.com/macloud-developer/storywright/commit/65dbde73525a8bea3b08ac32b72f5766fa080ffa) Thanks [@kubotak-is](https://github.com/kubotak-is)! - Move `svelte` and `@tanstack/virtual-core` to devDependencies. The report is shipped as a prebuilt IIFE bundle with both libraries inlined, so they are no longer installed alongside `@storywright/cli`.
+
 ## 1.9.1
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @storywright/cli
 
+## 1.9.2
+
+### Patch Changes
+
+- Updated dependencies [[`65dbde7`](https://github.com/macloud-developer/storywright/commit/65dbde73525a8bea3b08ac32b72f5766fa080ffa)]:
+  - @storywright/report@1.9.2
+
 ## 1.9.1
 
 ### Patch Changes
