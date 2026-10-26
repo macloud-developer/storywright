@@ -25,13 +25,11 @@
     "typecheck": "svelte-check --tsconfig ./tsconfig.json",
     "prepublishOnly": "pnpm run build"
   },
-  "dependencies": {
-    "@tanstack/virtual-core": "^3.19.7",
-    "svelte": "^5.57.2"
-  },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@tanstack/virtual-core": "^3.19.7",
     "@types/node": "^26.6.5",
+    "svelte": "^5.57.2",
     "svelte-check": "^4.7.7",
     "typescript": "^6.0.3",
     "vite": "catalog:",
