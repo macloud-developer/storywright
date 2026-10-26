@@ -1,5 +1,13 @@
 # @storywright/cli
 
+## 1.9.1
+
+### Patch Changes
+
+- [#58](https://github.com/macloud-developer/storywright/pull/58) [`848796d`](https://github.com/macloud-developer/storywright/commit/848796d04e845de4ddd86cc7f24fc0770b637d40) Thanks [@kubotak-is](https://github.com/kubotak-is)! - chore(deps): update dependencies (tsup to 9.0.0, @playwright/test to 1.64.1 for development)
+- Updated dependencies [[`848796d`](https://github.com/macloud-developer/storywright/commit/848796d04e845de4ddd86cc7f24fc0770b637d40)]:
+  - @storywright/report@1.9.1
+
 ## 1.9.0
 
 ### Minor Changes
